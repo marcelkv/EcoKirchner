@@ -15,17 +15,16 @@ function onFileSelected() {
 }
 
 function handleLoadCsvComplete(csvReader) {
-    console.log(csvReader.orders);
-    this.initCustomersList(csvReader.customers, csvReader.orders);
+    this.initCustomersList(csvReader.customers, csvReader.orders, csvReader.bank);
 }
 
-function initCustomersList(customers, orders) {
+function initCustomersList(customers, orders, bank) {
     const list = document.getElementsByClassName("customers-list")[0];
 
     customers.forEach(function (customer) {
         const listItem = document.createElement('div');
         listItem.textContent = customer.firstName + " " + customer.lastName;
-        listItem.onclick = function () { handleCustomerClick(customer, orders) };
+        listItem.onclick = function () { handleCustomerClick(customer, orders, bank) };
         listItem.onmouseover = function () {
             listItem.classList.add('hovered');
         }
@@ -37,7 +36,7 @@ function initCustomersList(customers, orders) {
     });
 }
 
-function handleCustomerClick(customer, orders){
+function handleCustomerClick(customer, orders, bank) {
     pageManager.showOrderPage();
 
     const order = orders?.find(order => order.customer.firstName === customer.firstName && order.customer.lastName === customer.lastName);
@@ -71,12 +70,21 @@ function handleCustomerClick(customer, orders){
         total.innerHTML = order.cost + " €";
         const selectedCustomerName = document.getElementById('selectedCustomerName');
         selectedCustomerName.innerHTML = customer.firstName + " " + customer.lastName;
+
+        const iban = document.getElementsByClassName('iban')[0];
+        iban.innerHTML = bank.iban;
+        const bic = document.getElementsByClassName('bic')[0];
+        bic.innerHTML = bank.bic;
+        const email = document.getElementsByClassName('email')[0];
+        email.innerHTML = bank.email;
+        const phone = document.getElementsByClassName('phone')[0];
+        phone.innerHTML = bank.phone;
     }
 
     const backButton = document.getElementById('backButton');
     backButton.onclick = function () { onBackClick() }
 }
 
-function onBackClick(){
+function onBackClick() {
     pageManager.showCustomersPage();
 }

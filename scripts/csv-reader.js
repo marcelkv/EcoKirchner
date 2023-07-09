@@ -8,13 +8,21 @@ class CsvReader {
         this.reader.onloadend = this.dispatchLoadCsvEvent.bind(this);
     }
 
+    get bank() {
+        if (!this.lines || this.lines.length === 0) {
+            return;
+        }
+        const columns = this.lines[0].split(';');
+        return new Bank(columns[0], columns[1], columns[2], columns[3])
+    }
+
     get products() {
         if (!this.lines || this.lines.length === 0) {
             return;
         }
 
-        const names = this.lines[0].split(';');
-        const costs = this.lines[1].split(';');
+        const names = this.lines[1].split(';');
+        const costs = this.lines[2].split(';');
         const products = [];
 
         for (let i = this.startIndex; i < names.length; i++) {
@@ -33,7 +41,7 @@ class CsvReader {
 
         const customers = [];
 
-        for (let i = 2; i < this.lines.length; i++) {
+        for (let i = 3; i < this.lines.length; i++) {
             const firstName = this.lines[i].split(';')[1];
             const lastName = this.lines[i].split(';')[0];
             const customer = new Customer(firstName, lastName);
@@ -50,7 +58,7 @@ class CsvReader {
 
         const orders = [];
 
-        for (let i = 2; i < this.lines.length; i++) {
+        for (let i = 3; i < this.lines.length; i++) {
             const columns = this.lines[i].split(';');
             const customer = this.customers.find(customer => customer.firstName === columns[1] && customer.lastName === columns[0]);
             const productOrders = [];
