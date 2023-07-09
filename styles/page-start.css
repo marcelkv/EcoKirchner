@@ -1,0 +1,8 @@
+.file-selector {
+    display: none;
+}
+
+.real-file-selector {
+    padding: 20px;
+    font-size: 18px;
+}

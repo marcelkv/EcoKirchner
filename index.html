@@ -3,10 +3,15 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no,user-scalable=no">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no,user-scalable=no">
     <title>Eco Kirchner</title>
     <link rel="icon" href="images/cropped-icon-32x32.png">
     <link rel="stylesheet" type="text/css" href="styles/main.css">
+    <link rel="stylesheet" type="text/css" href="styles/pages.css">
+    <link rel="stylesheet" type="text/css" href="styles/page-start.css">
+    <script src="scripts/page.js"></script>
+    <script src="scripts/page-start.js"></script>
 </head>
 
 <body>
@@ -15,7 +20,13 @@
             <img src="images/logo_ecoKirchner-aulivera2-1024x154.png" alt="Eco Kirchner">
         </div>
         <div class="body">
-            <p>Here the content</p>
+            <div class="page start">
+                <input class="file-selector" type="file" id="csvFile" accept=".csv" onchange="onFileSelected()">
+                <button class="real-file-selector" onclick="selectFile()">CSV Laden</button>
+            </div>
+            <div class="page customers">
+                <p>Customers Page</p>
+            </div>
         </div>
         <div class="footer">
             <p>© Eco Kirchner 2023</p>
