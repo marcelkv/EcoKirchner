@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="styles/pages.css">
     <link rel="stylesheet" type="text/css" href="styles/page-start.css">
     <link rel="stylesheet" type="text/css" href="styles/page-customers.css">
+    <link rel="stylesheet" type="text/css" href="styles/page-order.css">
     <script src="scripts/common/helpers.js"></script>
     <script src="scripts/models/product.js"></script>
     <script src="scripts/models/product-order.js"></script>
@@ -34,11 +35,57 @@
             <div class="page customers">
                 <div class="customers-list"></div>
             </div>
+            <div class="page order">
+                <div class="selectedCustomerTag">
+                    <div class="section button">
+                        <button id="backButton" class="backButton">Zurück</button>
+                    </div>
+                    <div class="section customer-name">
+                        <p id="selectedCustomerName" class="selectedCustomerName"></p>
+                    </div>
+                    <div class="section products">
+                        <table id="selectedCustomerProducts" class="selectedCustomerProducts">
+                            <thead>
+                                <tr>
+                                    <th>Produkt</th>
+                                    <th>Preis</th>
+                                    <th>Anzahl</th>
+                                    <th>Gesamt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+
+                        <div class="group">
+                            <p class="label">Gesamt:</p>
+                            <p id="selectedCustomerTotal"></p>
+                        </div>
+                    </div>
+                    <div class="section payment">
+                        <div class="group">
+                            <p class="label">IBAN: </p>
+                            <p>DE72 7601 2285 0019 4378 55</p>
+                        </div>
+                        <div class="group">
+                            <p class="label">BIC: </p>
+                            <p> PBNFGEFF</p>
+                        </div>
+                        <div class="group">
+                            <p class="label">Email:</p>
+                            <p>kirchner@kartoffel.com</p>
+                        </div>
+                        <div class="group">
+                            <p class="label">Telefon: </p>
+                            <p class="label">+49 1611 4728162</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <p>© Eco Kirchner 2023</p>
+            </div>
         </div>
-        <div class="footer">
-            <p>© Eco Kirchner 2023</p>
-        </div>
-    </div>
 </body>
 
 </html>

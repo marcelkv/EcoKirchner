@@ -9,3 +9,7 @@
 .page.customers {
     display: none;
 }
+
+.page.order {
+    display: none;
+}
