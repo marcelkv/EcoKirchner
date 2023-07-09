@@ -1,0 +1,17 @@
+.hovered {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.customer-item {
+    padding: 5px;
+}
+
+.customer-item:nth-child(even) {
+    background-color: #ebe2e2;
+}
+
+.customer-item:nth-child(odd) {
+    background-color: #ffffff;
+}

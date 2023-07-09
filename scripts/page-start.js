@@ -16,4 +16,23 @@ function onFileSelected() {
 
 function handleLoadCsvComplete(csvReader) {
     console.log(csvReader.orders);
+    this.initCustomersList(csvReader.customers, csvReader.orders);
+}
+
+function initCustomersList(customers, orders) {
+    const list = document.getElementsByClassName("customers-list")[0];
+
+    customers.forEach(function (customer) {
+        const listItem = document.createElement('div');
+        listItem.textContent = customer.firstName + " " + customer.lastName;
+        listItem.onclick = function () { handleCustomerClick(customer, orders) };
+        listItem.onmouseover = function () {
+            listItem.classList.add('hovered');
+        }
+        listItem.onmouseleave = function () {
+            listItem.classList.remove('hovered');
+        }
+        listItem.classList.add('customer-item');
+        list.appendChild(listItem);
+    });
 }

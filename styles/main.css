@@ -1,6 +1,7 @@
 * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 html,
@@ -22,6 +23,10 @@ body {
     align-items: center;
     max-height: 100px;
     overflow: hidden;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1;
 }
 
 .header img {
@@ -40,11 +45,11 @@ body {
 }
 
 .body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     flex: 1;
     padding: 10px;
+    overflow-y: auto;
+    margin-top: 100px;
+    margin-bottom: 100px;
 }
 
 .footer {
@@ -53,4 +58,12 @@ body {
     align-items: center;
     background-color: #ffffff;
     padding: 20px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 1;
+}
+
+body {
+    overflow: auto;
 }
