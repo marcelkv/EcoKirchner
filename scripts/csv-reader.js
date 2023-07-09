@@ -1,9 +1,11 @@
 class CsvReader {
     constructor(file, startIndex) {
+        this.file = file;
         this.startIndex = startIndex || 8;
-        const reader = new FileReader();
-        reader.onload = this.onLoadCsv.bind(this);
-        reader.readAsText(file);
+        this.onLoadCsvComplete = null;
+        this.reader = new FileReader();
+        this.reader.onload = this.onLoadCsv.bind(this);
+        this.reader.onloadend = this.dispatchLoadCsvEvent.bind(this);
     }
 
     get products() {
@@ -68,8 +70,18 @@ class CsvReader {
         return orders;
     }
 
+    readFile() {
+        this.reader.readAsText(this.file);
+    }
+
     onLoadCsv(e) {
         const contents = e.target.result;
         this.lines = contents.split('\n');
+    }
+
+    dispatchLoadCsvEvent() {
+        if (typeof this.onLoadCsvComplete === 'function') {
+            this.onLoadCsvComplete();
+        }
     }
 }

@@ -9,9 +9,11 @@ function onFileSelected() {
     const fileInput = document.getElementsByClassName('file-selector')[0];
     const file = fileInput.files[0];
     const csvReader = new CsvReader(file);
+    csvReader.onLoadCsvComplete = handleLoadCsvComplete.bind(null, csvReader);
+    csvReader.readFile();
     pageManager.showCustomersPage();
-    
-    setTimeout(() => {
-        console.log(csvReader.orders);
-    }, 500);
+}
+
+function handleLoadCsvComplete(csvReader) {
+    console.log(csvReader.orders);
 }
