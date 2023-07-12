@@ -28,17 +28,20 @@
 }
 
 .filter-checkbox {
-    width: 100%;
-    height: 100%;
+    width: 20px;
+    height: 20px;
     margin-left: 5px;
     cursor: pointer;
-    font-size: 16px;
-    position: relative;
-    display: inline-block;
+    border: 1px solid black;
+    border-radius: 50px;
+}
+
+.checkbox-selected {
+    background-color: black;
 }
 
 .filter-text {
-    margin: 0px 8px;
+    margin: 0 12px 0 6px;
 }
 
 .customer-item {

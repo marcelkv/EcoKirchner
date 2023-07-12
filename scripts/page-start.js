@@ -32,12 +32,12 @@ function initCustomersFilters(options, customers, orders, bank) {
         const filterItem = document.createElement('div');
         filterItem.className = 'filter-item';
 
-        const checkBox = document.createElement('input');
-        checkBox.checked = (index === 0);
+        const checkBox = document.createElement('div');
         checkBox.className = 'filter-checkbox';
-        checkBox.type = 'checkbox';
-        checkBox.value = false;
-        checkBox.onchange = function () { onCheckboxChanged(customers, orders, bank); };
+        if (index === 0) {
+            checkBox.classList.add('checkbox-selected');
+        }
+        checkBox.onclick = function () { onCheckboxChanged(index, customers, orders, bank); };
 
         const filterText = document.createElement('div');
         filterText.className = 'filter-text';
@@ -122,21 +122,46 @@ function handleCustomerClick(customer, orders, bank) {
     backButton.onclick = function () { onBackClick() }
 }
 
-function onCheckboxChanged(customers, orders, bank) {
+function onCheckboxChanged(index, customers, orders, bank) {
     const checkBoxes = document.getElementsByClassName('filter-checkbox');
 
     if (checkBoxes.length > 0) {
-        const ordered = checkBoxes[0].checked;
-        const payed = checkBoxes[1].checked;
-        const delivered = checkBoxes[2].checked;
+        const checkBoxSelectedClass = 'checkbox-selected';
 
-        const ordersFiltered = orders.filter(order => order.payed === payed &&
-            order.delivered === delivered);
+        if (checkBoxes[index].classList.contains(checkBoxSelectedClass)) {
+            checkBoxes[index].classList.remove(checkBoxSelectedClass);
+        }
+        else {
+            checkBoxes[index].classList.add(checkBoxSelectedClass);
+        }
 
-        const customersFiltered = ordered ? ordersFiltered.map(order => order.customer) : customers;
+        const ordered = checkBoxes[0].classList.contains(checkBoxSelectedClass);
+        const payed = checkBoxes[1].classList.contains(checkBoxSelectedClass);
+        const delivered = checkBoxes[2].classList.contains(checkBoxSelectedClass);
 
-        this.initCustomersList(customersFiltered, ordersFiltered, bank);
+        if (ordered) {
+            const ordersFiltered = orders.filter(order => order.payed === payed && order.delivered === delivered);
+            const customersFiltered = this.getCustomersFromOrders(ordersFiltered);
+            this.initCustomersList(customersFiltered, ordersFiltered, bank);
+        }
+        else {
+            const ordersFiltered = [];
+            const customersFiltered = this.getCustomersWithoutOrders(customers, orders);
+            this.initCustomersList(customersFiltered, ordersFiltered, bank);
+        }
     }
+}
+
+function getCustomersFromOrders(orders) {
+    return orders.map(order => order.customer)
+}
+
+function getCustomersWithoutOrders(customers, orders) {
+    return customers.filter(function (customer) {
+        return !orders.some(function (order) {
+            return (order.customer.firstName === customer.firstName) && (order.customer.lastName === customer.lastName);
+        });
+    });
 }
 
 function onBackClick() {
