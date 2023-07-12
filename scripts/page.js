@@ -24,7 +24,6 @@ class PageManager {
     }
 
     showOrderPage() {
-        console.log(this.startPage);
         this.hideElement(this.startPage);
         this.hideElement(this.customersPage);
         this.showElement(this.orderPage);

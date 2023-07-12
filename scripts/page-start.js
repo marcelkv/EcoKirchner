@@ -119,7 +119,28 @@ function handleCustomerClick(customer, orders, bank) {
     }
 
     const backButton = document.getElementById('backButton');
-    backButton.onclick = function () { onBackClick() }
+    backButton.onclick = function () { onBackClick() };
+
+    const checkBoxSelectedClass = "checkbox-selected";
+    const payedButton = document.getElementsByClassName('checkbox')[0];
+    const deliveredButton = document.getElementsByClassName('checkbox')[1];
+
+    if (order.payed) {
+        payedButton.classList.add(checkBoxSelectedClass);
+    }
+    else {
+        payedButton.classList.remove(checkBoxSelectedClass);
+    }
+
+    if (order.delivered) {
+        deliveredButton.classList.add(checkBoxSelectedClass);
+    }
+    else {
+        deliveredButton.classList.remove(checkBoxSelectedClass);
+    }
+
+    payedButton.onclick = function () { onPayedClicked(order) };
+    deliveredButton.onclick = function () { onDeliveredClicked(order) };
 }
 
 function onCheckboxChanged(index, customers, orders, bank) {
@@ -166,4 +187,32 @@ function getCustomersWithoutOrders(customers, orders) {
 
 function onBackClick() {
     pageManager.showCustomersPage();
+}
+
+function onPayedClicked(order) {
+    const checkBoxSelectedClass = "checkbox-selected";
+    const payedButton = document.getElementsByClassName('checkbox')[0];
+
+    if (payedButton.classList.contains(checkBoxSelectedClass)) {
+        payedButton.classList.remove(checkBoxSelectedClass);
+    }
+    else {
+        payedButton.classList.add(checkBoxSelectedClass);
+    }
+
+    order.payed = payedButton.classList.contains(checkBoxSelectedClass);
+}
+
+function onDeliveredClicked(order) {
+    const checkBoxSelectedClass = "checkbox-selected";
+    const deliveredButton = document.getElementsByClassName('checkbox')[1];
+
+    if (deliveredButton.classList.contains(checkBoxSelectedClass)) {
+        deliveredButton.classList.remove(checkBoxSelectedClass);
+    }
+    else {
+        deliveredButton.classList.add(checkBoxSelectedClass);
+    }
+
+    order.delivered = deliveredButton.classList.contains(checkBoxSelectedClass);
 }
