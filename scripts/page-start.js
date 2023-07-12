@@ -15,8 +15,14 @@ function onFileSelected() {
 }
 
 function handleLoadCsvComplete(csvReader) {
+    this.initSaveButton(csvReader);
     this.initCustomersFilters(csvReader.options, csvReader.customers, csvReader.orders, csvReader.bank);
     this.initCustomersList(csvReader.customers, csvReader.orders, csvReader.bank);
+}
+
+function initSaveButton(csvReader) {
+    const saveButton = document.getElementsByClassName('button save')[0];
+    saveButton.onclick = handleSave.bind(null, csvReader);
 }
 
 function initCustomersFilters(options, customers, orders, bank) {
@@ -60,6 +66,11 @@ function initCustomersList(customers, orders, bank) {
         listItem.classList.add('customer-item');
         list.appendChild(listItem);
     });
+}
+
+function handleSave(csvReader) {
+    const csvWriter = new CsvWriter();
+    csvWriter.downloadCSV(csvReader);
 }
 
 function handleCustomerClick(customer, orders, bank) {

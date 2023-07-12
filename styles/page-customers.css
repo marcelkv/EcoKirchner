@@ -1,6 +1,13 @@
-.page.customers {
+.save-data {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.button.save {
+    padding: 12px;
+    cursor: pointer;
+    margin-bottom: 32px;
 }
 
 .hovered {
