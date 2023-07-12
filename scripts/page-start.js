@@ -15,14 +15,15 @@ function onFileSelected() {
 }
 
 function handleLoadCsvComplete(csvReader) {
-    this.initSaveButton(csvReader);
-    this.initCustomersFilters(csvReader.options, csvReader.customers, csvReader.orders, csvReader.bank);
-    this.initCustomersList(csvReader.customers, csvReader.orders, csvReader.bank);
+    const orders = csvReader.orders;
+    this.initSaveButton(csvReader, orders);
+    this.initCustomersFilters(csvReader.options, csvReader.customers, orders, csvReader.bank);
+    this.initCustomersList(csvReader.customers, orders, csvReader.bank);
 }
 
-function initSaveButton(csvReader) {
+function initSaveButton(csvReader, orders) {
     const saveButton = document.getElementsByClassName('button save')[0];
-    saveButton.onclick = handleSave.bind(null, csvReader);
+    saveButton.onclick = handleSave.bind(null, csvReader, orders);
 }
 
 function initCustomersFilters(options, customers, orders, bank) {
@@ -56,7 +57,7 @@ function initCustomersList(customers, orders, bank) {
     customers.forEach(function (customer) {
         const listItem = document.createElement('div');
         listItem.textContent = customer.firstName + " " + customer.lastName;
-        listItem.onclick = function () { handleCustomerClick(customer, orders, bank) };
+        listItem.onclick = function () { handleCustomerClick(customers, customer, orders, bank) };
         listItem.onmouseover = function () {
             listItem.classList.add('hovered');
         }
@@ -68,12 +69,12 @@ function initCustomersList(customers, orders, bank) {
     });
 }
 
-function handleSave(csvReader) {
+function handleSave(csvReader, orders) {
     const csvWriter = new CsvWriter();
-    csvWriter.downloadCSV(csvReader);
+    csvWriter.downloadCSV(csvReader, orders);
 }
 
-function handleCustomerClick(customer, orders, bank) {
+function handleCustomerClick(customers, customer, orders, bank) {
     pageManager.showOrderPage();
 
     const order = orders?.find(order => order.customer.firstName === customer.firstName && order.customer.lastName === customer.lastName);
@@ -119,7 +120,7 @@ function handleCustomerClick(customer, orders, bank) {
     }
 
     const backButton = document.getElementById('backButton');
-    backButton.onclick = function () { onBackClick() };
+    backButton.onclick = function () { onBackClick(customers, orders, bank) };
 
     const checkBoxSelectedClass = "checkbox-selected";
     const payedButton = document.getElementsByClassName('checkbox')[0];
@@ -149,11 +150,13 @@ function onCheckboxChanged(index, customers, orders, bank) {
     if (checkBoxes.length > 0) {
         const checkBoxSelectedClass = 'checkbox-selected';
 
-        if (checkBoxes[index].classList.contains(checkBoxSelectedClass)) {
-            checkBoxes[index].classList.remove(checkBoxSelectedClass);
-        }
-        else {
-            checkBoxes[index].classList.add(checkBoxSelectedClass);
+        if (index >= 0) {
+            if (checkBoxes[index].classList.contains(checkBoxSelectedClass)) {
+                checkBoxes[index].classList.remove(checkBoxSelectedClass);
+            }
+            else {
+                checkBoxes[index].classList.add(checkBoxSelectedClass);
+            }
         }
 
         const ordered = checkBoxes[0].classList.contains(checkBoxSelectedClass);
@@ -185,7 +188,8 @@ function getCustomersWithoutOrders(customers, orders) {
     });
 }
 
-function onBackClick() {
+function onBackClick(customers, orders, bank) {
+    this.onCheckboxChanged(-1, customers, orders, bank);
     pageManager.showCustomersPage();
 }
 
