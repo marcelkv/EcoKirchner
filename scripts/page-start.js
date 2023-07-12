@@ -15,11 +15,37 @@ function onFileSelected() {
 }
 
 function handleLoadCsvComplete(csvReader) {
+    this.initCustomersFilters(csvReader.options, csvReader.customers, csvReader.orders, csvReader.bank);
     this.initCustomersList(csvReader.customers, csvReader.orders, csvReader.bank);
+}
+
+function initCustomersFilters(options, customers, orders, bank) {
+    const filters = document.getElementsByClassName('customers-filter')[0];
+
+    options.forEach(function (option, index) {
+        const filterItem = document.createElement('div');
+        filterItem.className = 'filter-item';
+
+        const checkBox = document.createElement('input');
+        checkBox.checked = (index === 0);
+        checkBox.className = 'filter-checkbox';
+        checkBox.type = 'checkbox';
+        checkBox.value = false;
+        checkBox.onchange = function () { onCheckboxChanged(customers, orders, bank); };
+
+        const filterText = document.createElement('div');
+        filterText.className = 'filter-text';
+        filterText.textContent = option;
+
+        filterItem.appendChild(checkBox);
+        filterItem.appendChild(filterText);
+        filters.appendChild(filterItem);
+    });
 }
 
 function initCustomersList(customers, orders, bank) {
     const list = document.getElementsByClassName("customers-list")[0];
+    list.textContent = null;
 
     customers.forEach(function (customer) {
         const listItem = document.createElement('div');
@@ -83,6 +109,23 @@ function handleCustomerClick(customer, orders, bank) {
 
     const backButton = document.getElementById('backButton');
     backButton.onclick = function () { onBackClick() }
+}
+
+function onCheckboxChanged(customers, orders, bank) {
+    const checkBoxes = document.getElementsByClassName('filter-checkbox');
+
+    if (checkBoxes.length > 0) {
+        const ordered = checkBoxes[0].checked;
+        const payed = checkBoxes[1].checked;
+        const delivered = checkBoxes[2].checked;
+
+        const ordersFiltered = orders.filter(order => order.payed === payed &&
+            order.delivered === delivered);
+
+        const customersFiltered = ordered ? ordersFiltered.map(order => order.customer) : customers;
+
+        this.initCustomersList(customersFiltered, ordersFiltered, bank);
+    }
 }
 
 function onBackClick() {

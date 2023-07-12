@@ -1,7 +1,33 @@
+.page.customers {
+    display: flex;
+    flex-direction: column;
+}
+
 .hovered {
     color: blue;
     cursor: pointer;
     text-decoration: underline;
+}
+
+.customers-filter {
+    display: flex;
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 6px;
+}
+
+.filter-checkbox {
+    width: 100%;
+    height: 100%;
+    margin-left: 5px;
+}
+
+.filter-text {
+    margin: 0px 8px;
 }
 
 .customer-item {
@@ -14,4 +40,8 @@
 
 .customer-item:nth-child(odd) {
     background-color: #ffffff;
+}
+
+.group.total {
+    margin-top: 12px;
 }

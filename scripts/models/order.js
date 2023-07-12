@@ -1,7 +1,9 @@
 class Order {
-    constructor(customer, productOrders) {
+    constructor(customer, productOrders, delivered, payed) {
         this.customer = customer;
         this.productOrders = productOrders;
+        this.delivered = delivered;
+        this.payed = payed;
     }
 
     get cost() {

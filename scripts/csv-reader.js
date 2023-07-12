@@ -71,11 +71,39 @@ class CsvReader {
                     productOrders.push(productOrder);
                 }
             }
-            const order = new Order(customer, productOrders);
-            orders.push(order);
+
+            let payed = false;
+            let delivered = false;
+
+            if (columns.length > 5 && columns[6]) {
+                payed = columns[6].trim().length > 0;
+            }
+            if (columns.length > 6 && columns[7]) {
+                delivered = columns[7].trim().length > 0;
+            }
+
+            if (productOrders.length > 0) {
+                const order = new Order(customer, productOrders, delivered, payed);
+                orders.push(order);
+            }
         }
 
         return orders;
+    }
+
+    get options() {
+        if (!this.lines || this.lines.length === 0) {
+            return;
+        }
+
+        const options = [];
+        const columns = this.lines[1].split(';');
+
+        options.push(columns[5].trim());
+        options.push(columns[6].trim());
+        options.push(columns[7].trim());
+
+        return options
     }
 
     readFile() {
