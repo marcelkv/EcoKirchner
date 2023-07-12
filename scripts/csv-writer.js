@@ -1,6 +1,6 @@
 class CsvWriter {
     downloadCSV(csvReader) {
-        const fileName = this.getDateTimeString() + " - Bestellung";
+        const fileName = this.getDateTimeString() + " - " + encodeURIComponent("Bestellung.csv");
         const csvData = this.generateCSVData(csvReader);
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
@@ -15,10 +15,10 @@ class CsvWriter {
     generateCSVData(csvReader) {
         let csvContent = 'data:text/csv;charset=utf-8,';
         const colSeparator = ";";
-        const newLine = "\r\n";
+        const newLine = "\n";
 
         const originalLines = csvReader.lines;
-        csvContent = originalLines;
+        csvContent = originalLines.join(newLine);
 
         return csvContent;
     }
