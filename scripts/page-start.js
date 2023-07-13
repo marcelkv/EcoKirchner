@@ -35,9 +35,6 @@ function initCustomersFilters(options, customers, orders, bank) {
 
         const checkBox = document.createElement('div');
         checkBox.className = 'filter-checkbox';
-        if (index === 0) {
-            checkBox.classList.add('checkbox-selected');
-        }
         checkBox.onclick = function () { onCheckboxChanged(index, customers, orders, bank); };
 
         const filterText = document.createElement('div');
@@ -48,6 +45,8 @@ function initCustomersFilters(options, customers, orders, bank) {
         filterItem.appendChild(filterText);
         filters.appendChild(filterItem);
     });
+
+    setTimeout(() => this.onCheckboxChanged(0, customers, orders, bank), 100);
 }
 
 function initCustomersList(customers, orders, bank) {
@@ -170,7 +169,7 @@ function onCheckboxChanged(index, customers, orders, bank) {
         }
         else {
             const ordersFiltered = [];
-            const customersFiltered = this.getCustomersWithoutOrders(customers, orders);
+            const customersFiltered = (payed || delivered) ? [] : this.getCustomersWithoutOrders(customers, orders);
             this.initCustomersList(customersFiltered, ordersFiltered, bank);
         }
     }
