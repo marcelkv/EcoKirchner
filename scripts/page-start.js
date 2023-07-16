@@ -219,3 +219,14 @@ function onDeliveredClicked(order) {
 
     order.delivered = deliveredButton.classList.contains(checkBoxSelectedClass);
 }
+
+function onMenuClick() {
+    const menu = document.getElementsByClassName('bar-button')[0];
+
+    if (menu.classList.contains('open')) {
+        menu.classList.remove('open');
+    }
+    else {
+        menu.classList.add('open');
+    }
+}
