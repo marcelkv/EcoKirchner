@@ -11,22 +11,36 @@ class PageManager {
         return document.getElementsByClassName('page order')[0];
     }
 
+    get productsPage() {
+        return document.getElementsByClassName('page products')[0];
+    }
+
     showStartPage() {
         this.hideElement(this.customersPage);
         this.hideElement(this.orderPage);
+        this.hideElement(this.productsPage);
         this.showElement(this.startPage);
     }
 
-    showCustomersPage(){
+    showCustomersPage() {
         this.hideElement(this.startPage);
         this.hideElement(this.orderPage);
+        this.hideElement(this.productsPage);
         this.showElement(this.customersPage);
     }
 
     showOrderPage() {
         this.hideElement(this.startPage);
         this.hideElement(this.customersPage);
+        this.hideElement(this.productsPage);
         this.showElement(this.orderPage);
+    }
+
+    showProductsPage() {
+        this.hideElement(this.startPage);
+        this.hideElement(this.customersPage);
+        this.hideElement(this.orderPage);
+        this.showElement(this.productsPage);
     }
 
     hideElement(element) {
