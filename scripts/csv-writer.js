@@ -19,7 +19,7 @@ class CsvWriter {
 
         const originalLines = csvReader.lines;
 
-        for (let i = 3; i < originalLines.length; i++) {
+        for (let i = 4; i < originalLines.length; i++) {
             const columns = originalLines[i].split(';');
             const order = orders.find(order => order.customer.firstName === columns[1] && order.customer.lastName === columns[0]);
 

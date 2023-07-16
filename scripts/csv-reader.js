@@ -23,12 +23,14 @@ class CsvReader {
 
         const names = this.lines[1].split(';');
         const costs = this.lines[2].split(';');
+        const totalItems = this.lines[3].split(";");
         const products = [];
 
         for (let i = this.startIndex; i < names.length; i++) {
             const costString = costs[i].split(' ')[0];
             const cost = roundToTwoDecimals(Number(costString.replace(',', '.')));
-            const product = new Product(names[i], cost);
+            const total = roundToTwoDecimals(Number(totalItems[i]));
+            const product = new Product(names[i], cost, total);
             products.push(product);
         }
         return products;
@@ -41,7 +43,7 @@ class CsvReader {
 
         const customers = [];
 
-        for (let i = 3; i < this.lines.length; i++) {
+        for (let i = 4; i < this.lines.length; i++) {
             const firstName = this.lines[i].split(';')[1];
             const lastName = this.lines[i].split(';')[0];
             const customer = new Customer(firstName, lastName);
@@ -58,7 +60,7 @@ class CsvReader {
 
         const orders = [];
 
-        for (let i = 3; i < this.lines.length; i++) {
+        for (let i = 4; i < this.lines.length; i++) {
             const columns = this.lines[i].split(';');
             const customer = this.customers.find(customer => customer.firstName === columns[1] && customer.lastName === columns[0]);
             const productOrders = [];
