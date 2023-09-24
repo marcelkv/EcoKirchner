@@ -4,5 +4,4 @@ export interface IClientService {
   isSignedIn: boolean;
   signInWithGoogle(): Promise<void>;
   signOut(): Promise<void>;
-  processRedirect(): Promise<void>;
 }

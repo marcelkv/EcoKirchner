@@ -16,7 +16,6 @@ export default {
       "https://accounts.scdn.co/sso/images/new-google-icon.72fd940a229bc94cf9484a3320b3dccb.svg";
 
     onMounted(async () => {
-      await clientService.processRedirect();
       if (clientService.isSignedIn) {
         await router.push({ name: "Home" });
       }
@@ -26,7 +25,14 @@ export default {
     });
 
     async function onClickSignInWithGoogle(): Promise<void> {
+      isLoading.value = true;
       await clientService.signInWithGoogle();
+      if (clientService.isSignedIn) {
+        await router.push({ name: "Home" });
+      }
+
+      isSignedIn.value = clientService.isSignedIn;
+      isLoading.value = false;
     }
 
     async function onClickSignOut(): Promise<void> {

@@ -1,8 +1,7 @@
 import {
   getAuth,
-  getRedirectResult,
   GoogleAuthProvider,
-  signInWithRedirect,
+  signInWithPopup,
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { initializeApp } from "firebase/app";
@@ -45,17 +44,8 @@ export class ClientService implements IClientService {
   }
 
   async signInWithGoogle(): Promise<void> {
-    await signInWithRedirect(this._auth, this._googleAuthProvider);
-  }
+    const result = await signInWithPopup(this._auth, new GoogleAuthProvider());
 
-  async signOut(): Promise<void> {
-    await firebaseSignOut(this._auth);
-    this._user = null;
-    this._token = null;
-  }
-
-  async processRedirect(): Promise<void> {
-    const result = await getRedirectResult(this._auth);
     if (!result) {
       this._user = null;
       this._token = null;
@@ -65,5 +55,11 @@ export class ClientService implements IClientService {
     const credential = GoogleAuthProvider.credentialFromResult(result);
     this._token = credential.accessToken;
     this._user = result.user;
+  }
+
+  async signOut(): Promise<void> {
+    await firebaseSignOut(this._auth);
+    this._user = null;
+    this._token = null;
   }
 }
