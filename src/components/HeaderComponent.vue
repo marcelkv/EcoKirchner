@@ -4,13 +4,13 @@ import HamburgerComponent from "@/components/HamburgerComponent.vue";
 
 export default defineComponent({
   name: "HeaderComponent",
-  components: { HamburgerComponent },
+  components: { Hamburger: HamburgerComponent },
   props: {
     msg: String,
   },
-  setup() {
+  setup(props, context) {
     function onHamburgerChanged(state: boolean): void {
-      console.log("menu open: " + state);
+      context.emit("hamburger-changed", state);
     }
     return {
       onHamburgerChanged,
@@ -28,7 +28,7 @@ export default defineComponent({
         alt="Ecokirchner logo"
       />
     </div>
-    <HamburgerComponent v-on:hamburger-changed="onHamburgerChanged" />
+    <Hamburger v-on:hamburger-changed="onHamburgerChanged" />
   </div>
 </template>
 
