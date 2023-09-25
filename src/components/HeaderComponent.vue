@@ -1,10 +1,20 @@
 <script lang="ts">
 import { defineComponent } from "vue";
+import HamburgerComponent from "@/components/HamburgerComponent.vue";
 
 export default defineComponent({
   name: "HeaderComponent",
+  components: { HamburgerComponent },
   props: {
     msg: String,
+  },
+  setup() {
+    function onHamburgerChanged(state: boolean): void {
+      console.log("menu open: " + state);
+    }
+    return {
+      onHamburgerChanged,
+    };
   },
 });
 </script>
@@ -18,16 +28,18 @@ export default defineComponent({
         alt="Ecokirchner logo"
       />
     </div>
+    <HamburgerComponent v-on:hamburger-changed="onHamburgerChanged" />
   </div>
 </template>
 
 <style scoped lang="less">
 .header {
+  position: relative;
   min-height: var(--headerHeight);
   max-height: var(--headerHeight);
   background-color: var(--headerColor);
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
 
   .logoSmall {
     flex: 1;
@@ -41,6 +53,11 @@ export default defineComponent({
       max-height: 100%;
       object-fit: contain;
     }
+  }
+
+  .hamburger {
+    position: absolute;
+    width: var(--headerHeight);
   }
 }
 </style>

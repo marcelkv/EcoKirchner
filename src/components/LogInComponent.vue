@@ -1,11 +1,11 @@
 <script lang="ts">
 import { IClientService } from "@/common/client-service.interface";
-import { inject, onMounted, ref } from "vue";
+import { defineComponent, inject, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import ButtonComponent from "@/components/ButtonComponent.vue";
 import SpinnerComponent from "@/components/SpinnerComponent.vue";
 
-export default {
+export default defineComponent({
   components: { SpinnerComponent, ButtonComponent },
   setup() {
     const clientService = inject<IClientService>("clientService");
@@ -48,7 +48,7 @@ export default {
       onClickSignOut,
     };
   },
-};
+});
 </script>
 
 <template>
