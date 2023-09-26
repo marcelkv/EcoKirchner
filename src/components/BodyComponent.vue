@@ -30,13 +30,14 @@ export default defineComponent({
 
   .dropDownMenu {
     position: absolute;
-    z-index: 1;
+    z-index: 2;
     width: 100%;
-    height: 0;
-    transition: height 0.3s ease-in-out;
+    height: 100%;
+    top: -100%;
+    transition: top 0.4s ease-in-out;
 
     &.isOpen {
-      height: 100%;
+      top: 0;
     }
   }
 }

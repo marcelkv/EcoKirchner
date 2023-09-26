@@ -7,7 +7,7 @@ import { MenuService } from "@/common/menu-service";
 import { IMenuService } from "@/common/menu-service.interface";
 
 const app = createApp(App);
-const clientService: IClientService = new ClientService();
+const clientService: IClientService = reactive(new ClientService());
 const menuService: IMenuService = reactive(new MenuService());
 app.provide<IClientService>("clientService", clientService);
 app.provide<IMenuService>("menuService", menuService);

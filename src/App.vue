@@ -54,5 +54,14 @@ body {
     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol";
   font-weight: 400;
+
+  .header,
+  .footer {
+    z-index: 1;
+  }
+
+  .body {
+    z-index: 0;
+  }
 }
 </style>
