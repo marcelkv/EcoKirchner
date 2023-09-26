@@ -24,7 +24,9 @@ export default defineComponent({
         alt="Ecokirchner logo"
       />
     </div>
-    <Hamburger v-if="menuService.isHamburger" />
+    <div class="hamburgerWrapper" v-if="menuService.isHamburger">
+      <Hamburger />
+    </div>
   </div>
 </template>
 
@@ -51,10 +53,13 @@ export default defineComponent({
     }
   }
 
-  .hamburger {
+  .hamburgerWrapper {
+    --padding: 7px;
+    --hamburgerSize: calc(var(--headerHeight) - 2 * var(--padding));
     position: absolute;
-    padding: 4px;
-    width: var(--headerHeight);
+    width: var(--hamburgerSize);
+    height: var(--hamburgerSize);
+    padding: var(--padding);
   }
 }
 </style>

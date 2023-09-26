@@ -42,7 +42,7 @@ export default defineComponent({
   justify-content: space-around;
 
   .line {
-    height: 4px;
+    height: 3px;
     width: calc(100% - 4px);
     border-radius: 4px;
     background-color: black;
@@ -50,11 +50,11 @@ export default defineComponent({
     left: 0;
     transform: rotate(0deg);
     transition: 0.25s ease-in-out;
-    transform-origin: left center;
+    transform-origin: right center;
   }
 
   &.isOpen > .line:nth-child(1) {
-    transform: rotate(45deg);
+    transform: rotate(-45deg);
   }
 
   &.isOpen > .line:nth-child(2) {
@@ -63,7 +63,7 @@ export default defineComponent({
   }
 
   &.isOpen > .line:nth-child(3) {
-    transform: rotate(-45deg);
+    transform: rotate(45deg);
   }
 }
 </style>
