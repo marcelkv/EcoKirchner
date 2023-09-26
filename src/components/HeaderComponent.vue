@@ -1,20 +1,16 @@
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, inject } from "vue";
 import HamburgerComponent from "@/components/HamburgerComponent.vue";
+import { IMenuService } from "@/common/menu-service.interface";
 
 export default defineComponent({
   name: "HeaderComponent",
   components: { Hamburger: HamburgerComponent },
-  props: {
-    msg: String,
-  },
-  setup(props, context) {
-    function onHamburgerChanged(state: boolean): void {
-      context.emit("hamburger-changed", state);
-    }
-    return {
-      onHamburgerChanged,
-    };
+
+  setup() {
+    const menuService = inject<IMenuService>("menuService");
+
+    return { menuService };
   },
 });
 </script>
@@ -28,7 +24,7 @@ export default defineComponent({
         alt="Ecokirchner logo"
       />
     </div>
-    <Hamburger v-on:hamburger-changed="onHamburgerChanged" />
+    <Hamburger v-if="menuService.isHamburger" />
   </div>
 </template>
 
@@ -57,6 +53,7 @@ export default defineComponent({
 
   .hamburger {
     position: absolute;
+    padding: 4px;
     width: var(--headerHeight);
   }
 }

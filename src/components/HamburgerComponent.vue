@@ -1,17 +1,17 @@
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, inject } from "vue";
+import { IMenuService } from "@/common/menu-service.interface";
 
 export default defineComponent({
-  props: {},
-  setup(props, context) {
-    let isOpen = ref(false);
+  setup() {
+    const menuService = inject<IMenuService>("menuService");
 
     function onClick(): void {
-      isOpen.value = !isOpen.value;
-      context.emit("hamburger-changed", isOpen.value);
+      menuService.isHamburgerOpen = !menuService.isHamburgerOpen;
     }
+
     return {
-      isOpen,
+      menuService,
       onClick,
     };
   },
@@ -19,7 +19,11 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="hamburger" v-bind:class="{ isOpen: isOpen }" v-on:click="onClick">
+  <div
+    class="hamburger"
+    v-bind:class="{ isOpen: menuService.isHamburgerOpen }"
+    v-on:click="onClick"
+  >
     <div class="line"></div>
     <div class="line"></div>
     <div class="line"></div>
@@ -38,7 +42,7 @@ export default defineComponent({
   justify-content: space-around;
 
   .line {
-    height: 5px;
+    height: 4px;
     width: calc(100% - 4px);
     border-radius: 4px;
     background-color: black;

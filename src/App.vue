@@ -1,36 +1,30 @@
 <script lang="ts">
+import { defineComponent, onBeforeMount } from "vue";
 import HeaderComponent from "@/components/HeaderComponent.vue";
-import { defineComponent, onBeforeMount, ref } from "vue";
-import FooterComponent from "@/components/FooterComponent.vue";
 import BodyComponent from "@/components/BodyComponent.vue";
+import FooterComponent from "@/components/FooterComponent.vue";
 
 export default defineComponent({
   name: "App",
   components: {
-    BodyComponent,
-    FooterComponent,
-    HeaderComponent,
+    Header: HeaderComponent,
+    Body: BodyComponent,
+    Footer: FooterComponent,
   },
   setup() {
-    const isMenuOpen = ref(false); // Define isOpen as a ref with an initial value of false
-
     onBeforeMount(() => {
       document.title = "Ecokirchner";
     });
 
-    function onHamburgerChanged(isOpen: boolean): void {
-      isMenuOpen.value = isOpen;
-    }
-
-    return { isMenuOpen, onHamburgerChanged };
+    return {};
   },
 });
 </script>
 
 <template>
-  <HeaderComponent v-on:hamburger-changed="onHamburgerChanged" />
-  <BodyComponent v-bind:isOpen="isMenuOpen" />
-  <FooterComponent />
+  <Header />
+  <Body />
+  <Footer />
 </template>
 
 <style lang="less">

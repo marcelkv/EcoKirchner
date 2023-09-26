@@ -1,13 +1,15 @@
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, inject } from "vue";
 import DropDownMenuComponent from "@/components/DropDownMenuComponent.vue";
+import { IMenuService } from "@/common/menu-service.interface";
 
 export default defineComponent({
   components: { DropDownMenu: DropDownMenuComponent },
-  props: { isOpen: { Type: String, required: true } },
-  setup(props) {
+  setup() {
+    const menuService = inject<IMenuService>("menuService");
+
     return {
-      props,
+      menuService,
     };
   },
 });
@@ -15,7 +17,7 @@ export default defineComponent({
 
 <template>
   <div class="body">
-    <DropDownMenu v-bind:class="{ isOpen: isOpen }" />
+    <DropDownMenu v-bind:class="{ isOpen: menuService.isHamburgerOpen }" />
     <router-view />
   </div>
 </template>
