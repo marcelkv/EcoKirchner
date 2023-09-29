@@ -11,11 +11,13 @@
   "dependencies": {
     "core-js": "^3.8.3",
     "firebase": "^10.4.0",
+    "lodash": "^4.17.21",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3"
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",
+    "@types/lodash": "^4.14.199",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "@vue/cli-plugin-babel": "~5.0.0",

@@ -1,13 +1,13 @@
 <script lang="ts">
-import { computed } from "vue";
+import { computed, defineComponent } from "vue";
 
-export default {
+export default defineComponent({
   props: {
     iconSvg: { required: false, type: String },
     buttonText: { required: true, type: String },
   },
-  // eslint-disable-next-line
-  setup(props: any) {
+
+  setup(props) {
     const showIcon = !!props.iconSvg;
 
     const buttonStyle = computed(() => {
@@ -22,13 +22,13 @@ export default {
       buttonStyle,
     };
   },
-};
+});
 </script>
 
 <template>
   <div class="button" v-bind:style="buttonStyle">
     <div v-if="props.iconSvg" class="buttonIcon"></div>
-    <div class="buttonText">{{ props.buttonText }}</div>
+    <div class="buttonText">{{ buttonText }}</div>
   </div>
 </template>
 

@@ -115,6 +115,12 @@ export default defineComponent({
         font-size: 24px;
       }
     }
+
+    @media (max-height: 360px) {
+      .header {
+        display: none;
+      }
+    }
   }
 }
 </style>

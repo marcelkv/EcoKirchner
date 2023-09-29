@@ -72,5 +72,11 @@ export default {
       cursor: pointer;
     }
   }
+
+  @media (max-height: 320px) {
+    .signOut {
+      display: none;
+    }
+  }
 }
 </style>

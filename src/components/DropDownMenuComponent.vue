@@ -6,7 +6,7 @@ import { IMenuService } from "@/common/menu-service.interface";
 
 export default defineComponent({
   setup() {
-    const ref_userItem = ref(null);
+    const ref_dropDownMenu = ref(null);
     const clientService = inject<IClientService>("clientService");
     const menuService = inject<IMenuService>("menuService");
     const router = useRouter();
@@ -60,7 +60,7 @@ export default defineComponent({
     }
 
     function calculateCharactersThatFit() {
-      const textContainer = ref_userItem.value as HTMLDivElement;
+      const textContainer = ref_dropDownMenu.value as HTMLDivElement;
       const containerWidth = textContainer.offsetWidth;
       const font = window
         .getComputedStyle(textContainer, null)
@@ -73,7 +73,7 @@ export default defineComponent({
     watch(() => menuService.isHamburgerOpen, onHamburgerChanged);
 
     return {
-      ref_userItem,
+      ref_dropDownMenu,
       isSignedIn,
       email,
       onClickCloseMenu,
@@ -85,14 +85,21 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="dropDownMenu">
+  <div class="dropDownMenu" ref="ref_dropDownMenu">
     <div class="menuItems item">
       <div class="item" v-on:click="onClickCloseMenu">Produkte</div>
       <div class="item" v-on:click="onClickCloseMenu">Über uns</div>
       <div class="item" v-on:click="onClickCloseMenu">Einkaufswagen</div>
       <div class="item" v-on:click="onClickCloseMenu">Kontakt</div>
+      <div class="userItem item" v-if="isSignedIn">
+        <div class="email item">{{ email }}</div>
+        <div class="signOut item" v-on:click="onClickSignOut">Abmelden</div>
+      </div>
+      <div class="userItem item" v-else v-on:click="onClickSignIn">
+        <div class="email item">Anmelden</div>
+      </div>
     </div>
-    <div ref="ref_userItem" class="userItem item" v-if="isSignedIn">
+    <div class="userItem item" v-if="isSignedIn">
       <div class="email item">{{ email }}</div>
       <div class="signOut item" v-on:click="onClickSignOut">Abmelden</div>
     </div>
@@ -124,6 +131,7 @@ export default defineComponent({
   .menuItems.item {
     flex-grow: 1;
     justify-content: flex-start;
+    overflow-y: auto;
   }
 
   .userItem.item {
@@ -138,6 +146,18 @@ export default defineComponent({
       color: blue;
       font-size: 20px;
     }
+  }
+}
+
+@media (max-height: 450px) {
+  .dropDownMenu > .userItem {
+    display: none;
+  }
+}
+
+@media (min-height: 450px) {
+  .dropDownMenu > .menuItems > .userItem {
+    display: none;
   }
 }
 </style>

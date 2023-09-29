@@ -1,30 +1,58 @@
 <script lang="ts">
-import { defineComponent, inject } from "vue";
+import { computed, defineComponent, inject } from "vue";
 import HamburgerComponent from "@/components/HamburgerComponent.vue";
-import { IMenuService } from "@/common/menu-service.interface";
+import { IResponsiveService } from "@/common/responsive-service.interface";
+import { DeviceType } from "@/common/device-type";
 
 export default defineComponent({
   name: "HeaderComponent",
+  computed: {
+    DeviceType() {
+      return DeviceType;
+    },
+  },
   components: { Hamburger: HamburgerComponent },
 
   setup() {
-    const menuService = inject<IMenuService>("menuService");
+    const responsiveService = inject<IResponsiveService>("responsiveService");
+    const deviceType = computed(() => responsiveService.deviceType.value);
 
-    return { menuService };
+    return { deviceType };
   },
 });
 </script>
 
 <template>
   <div class="header">
-    <div class="logoSmall">
+    <div
+      class="logoWrapper"
+      v-bind:class="{
+        wrapperXs: deviceType === DeviceType.ExtraSmall,
+        wrapperS: deviceType === DeviceType.Small,
+        wrapperM: deviceType === DeviceType.Medium,
+        wrapperL: deviceType === DeviceType.Large,
+      }"
+    >
       <img
+        v-if="deviceType === DeviceType.ExtraSmall"
+        class="logo"
+        src="@/assets/logo_ecoKirchner_xs.png"
+        alt="Ecokirchner logo"
+      />
+      <img
+        v-else-if="deviceType === DeviceType.Small"
         class="logo"
         src="@/assets/logo_ecoKirchner.png"
         alt="Ecokirchner logo"
       />
+      <img
+        v-else
+        class="logo"
+        src="@/assets/logo_ecoKirchner-aulivera2-1024x154.png"
+        alt="Ecokirchner logo"
+      />
     </div>
-    <div class="hamburgerWrapper" v-if="menuService.isHamburger">
+    <div class="hamburgerWrapper">
       <Hamburger />
     </div>
   </div>
@@ -39,7 +67,7 @@ export default defineComponent({
   display: flex;
   flex-direction: row-reverse;
 
-  .logoSmall {
+  .logoWrapper {
     flex: 1;
     display: flex;
     justify-content: center;
@@ -51,6 +79,11 @@ export default defineComponent({
       max-height: 100%;
       object-fit: contain;
     }
+  }
+
+  .wrapperXs,
+  .wrapperL {
+    justify-content: flex-start;
   }
 
   .hamburgerWrapper {
