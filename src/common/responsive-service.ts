@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { IResponsiveService } from "./responsive-service.interface";
 import { DeviceType } from "@/common/device-type";
+import throttle from "lodash/throttle";
 
 export class ResponsiveService implements IResponsiveService {
   deviceType = ref<DeviceType>();
