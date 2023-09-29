@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { throttle } from "lodash";
+import throttle from "lodash/throttle";
 import { IResponsiveService } from "./responsive-service.interface";
 import { DeviceType } from "@/common/device-type";
 
