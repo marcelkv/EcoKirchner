@@ -6,11 +6,11 @@ import {
 } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import firebaseConfig from "@/firebase/firebaseConfig";
-import { IClientService } from "@/common/client-service.interface";
+import { IUserService } from "@/common/services/user-service.interface";
 import firebase from "firebase/compat";
 import UserInfo = firebase.UserInfo;
 
-export class ClientService implements IClientService {
+export class UserService implements IUserService {
   private readonly _auth;
   private readonly _googleAuthProvider: GoogleAuthProvider;
   private _user: UserInfo;

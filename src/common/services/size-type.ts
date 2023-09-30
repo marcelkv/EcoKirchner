@@ -1,4 +1,4 @@
-export enum DeviceType {
+export enum SizeType {
   ExtraSmall = "ExtraSmall",
   Small = "Small",
   Medium = "Medium",

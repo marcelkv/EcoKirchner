@@ -1,13 +1,13 @@
 <script lang="ts">
 import { defineComponent, inject } from "vue";
-import { IMenuService } from "@/common/menu-service.interface";
+import { IMenuService } from "@/common/services/menu-service.interface";
 
 export default defineComponent({
   setup() {
     const menuService = inject<IMenuService>("menuService");
 
     function onClick(): void {
-      menuService.isHamburgerOpen = !menuService.isHamburgerOpen;
+      menuService.togglesHamburger();
     }
 
     return {

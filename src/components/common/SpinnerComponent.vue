@@ -1,6 +1,7 @@
 <template>
   <div class="spinner">
     <div class="spinner-inner" :style="{ '--spinnerSize': spinnerSize }"></div>
+    <div v-if="withText" class="text">Laden...</div>
   </div>
 </template>
 
@@ -11,6 +12,10 @@ export default {
       type: String,
       default: "30px",
     },
+    withText: {
+      type: Boolean,
+      default: false,
+    },
   },
 };
 </script>
@@ -19,6 +24,7 @@ export default {
 .spinner {
   display: flex;
   align-items: center;
+  flex-direction: column;
   justify-content: center;
   position: relative;
   width: 100%;
@@ -31,6 +37,11 @@ export default {
     width: var(--spinnerSize);
     height: var(--spinnerSize);
     animation: spin 1s linear infinite;
+  }
+
+  .text {
+    height: 40px;
+    margin-top: 10px;
   }
 
   @keyframes spin {

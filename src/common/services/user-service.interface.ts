@@ -1,4 +1,4 @@
-export interface IClientService {
+export interface IUserService {
   userName: string;
   userEmail: string;
   isSignedIn: boolean;

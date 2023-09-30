@@ -1,21 +1,21 @@
 <script lang="ts">
 import { computed, defineComponent, inject } from "vue";
 import HamburgerComponent from "@/components/header/HamburgerComponent.vue";
-import { IResponsiveService } from "@/common/responsive-service.interface";
-import { DeviceType } from "@/common/device-type";
+import { IResponsiveService } from "@/common/services/responsive-service.interface";
+import { SizeType } from "@/common/services/size-type";
 
 export default defineComponent({
   name: "HeaderComponent",
   computed: {
     DeviceType() {
-      return DeviceType;
+      return SizeType;
     },
   },
   components: { Hamburger: HamburgerComponent },
 
   setup() {
     const responsiveService = inject<IResponsiveService>("responsiveService");
-    const deviceType = computed(() => responsiveService.deviceType.value);
+    const deviceType = computed(() => responsiveService.widthSize.value);
 
     return { deviceType };
   },

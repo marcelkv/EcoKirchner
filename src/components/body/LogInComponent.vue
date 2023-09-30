@@ -1,5 +1,5 @@
 <script lang="ts">
-import { IClientService } from "@/common/client-service.interface";
+import { IUserService } from "@/common/services/user-service.interface";
 import { defineComponent, inject, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import ButtonComponent from "@/components/common/ButtonComponent.vue";
@@ -8,7 +8,7 @@ import SpinnerComponent from "@/components/common/SpinnerComponent.vue";
 export default defineComponent({
   components: { SpinnerComponent, ButtonComponent },
   setup() {
-    const clientService = inject<IClientService>("clientService");
+    const userService = inject<IUserService>("userService");
     const router = useRouter();
     let isLoading = ref(true);
     let isSignedIn = ref(false);
@@ -16,7 +16,7 @@ export default defineComponent({
       "https://accounts.scdn.co/sso/images/new-google-icon.72fd940a229bc94cf9484a3320b3dccb.svg";
 
     onMounted(async () => {
-      if (clientService.isSignedIn) {
+      if (userService.isSignedIn) {
         await router.push({ name: "Home" });
       }
 
@@ -26,18 +26,18 @@ export default defineComponent({
 
     async function onClickSignInWithGoogle(): Promise<void> {
       isLoading.value = true;
-      await clientService.signInWithGoogle();
-      if (clientService.isSignedIn) {
+      await userService.signInWithGoogle();
+      if (userService.isSignedIn) {
         await router.push({ name: "Home" });
       }
 
-      isSignedIn.value = clientService.isSignedIn;
+      isSignedIn.value = userService.isSignedIn;
       isLoading.value = false;
     }
 
     async function onClickSignOut(): Promise<void> {
-      await clientService.signOut();
-      isSignedIn.value = clientService.isSignedIn;
+      await userService.signOut();
+      isSignedIn.value = userService.isSignedIn;
     }
 
     return {

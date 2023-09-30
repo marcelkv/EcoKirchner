@@ -1,24 +1,24 @@
 <script lang="ts">
 import { inject, onBeforeMount } from "vue";
-import { IClientService } from "@/common/client-service.interface";
+import { IUserService } from "@/common/services/user-service.interface";
 import { useRouter } from "vue-router";
 
 export default {
   setup() {
-    const clientService = inject<IClientService>("clientService");
+    const userService = inject<IUserService>("userService");
     const router = useRouter();
-    const userName = clientService.userName;
-    const userEmail = clientService.userEmail;
+    const userName = userService.userName;
+    const userEmail = userService.userEmail;
 
     onBeforeMount(async () => {
-      if (!clientService.isSignedIn) {
+      if (!userService.isSignedIn) {
         redirectToSignIn();
       }
     });
 
     async function onClickSignOut(): Promise<void> {
-      await clientService.signOut();
-      if (!clientService.isSignedIn) {
+      await userService.signOut();
+      if (!userService.isSignedIn) {
         redirectToSignIn();
       }
     }

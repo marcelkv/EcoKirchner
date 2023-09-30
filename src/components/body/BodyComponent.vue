@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, inject } from "vue";
 import DropDownMenuComponent from "@/components/header/DropDownMenuComponent.vue";
-import { IMenuService } from "@/common/menu-service.interface";
+import { IMenuService } from "@/common/services/menu-service.interface";
 
 export default defineComponent({
   components: { DropDownMenu: DropDownMenuComponent },
@@ -27,6 +27,7 @@ export default defineComponent({
   position: relative;
   width: 100%;
   height: 100%;
+  max-height: calc(100% - var(--headerHeight) - var(--footerHeight));
 
   .dropDownMenu {
     position: absolute;

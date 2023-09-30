@@ -1,4 +1,4 @@
-import { IMenuService } from "@/common/menu-service.interface";
+import { IMenuService } from "@/common/services/menu-service.interface";
 
 export class MenuService implements IMenuService {
   private _isHamburgerOpen = false;
@@ -9,5 +9,9 @@ export class MenuService implements IMenuService {
 
   set isHamburgerOpen(value: boolean) {
     this._isHamburgerOpen = value;
+  }
+
+  togglesHamburger(): void {
+    this._isHamburgerOpen = !this._isHamburgerOpen;
   }
 }

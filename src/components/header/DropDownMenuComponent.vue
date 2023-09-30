@@ -1,111 +1,78 @@
 <script lang="ts">
-import { computed, defineComponent, inject, ref, watch } from "vue";
-import { IClientService } from "@/common/client-service.interface";
+import { computed, defineComponent, inject, watch } from "vue";
+import { IMenuService } from "@/common/services/menu-service.interface";
+import UserMenuItemComponent from "@/components/header/UserMenuItemComponent.vue";
+import { ResponsiveService } from "@/common/services/responsive-service";
+import { SizeType } from "@/common/services/size-type";
 import { useRouter } from "vue-router";
-import { IMenuService } from "@/common/menu-service.interface";
 
 export default defineComponent({
+  computed: {
+    SizeType() {
+      return SizeType;
+    },
+  },
+  components: { UserMenuItem: UserMenuItemComponent },
   setup() {
-    const ref_dropDownMenu = ref(null);
-    const clientService = inject<IClientService>("clientService");
+    const responsiveService = inject<ResponsiveService>("responsiveService");
     const menuService = inject<IMenuService>("menuService");
     const router = useRouter();
-    const isSignedIn = computed(() => clientService.isSignedIn);
-    const email = ref("");
+    const heightSize = computed(() => responsiveService.heightSize.value);
+
+    async function onClickProducts(): Promise<void> {
+      await router.push({ name: "Products" });
+    }
+
+    async function onClickAbout(): Promise<void> {
+      await router.push({ name: "About" });
+    }
+
+    async function onClickContact(): Promise<void> {
+      await router.push({ name: "Contact" });
+    }
 
     function onClickCloseMenu(): void {
-      menuService.isHamburgerOpen = !menuService.isHamburgerOpen;
-    }
-
-    async function onClickSignIn(): Promise<void> {
-      await goToLogIn();
-    }
-
-    async function onClickSignOut(): Promise<void> {
-      await clientService.signOut();
-      await goToLogIn();
-    }
-
-    async function goToLogIn(): Promise<void> {
-      await router.push({ name: "LogIn" });
-      menuService.isHamburgerOpen = !menuService.isHamburgerOpen;
-    }
-
-    function onHamburgerChanged(): void {
-      if (menuService.isHamburgerOpen) {
-        window.addEventListener("resize", onResized);
-        setEmail();
-      } else {
-        window.removeEventListener("resize", onResized);
-      }
-    }
-
-    function onResized(): void {
       menuService.isHamburgerOpen = false;
     }
 
-    function setEmail(): void {
-      if (!clientService.isSignedIn) {
-        return;
-      }
-
-      const originalEmail = clientService.userEmail;
-
-      const numCharacters = calculateCharactersThatFit();
-      if (numCharacters >= originalEmail.length) {
-        email.value = originalEmail;
-      } else {
-        email.value = originalEmail.substring(0, numCharacters) + "...";
-      }
+    function onWindowResized(): void {
+      menuService.isHamburgerOpen = false;
     }
 
-    function calculateCharactersThatFit() {
-      const textContainer = ref_dropDownMenu.value as HTMLDivElement;
-      const containerWidth = textContainer.offsetWidth;
-      const font = window
-        .getComputedStyle(textContainer, null)
-        .getPropertyValue("font");
-      const fontSize = parseFloat(font.split(" ")[0]);
-      const averageCharacterWidth = fontSize * 0.6;
-      return Math.floor(containerWidth / averageCharacterWidth);
-    }
-
-    watch(() => menuService.isHamburgerOpen, onHamburgerChanged);
+    watch(
+      [
+        () => responsiveService.windowHeight.value,
+        () => responsiveService.windowWidth.value,
+      ],
+      () => onWindowResized()
+    );
 
     return {
-      ref_dropDownMenu,
-      isSignedIn,
-      email,
+      heightSize,
+      onClickProducts,
+      onClickAbout,
+      onClickContact,
       onClickCloseMenu,
-      onClickSignIn,
-      onClickSignOut,
     };
   },
 });
 </script>
 
 <template>
-  <div class="dropDownMenu" ref="ref_dropDownMenu">
+  <div class="dropDownMenu" v-on:click="onClickCloseMenu">
     <div class="menuItems item">
-      <div class="item" v-on:click="onClickCloseMenu">Produkte</div>
-      <div class="item" v-on:click="onClickCloseMenu">Über uns</div>
-      <div class="item" v-on:click="onClickCloseMenu">Einkaufswagen</div>
-      <div class="item" v-on:click="onClickCloseMenu">Kontakt</div>
-      <div class="userItem item" v-if="isSignedIn">
-        <div class="email item">{{ email }}</div>
-        <div class="signOut item" v-on:click="onClickSignOut">Abmelden</div>
-      </div>
-      <div class="userItem item" v-else v-on:click="onClickSignIn">
-        <div class="email item">Anmelden</div>
-      </div>
+      <div class="item" v-on:click="onClickProducts">Produkte</div>
+      <div class="item" v-on:click="onClickAbout">Über uns</div>
+      <div class="item" v-on:click="onClickContact">Kontakt</div>
+      <UserMenuItem
+        v-if="
+          heightSize === SizeType.ExtraSmall || heightSize === SizeType.Small
+        "
+      />
     </div>
-    <div class="userItem item" v-if="isSignedIn">
-      <div class="email item">{{ email }}</div>
-      <div class="signOut item" v-on:click="onClickSignOut">Abmelden</div>
-    </div>
-    <div class="userItem item" v-else v-on:click="onClickSignIn">
-      <div class="email item">Anmelden</div>
-    </div>
+    <UserMenuItem
+      v-if="heightSize === SizeType.Medium || heightSize === SizeType.Large"
+    />
   </div>
 </template>
 
@@ -117,6 +84,7 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   background-color: lightgray;
+  user-select: none;
 
   .item {
     display: flex;
@@ -124,7 +92,7 @@ export default defineComponent({
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 70px;
+    min-height: 70px;
     font-size: 30px;
   }
 
@@ -132,32 +100,6 @@ export default defineComponent({
     flex-grow: 1;
     justify-content: flex-start;
     overflow-y: auto;
-  }
-
-  .userItem.item {
-    height: auto;
-
-    .email {
-      font-size: 26px;
-    }
-
-    .signOut {
-      height: 60px;
-      color: blue;
-      font-size: 20px;
-    }
-  }
-}
-
-@media (max-height: 450px) {
-  .dropDownMenu > .userItem {
-    display: none;
-  }
-}
-
-@media (min-height: 450px) {
-  .dropDownMenu > .menuItems > .userItem {
-    display: none;
   }
 }
 </style>
