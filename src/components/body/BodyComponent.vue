@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, inject } from "vue";
-import DropDownMenuComponent from "@/components/DropDownMenuComponent.vue";
+import DropDownMenuComponent from "@/components/header/DropDownMenuComponent.vue";
 import { IMenuService } from "@/common/menu-service.interface";
 
 export default defineComponent({

@@ -2,8 +2,8 @@
 import { IClientService } from "@/common/client-service.interface";
 import { defineComponent, inject, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import ButtonComponent from "@/components/ButtonComponent.vue";
-import SpinnerComponent from "@/components/SpinnerComponent.vue";
+import ButtonComponent from "@/components/common/ButtonComponent.vue";
+import SpinnerComponent from "@/components/common/SpinnerComponent.vue";
 
 export default defineComponent({
   components: { SpinnerComponent, ButtonComponent },

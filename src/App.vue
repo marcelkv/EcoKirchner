@@ -1,8 +1,8 @@
 <script lang="ts">
 import { defineComponent, onBeforeMount } from "vue";
-import HeaderComponent from "@/components/HeaderComponent.vue";
-import BodyComponent from "@/components/BodyComponent.vue";
-import FooterComponent from "@/components/FooterComponent.vue";
+import HeaderComponent from "@/components/header/HeaderComponent.vue";
+import BodyComponent from "@/components/body/BodyComponent.vue";
+import FooterComponent from "@/components/footer/FooterComponent.vue";
 
 export default defineComponent({
   name: "App",

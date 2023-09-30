@@ -1,6 +1,6 @@
 <script lang="ts">
 import { computed, defineComponent, inject } from "vue";
-import HamburgerComponent from "@/components/HamburgerComponent.vue";
+import HamburgerComponent from "@/components/header/HamburgerComponent.vue";
 import { IResponsiveService } from "@/common/responsive-service.interface";
 import { DeviceType } from "@/common/device-type";
 
@@ -36,19 +36,19 @@ export default defineComponent({
       <img
         v-if="deviceType === DeviceType.ExtraSmall"
         class="logo"
-        src="@/assets/logo_ecoKirchner_xs.png"
+        src="../../assets/logo_ecoKirchner_xs.png"
         alt="Ecokirchner logo"
       />
       <img
         v-else-if="deviceType === DeviceType.Small"
         class="logo"
-        src="@/assets/logo_ecoKirchner.png"
+        src="../../assets/logo_ecoKirchner.png"
         alt="Ecokirchner logo"
       />
       <img
         v-else
         class="logo"
-        src="@/assets/logo_ecoKirchner-aulivera2-1024x154.png"
+        src="../../assets/logo_ecoKirchner-aulivera2-1024x154.png"
         alt="Ecokirchner logo"
       />
     </div>
