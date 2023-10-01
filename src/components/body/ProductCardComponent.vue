@@ -2,11 +2,13 @@
 import { computed, defineComponent, onBeforeMount, ref } from "vue";
 import { Product } from "@/common/models/product";
 import SpinnerComponent from "@/components/common/SpinnerComponent.vue";
+import DropDownComponent from "@/components/common/DropDownComponent.vue";
 
 export default defineComponent({
-  components: { Spinner: SpinnerComponent },
+  components: { DropDown: DropDownComponent, Spinner: SpinnerComponent },
   props: { product: { type: Product, required: true } },
-  setup(props) {
+  emits: ["onBuyRequested"],
+  setup(props, { emit }) {
     const selectedQuantity = ref(1);
     const quantities = ref<number[]>([]);
     const NUM_AVAILABLE = 10;
@@ -31,11 +33,21 @@ export default defineComponent({
       return "NICHT VERFÜGBAR";
     });
 
+    function onDropDownChanged(value: number): void {
+      selectedQuantity.value = value;
+    }
+
+    function onBuyClicked(): void {
+      emit("onBuyRequested", props.product.productId, selectedQuantity.value);
+    }
+
     return {
       NUM_AVAILABLE,
       infoText,
       selectedQuantity,
       quantities,
+      onDropDownChanged,
+      onBuyClicked,
     };
   },
 });
@@ -69,14 +81,20 @@ export default defineComponent({
         {{ infoText }}
       </div>
       <div class="addToCart" v-if="product.quantity > 0">
-        <label for="numberDropdown"></label>
-        <select class="numItems" v-model="selectedQuantity" id="numberDropdown">
-          <option v-for="number in quantities" :key="number" :value="number">
-            {{ number }}
-          </option>
-        </select>
+        <DropDown
+          v-bind:items="quantities"
+          v-on:dropDownChanged="onDropDownChanged"
+        />
         <label for="buttonBuy"></label>
-        <div id="buttonBuy" class="button" tabindex="0">KAUFEN</div>
+        <div
+          id="buttonBuy"
+          class="button"
+          tabindex="0"
+          v-on:keydown.enter="onBuyClicked"
+          v-on:click="onBuyClicked"
+        >
+          KAUFEN
+        </div>
       </div>
     </div>
   </div>
@@ -161,18 +179,11 @@ export default defineComponent({
       display: flex;
       margin-right: 15px;
 
-      .numItems {
-        margin-right: 10px;
-        padding: 8px 10px;
-        border: 1px solid lightgray;
-        -moz-appearance: none;
-        -webkit-appearance: none;
-        appearance: none;
-      }
-
       .button {
         padding: 8px 10px;
         border: 1px solid lightgray;
+        cursor: pointer;
+        user-select: none;
       }
     }
   }

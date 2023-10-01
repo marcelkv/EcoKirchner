@@ -37,10 +37,15 @@ export default defineComponent({
       await clientService.setProductsImagesAsync(products.value);
     });
 
+    function onBuyRequested(productId: string, amount: number): void {
+      console.log("Buy product: " + productId + " " + amount + " times.");
+    }
+
     return {
       isLarge,
       products,
       isLoading,
+      onBuyRequested,
     };
   },
 });
@@ -60,6 +65,7 @@ export default defineComponent({
         v-bind:product="product"
         :key="product.productId"
         class="product"
+        v-on:onBuyRequested="onBuyRequested"
       ></ProductCard>
     </div>
   </div>
