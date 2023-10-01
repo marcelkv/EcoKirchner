@@ -50,7 +50,9 @@ export default defineComponent({
         :src="product.imageUrl"
         :alt="product.name"
       />
-      <Spinner v-else v-bind:withText="true" />
+      <div v-else class="spinnerWrapper">
+        <Spinner v-bind:withText="true" />
+      </div>
     </div>
     <div class="separator"></div>
     <div class="footerSection1">
@@ -100,9 +102,10 @@ export default defineComponent({
     width: auto;
     display: flex;
 
-    &.spinner {
+    &.spinnerWrapper {
       flex-direction: column;
       align-items: center;
+      justify-content: center;
     }
 
     .productImage {
