@@ -11,9 +11,7 @@ export default {
     const userEmail = userService.userEmail;
 
     onBeforeMount(async () => {
-      if (!userService.isSignedIn) {
-        redirectToSignIn();
-      }
+      await router.push({ name: "Products" });
     });
 
     async function onClickSignOut(): Promise<void> {

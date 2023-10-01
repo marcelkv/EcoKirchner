@@ -178,6 +178,7 @@ export default defineComponent({
     .addToCart {
       display: flex;
       margin-right: 15px;
+      align-items: center;
 
       .button {
         padding: 8px 10px;

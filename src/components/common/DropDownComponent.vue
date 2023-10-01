@@ -73,8 +73,11 @@ export default defineComponent({
     border: none;
     outline: none;
     width: 100%;
-    padding: 10px;
+    padding: 8px;
     font-size: 16px;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
+      Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol";
     cursor: pointer;
   }
 
