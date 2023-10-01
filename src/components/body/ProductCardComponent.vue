@@ -165,6 +165,9 @@ export default defineComponent({
         margin-right: 10px;
         padding: 8px 10px;
         border: 1px solid lightgray;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
       }
 
       .button {
