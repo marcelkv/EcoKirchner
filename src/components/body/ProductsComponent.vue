@@ -26,8 +26,28 @@ export default defineComponent({
     const clientService = inject<IClientService>("clientService");
     const isLoading = ref(true);
     const products = ref<Product[]>([]);
+    const productMaxWidth = 400;
+    const productMinWidth = 200;
+    const productMargin = 20;
+    const productPadding = 10;
 
-    const isLarge = computed(() => responsiveService.widthSize.value);
+    const widthSize = computed(() => responsiveService.widthSize.value);
+    const productsListStyle = computed(() => {
+      return {
+        "--maxWidth": productMaxWidth + "px",
+        "--minWidth": productMinWidth + "px",
+        "--margin": productMargin + "px",
+        "--padding": productPadding + "px",
+      };
+    });
+
+    const isLargerThanProduct = computed(() => {
+      const totalProductSize = productMaxWidth + productMargin;
+      return (
+        totalProductSize < responsiveService.windowWidth.value &&
+        responsiveService.widthSize.value !== SizeType.Large
+      );
+    });
 
     onMounted(async () => {
       await nextTick();
@@ -37,35 +57,37 @@ export default defineComponent({
       await clientService.setProductsImagesAsync(products.value);
     });
 
-    function onBuyRequested(productId: string, amount: number): void {
-      console.log("Buy product: " + productId + " " + amount + " times.");
-    }
-
     return {
-      isLarge,
+      widthSize,
+      productsListStyle,
+      isLargerThanProduct,
       products,
       isLoading,
-      onBuyRequested,
     };
   },
 });
 </script>
 
 <template>
-  <div
-    class="products"
-    v-bind:class="{
-      isLarge: isLarge === SizeType.Large,
-    }"
-  >
+  <div class="products">
     <Spinner v-if="isLoading" v-bind:withText="true"></Spinner>
-    <div v-else class="productsList">
+    <div
+      v-else
+      class="productsList"
+      v-bind:class="{
+        isLargerThanProduct: isLargerThanProduct,
+        isLarge: widthSize === SizeType.Large,
+      }"
+      v-bind:style="productsListStyle"
+    >
       <ProductCard
         v-for="product in products"
         v-bind:product="product"
         :key="product.productId"
         class="product"
-        v-on:onBuyRequested="onBuyRequested"
+        v-bind:class="{
+          maxWidth: widthSize === SizeType.Large,
+        }"
       ></ProductCard>
     </div>
   </div>
@@ -81,24 +103,17 @@ export default defineComponent({
 
   .productsList {
     width: 100%;
-    height: auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
-  }
-}
-
-.products.isLarge {
-  .productsList {
-    flex-direction: row;
     align-items: flex-start;
-    flex-wrap: wrap;
-    --productWidth: 400px;
 
-    .product {
-      margin-left: 20px;
-      margin-right: 20px;
-      min-width: var(--productWidth);
+    &.isLargerThanProduct {
+      align-items: center;
+    }
+
+    &.isLarge {
+      flex-direction: row;
+      flex-wrap: wrap;
     }
   }
 }
