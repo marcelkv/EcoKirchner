@@ -4,9 +4,11 @@ import { Product } from "@/common/models/product";
 import SectionImageComponent from "@/components/product-card/SectionImageComponent.vue";
 import SectionSeparatorComponent from "@/components/product-card/SectionSeparatorComponent.vue";
 import SectionTextComponent from "@/components/product-card/SectionTextComponent.vue";
+import SectionBuyComponent from "@/components/product-card/SectionBuyComponent.vue";
 
 export default defineComponent({
   components: {
+    SectionBuy: SectionBuyComponent,
     SectionText: SectionTextComponent,
     SectionImage: SectionImageComponent,
     SectionSeparator: SectionSeparatorComponent,
@@ -24,7 +26,8 @@ export default defineComponent({
     <SectionImage v-bind:product="product" />
     <SectionSeparator />
     <SectionText v-bind:product="product" />
-    <div class="sectionBuy"></div>
+    <div class="sectionEmpty" />
+    <SectionBuy v-bind:product="product" />
   </div>
 </template>
 
@@ -61,9 +64,13 @@ export default defineComponent({
     height: 80px;
   }
 
+  .sectionEmpty {
+    height: 30px;
+  }
+
   .sectionBuy {
     width: 100%;
-    height: 70px;
+    height: 40px;
   }
 }
 </style>

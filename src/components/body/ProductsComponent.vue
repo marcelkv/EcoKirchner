@@ -127,7 +127,7 @@ export default defineComponent({
 
   .productsList {
     --maxWidth: 400px;
-    --minWidth: 200px;
+    --minWidth: 270px;
     --margin: 20px;
     --padding: 10px;
 

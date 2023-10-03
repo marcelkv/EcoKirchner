@@ -65,6 +65,8 @@ export default defineComponent({
 
 <style scoped lang="less">
 .dropDown {
+  display: flex;
+
   select {
     appearance: none;
     -webkit-appearance: none;
@@ -73,7 +75,7 @@ export default defineComponent({
     border: none;
     outline: none;
     width: 100%;
-    padding: 8px;
+    height: 100%;
     font-size: 16px;
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
       Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
@@ -83,9 +85,12 @@ export default defineComponent({
 
   .customDropDown {
     position: relative;
-    margin-right: 10px;
-    width: 60px;
+    width: 100%;
     border: 1px solid lightgray;
+
+    .dropDown {
+      padding-left: 10px;
+    }
 
     .arrow {
       position: absolute;
