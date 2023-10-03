@@ -14,9 +14,10 @@ export default defineComponent({
     onBeforeMount(async () => {
       if (!props.product.imageUrl) {
         await clientService.setProductImageAsync(props.product);
+        loadImage();
+      } else {
+        isLoadingImage.value = false;
       }
-
-      loadImage();
     });
 
     function loadImage(): void {
