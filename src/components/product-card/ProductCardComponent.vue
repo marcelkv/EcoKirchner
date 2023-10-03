@@ -2,9 +2,13 @@
 import { defineComponent } from "vue";
 import { Product } from "@/common/models/product";
 import SectionSeparatorComponent from "@/components/product-card/SectionSeparatorComponent.vue";
+import SectionImageComponent from "@/components/product-card/SectionImageComponent.vue";
 
 export default defineComponent({
-  components: { SectionSeparator: SectionSeparatorComponent },
+  components: {
+    SectionImage: SectionImageComponent,
+    SectionSeparator: SectionSeparatorComponent,
+  },
   props: { product: { type: Product, required: true } },
   emits: ["onBuyRequested"],
   setup() {
@@ -15,12 +19,10 @@ export default defineComponent({
 
 <template>
   <div class="product">
-    <div class="sectionImageWrapper"></div>
-    <div class="sectionSeparatorWrapper">
-      <SectionSeparator />
-    </div>
-    <div class="sectionTextWrapper"></div>
-    <div class="sectionBuyWrapper"></div>
+    <SectionImage v-bind:product="product" />
+    <SectionSeparator />
+    <div class="sectionText"></div>
+    <div class="sectionBuy"></div>
   </div>
 </template>
 
@@ -41,23 +43,23 @@ export default defineComponent({
     width: var(--maxWidth);
   }
 
-  .sectionImageWrapper {
+  .sectionImage {
     min-height: 274px;
     max-height: 274px;
     width: 100%;
   }
 
-  .sectionSeparatorWrapper {
+  .sectionSeparator {
     width: 100%;
     height: 1px;
   }
 
-  .sectionTextWrapper {
+  .sectionText {
     width: 100%;
     height: 80px;
   }
 
-  .sectionBuyWrapper {
+  .sectionBuy {
     width: 100%;
     height: 70px;
   }

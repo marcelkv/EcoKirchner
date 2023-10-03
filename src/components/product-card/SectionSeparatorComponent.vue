@@ -1,14 +1,21 @@
 <script lang="ts"></script>
 
 <template>
-  <div class="sectionSeparator"></div>
+  <div class="sectionSeparator">
+    <div class="gradient"></div>
+  </div>
 </template>
 
 <style scoped lang="less">
 .sectionSeparator {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to right, transparent, lightgray, transparent);
-  margin: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .gradient {
+    background: linear-gradient(to right, transparent, lightgray, transparent);
+    width: 80%;
+    height: 100%;
+  }
 }
 </style>

@@ -54,7 +54,6 @@ export default defineComponent({
       const loadedProducts = await clientService.getProductsAsync();
       products.value.splice(0, loadedProducts.length, ...loadedProducts);
       isLoading.value = false;
-      await clientService.setProductsImagesAsync(products.value);
     });
 
     return {

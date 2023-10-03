@@ -40,7 +40,6 @@ export default {
   }
 
   .text {
-    height: 40px;
     margin-top: 10px;
   }
 
