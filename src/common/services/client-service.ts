@@ -20,6 +20,7 @@ export class ClientService implements IClientService {
   private readonly _firestore: Firestore;
   private readonly _productsCol;
   private readonly _storage: FirebaseStorage;
+  private _products: Product[];
 
   constructor() {
     this._firebaseApp = initializeApp(firebaseConfig);
@@ -29,9 +30,13 @@ export class ClientService implements IClientService {
   }
 
   async getProductsAsync(): Promise<Product[]> {
+    if (this._products) {
+      return this._products;
+    }
+
     const productsSnapshot = await getDocs(this._productsCol);
 
-    return productsSnapshot.docs.map((doc) => {
+    this._products = productsSnapshot.docs.map((doc) => {
       const data = doc.data();
       return new Product(
         data.productId,
@@ -41,6 +46,7 @@ export class ClientService implements IClientService {
         data.image
       );
     });
+    return this._products;
   }
 
   async setProductsImagesAsync(products: Product[]): Promise<void> {
@@ -51,6 +57,10 @@ export class ClientService implements IClientService {
     for (let i = 0; i < products.length; i++) {
       products[i].imageUrl = imageUrls[i];
     }
+  }
+
+  async setProductImageAsync(product: Product): Promise<void> {
+    product.imageUrl = await this._getImageDownloadUrl(product.imageReference);
   }
 
   private async _getImageDownloadUrl(imagePath: string): Promise<string> {

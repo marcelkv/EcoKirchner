@@ -55,6 +55,8 @@ body {
     "Segoe UI Symbol";
   font-weight: 400;
 
+  --lineColor: lightgray;
+
   .header,
   .footer {
     z-index: 1;
