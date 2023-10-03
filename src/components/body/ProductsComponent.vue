@@ -11,7 +11,7 @@ import {
 import { Product } from "@/common/models/product";
 import { IResponsiveService } from "@/common/services/responsive-service.interface";
 import { SizeType } from "@/common/services/size-type";
-import ProductCardComponent from "@/components/body/ProductCardComponent.vue";
+import ProductCardComponent from "@/components/product-card/ProductCardComponent.vue";
 import SpinnerComponent from "@/components/common/SpinnerComponent.vue";
 
 export default defineComponent({

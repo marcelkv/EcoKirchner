@@ -1,9 +1,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Product } from "@/common/models/product";
+import SectionSeparatorComponent from "@/components/product-card/SectionSeparatorComponent.vue";
 
 export default defineComponent({
-  components: {},
+  components: { SectionSeparator: SectionSeparatorComponent },
   props: { product: { type: Product, required: true } },
   emits: ["onBuyRequested"],
   setup() {
@@ -14,10 +15,12 @@ export default defineComponent({
 
 <template>
   <div class="product">
-    <div class="sectionImage"></div>
-    <div class="sectionSeparator"></div>
-    <div class="sectionText"></div>
-    <div class="sectionBuy"></div>
+    <div class="sectionImageWrapper"></div>
+    <div class="sectionSeparatorWrapper">
+      <SectionSeparator />
+    </div>
+    <div class="sectionTextWrapper"></div>
+    <div class="sectionBuyWrapper"></div>
   </div>
 </template>
 
@@ -38,23 +41,23 @@ export default defineComponent({
     width: var(--maxWidth);
   }
 
-  .sectionImage {
+  .sectionImageWrapper {
     min-height: 274px;
     max-height: 274px;
     width: 100%;
   }
 
-  .sectionSeparator {
+  .sectionSeparatorWrapper {
     width: 100%;
     height: 1px;
   }
 
-  .sectionText {
+  .sectionTextWrapper {
     width: 100%;
     height: 80px;
   }
 
-  .sectionBuy {
+  .sectionBuyWrapper {
     width: 100%;
     height: 70px;
   }
