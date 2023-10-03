@@ -1,11 +1,13 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Product } from "@/common/models/product";
-import SectionSeparatorComponent from "@/components/product-card/SectionSeparatorComponent.vue";
 import SectionImageComponent from "@/components/product-card/SectionImageComponent.vue";
+import SectionSeparatorComponent from "@/components/product-card/SectionSeparatorComponent.vue";
+import SectionTextComponent from "@/components/product-card/SectionTextComponent.vue";
 
 export default defineComponent({
   components: {
+    SectionText: SectionTextComponent,
     SectionImage: SectionImageComponent,
     SectionSeparator: SectionSeparatorComponent,
   },
@@ -21,7 +23,7 @@ export default defineComponent({
   <div class="product">
     <SectionImage v-bind:product="product" />
     <SectionSeparator />
-    <div class="sectionText"></div>
+    <SectionText v-bind:product="product" />
     <div class="sectionBuy"></div>
   </div>
 </template>

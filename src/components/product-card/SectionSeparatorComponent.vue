@@ -14,7 +14,7 @@
 
   .gradient {
     background: linear-gradient(to right, transparent, lightgray, transparent);
-    width: 80%;
+    width: 95%;
     height: 100%;
   }
 }
