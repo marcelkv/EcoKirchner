@@ -1,15 +1,43 @@
 <script lang="ts">
-import { defineComponent, inject } from "vue";
+import { defineComponent, inject, onMounted, ref } from "vue";
 import DropDownMenuComponent from "@/components/header/DropDownMenuComponent.vue";
 import { IMenuService } from "@/common/services/menu-service.interface";
+import InfoPopUpComponent from "@/components/common/InfoPopUpComponent.vue";
+import { InfoPopUpVm } from "../common/InfoPopUpVm";
+import { IClientService } from "@/common/services/client-service.interface";
 
 export default defineComponent({
-  components: { DropDownMenu: DropDownMenuComponent },
+  components: {
+    InfoPopUp: InfoPopUpComponent,
+    DropDownMenu: DropDownMenuComponent,
+  },
   setup() {
     const menuService = inject<IMenuService>("menuService");
+    const clientService = inject<IClientService>("clientService");
+    const infoPopUpVm = ref<InfoPopUpVm>(null);
+
+    onMounted(() => {
+      clientService.onProductsAddedToCart.on(onProductsAddedToCart);
+    });
+
+    function onInfoPopUpDone(): void {
+      infoPopUpVm.value = null;
+    }
+
+    function onProductsAddedToCart(): void {
+      infoPopUpVm.value = new InfoPopUpVm(
+        "Artikel wurde zum einkaufswagen hinzugefügt.",
+        "WEITER SHOPEN",
+        "ZUM WARENKORB",
+        null,
+        "LogIn"
+      );
+    }
 
     return {
+      infoPopUpVm,
       menuService,
+      onInfoPopUpDone,
     };
   },
 });
@@ -18,6 +46,11 @@ export default defineComponent({
 <template>
   <div class="body">
     <DropDownMenu v-bind:class="{ isOpen: menuService.isHamburgerOpen }" />
+    <InfoPopUp
+      v-if="infoPopUpVm"
+      v-bind:infoPopUpVm="infoPopUpVm"
+      v-on:onDone="onInfoPopUpDone"
+    />
     <router-view />
   </div>
 </template>

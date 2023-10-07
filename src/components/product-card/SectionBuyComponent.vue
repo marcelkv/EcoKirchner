@@ -1,15 +1,18 @@
 <script lang="ts">
 import { Product } from "@/common/models/product";
-import { computed, defineComponent, onBeforeMount, ref } from "vue";
+import { computed, defineComponent, inject, onBeforeMount, ref } from "vue";
 import DropDownComponent from "@/components/common/DropDownComponent.vue";
+import { IClientService } from "@/common/services/client-service.interface";
 
 export default defineComponent({
   components: { DropDown: DropDownComponent },
   props: { product: { type: Product, required: true } },
+
   setup(props) {
     const NUM_AVAILABLE = 10;
     const selectedQuantity = ref(1);
     const dropDownItems = ref<number[]>([]);
+    const clientService = inject<IClientService>("clientService");
 
     onBeforeMount(() => {
       let quantity = 20;
@@ -36,9 +39,9 @@ export default defineComponent({
       selectedQuantity.value = value;
     }
 
-    function onBuyClicked(): void {
-      console.log(
-        "onBuyRequested: " + props.product.productId + ", total ",
+    async function onBuyClicked(): Promise<void> {
+      await clientService.addProductToCart(
+        props.product,
         selectedQuantity.value
       );
     }

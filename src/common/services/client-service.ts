@@ -14,6 +14,8 @@ import {
   getDownloadURL,
   ref as storageRef,
 } from "firebase/storage";
+import { CartItem } from "@/common/models/cart-item";
+import { SimpleEvent } from "../simple-event";
 
 export class ClientService implements IClientService {
   private readonly _firebaseApp: FirebaseApp;
@@ -21,6 +23,9 @@ export class ClientService implements IClientService {
   private readonly _productsCol;
   private readonly _storage: FirebaseStorage;
   private _products: Product[];
+  private _cartItems: CartItem[] = [];
+
+  onProductsAddedToCart = new SimpleEvent();
 
   constructor() {
     this._firebaseApp = initializeApp(firebaseConfig);
@@ -61,6 +66,23 @@ export class ClientService implements IClientService {
 
   async setProductImageAsync(product: Product): Promise<void> {
     product.imageUrl = await this._getImageDownloadUrl(product.imageReference);
+  }
+
+  async addProductToCart(product: Product, numItems: number): Promise<void> {
+    if (!product) {
+      return;
+    }
+
+    const existingProduct = this._cartItems.find(
+      (cartItem) => cartItem.product.productId === product.productId
+    );
+
+    if (existingProduct) {
+      existingProduct.numItems += numItems;
+    } else {
+      this._cartItems.push(new CartItem(product, numItems));
+    }
+    this.onProductsAddedToCart.emit();
   }
 
   private async _getImageDownloadUrl(imagePath: string): Promise<string> {
