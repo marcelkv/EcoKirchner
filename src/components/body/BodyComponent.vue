@@ -26,7 +26,7 @@ export default defineComponent({
 
     function onProductsAddedToCart(): void {
       infoPopUpVm.value = new InfoPopUpVm(
-        "Artikel wurde zum einkaufswagen hinzugefügt.",
+        "Artikel wurde zum Einkaufswagen hinzugefügt.",
         "WEITER SHOPEN",
         "ZUM WARENKORB",
         null,
