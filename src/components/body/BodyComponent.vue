@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, inject, onMounted, ref } from "vue";
+import { defineComponent, inject, onMounted, ref, watch } from "vue";
 import DropDownMenuComponent from "@/components/header/DropDownMenuComponent.vue";
 import { IMenuService } from "@/common/services/menu-service.interface";
 import InfoPopUpComponent from "@/components/common/InfoPopUpComponent.vue";
@@ -30,9 +30,17 @@ export default defineComponent({
         "WEITER SHOPEN",
         "ZUM WARENKORB",
         null,
-        "LogIn"
+        "CartPage"
       );
     }
+
+    function onHamburgerChanged(): void {
+      if (menuService.isHamburgerOpen) {
+        infoPopUpVm.value = null;
+      }
+    }
+
+    watch(() => menuService.isHamburgerOpen, onHamburgerChanged);
 
     return {
       infoPopUpVm,

@@ -31,6 +31,10 @@ export default defineComponent({
       await router.push({ name: "Contact" });
     }
 
+    async function onClickShoppingCart(): Promise<void> {
+      await router.push({ name: "CartPage" });
+    }
+
     function onClickCloseMenu(): void {
       menuService.isHamburgerOpen = false;
     }
@@ -52,6 +56,7 @@ export default defineComponent({
       onClickProducts,
       onClickAbout,
       onClickContact,
+      onClickShoppingCart,
       onClickCloseMenu,
     };
   },
@@ -64,6 +69,7 @@ export default defineComponent({
       <div class="item" v-on:click="onClickProducts">Produkte</div>
       <div class="item" v-on:click="onClickAbout">Über uns</div>
       <div class="item" v-on:click="onClickContact">Kontakt</div>
+      <div class="item" v-on:click="onClickShoppingCart">Einkaufswagen</div>
       <UserMenuItem
         v-if="
           heightSize === SizeType.ExtraSmall || heightSize === SizeType.Small

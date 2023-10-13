@@ -4,6 +4,7 @@ import HomeComponent from "@/components/body/HomeComponent.vue";
 import ProductsComponent from "@/components/body/ProductsComponent.vue";
 import AboutComponent from "@/components/body/AboutComponent.vue";
 import ContactComponent from "@/components/body/ContactComponent.vue";
+import CartPageComponent from "@/components/cart/CartPageComponent.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -30,6 +31,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/login",
     name: "LogIn",
     component: LogInComponent,
+  },
+  {
+    path: "/cart-page",
+    name: "CartPage",
+    component: CartPageComponent,
   },
   { path: "/:catchAll(.*)", redirect: "/products" },
 ];

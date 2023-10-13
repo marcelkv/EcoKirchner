@@ -3,9 +3,13 @@ import { Product } from "@/common/models/product";
 import { computed, defineComponent, inject, onBeforeMount, ref } from "vue";
 import DropDownComponent from "@/components/common/DropDownComponent.vue";
 import { IClientService } from "@/common/services/client-service.interface";
+import ButtonDefaultComponent from "@/components/common/ButtonDefaultComponent.vue";
 
 export default defineComponent({
-  components: { DropDown: DropDownComponent },
+  components: {
+    ButtonDefault: ButtonDefaultComponent,
+    DropDown: DropDownComponent,
+  },
   props: { product: { type: Product, required: true } },
 
   setup(props) {
@@ -66,16 +70,7 @@ export default defineComponent({
         v-bind:items="dropDownItems"
         v-on:dropDownChanged="onDropDownChanged"
       />
-      <label for="buttonBuy"></label>
-      <div
-        id="buttonBuy"
-        class="button"
-        tabindex="0"
-        v-on:keydown.enter="onBuyClicked"
-        v-on:click="onBuyClicked"
-      >
-        KAUFEN
-      </div>
+      <ButtonDefault text="KAUFEN" v-on:onButtonClicked="onBuyClicked" />
     </div>
   </div>
 </template>
@@ -112,15 +107,8 @@ export default defineComponent({
       margin-right: 10px;
     }
 
-    .button {
-      height: 100%;
+    .button-default {
       width: 90px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid lightgray;
-      cursor: pointer;
-      user-select: none;
       box-sizing: border-box;
     }
   }

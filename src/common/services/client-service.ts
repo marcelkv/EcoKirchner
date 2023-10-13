@@ -27,6 +27,10 @@ export class ClientService implements IClientService {
 
   onProductsAddedToCart = new SimpleEvent();
 
+  get cartItems(): CartItem[] {
+    return this._cartItems.map((cartItem) => cartItem);
+  }
+
   constructor() {
     this._firebaseApp = initializeApp(firebaseConfig);
     this._firestore = getFirestore(this._firebaseApp);
@@ -78,11 +82,39 @@ export class ClientService implements IClientService {
     );
 
     if (existingProduct) {
-      existingProduct.numItems += numItems;
+      const newTotal = existingProduct.numItems + numItems;
+      existingProduct.numItems =
+        newTotal <= product.quantity ? newTotal : product.quantity;
     } else {
       this._cartItems.push(new CartItem(product, numItems));
     }
+
     this.onProductsAddedToCart.emit();
+  }
+
+  updateProductFromCart(product: Product, numItems: number): Promise<void> {
+    const existingProduct = this._cartItems.find(
+      (cartItem) => cartItem.product.productId === product.productId
+    );
+
+    if (!existingProduct) {
+      return;
+    }
+
+    existingProduct.numItems =
+      numItems <= product.quantity ? numItems : product.quantity;
+  }
+
+  deleteProductFromCart(product: Product): Promise<void> {
+    const index = this._cartItems.findIndex(
+      (cartItem) => cartItem.product.productId === product.productId
+    );
+
+    if (index === -1) {
+      return;
+    }
+
+    this._cartItems.splice(index, 1);
   }
 
   private async _getImageDownloadUrl(imagePath: string): Promise<string> {

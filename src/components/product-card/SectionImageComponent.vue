@@ -36,7 +36,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="sectionImage">
+  <div class="section-image">
     <Spinner v-if="isLoadingImage" v-bind:with-text="true" />
     <img
       v-else
@@ -48,7 +48,7 @@ export default defineComponent({
 </template>
 
 <style scoped lang="less">
-.sectionImage {
+.section-image {
   display: flex;
   justify-content: center;
 

@@ -48,7 +48,7 @@ export default defineComponent({
     width: var(--maxWidth);
   }
 
-  .sectionImage {
+  .section-image {
     min-height: 274px;
     max-height: 274px;
     width: 100%;

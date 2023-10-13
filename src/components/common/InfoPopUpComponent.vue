@@ -12,9 +12,13 @@ import { InfoPopUpVm } from "./InfoPopUpVm";
 import { IResponsiveService } from "@/common/services/responsive-service.interface";
 import { SizeType } from "@/common/services/size-type";
 import SuccessIconComponent from "./SuccessIconComponent.vue";
+import ButtonDefaultComponent from "@/components/common/ButtonDefaultComponent.vue";
 
 export default defineComponent({
-  components: { SuccessIcon: SuccessIconComponent },
+  components: {
+    ButtonDefault: ButtonDefaultComponent,
+    SuccessIcon: SuccessIconComponent,
+  },
   props: {
     infoPopUpVm: { type: InfoPopUpVm, required: true },
   },
@@ -36,6 +40,23 @@ export default defineComponent({
     const isLarge = computed(
       () => responsiveService.widthSize.value === SizeType.Large
     );
+
+    async function onClickOutside(event: MouseEvent): Promise<void> {
+      const popUpElement = event.target as HTMLDivElement;
+
+      if (!popUpElement) {
+        return;
+      }
+
+      const isClickOutside = popUpElement.classList.contains("infoPopUp");
+
+      if (!isClickOutside) {
+        return;
+      }
+
+      context.emit("onDone");
+      await router.push({ name: props.infoPopUpVm.redirectCancel });
+    }
 
     function onCancelClicked(): void {
       success.value = false;
@@ -67,6 +88,7 @@ export default defineComponent({
       isOpen,
       isLarge,
       responsiveService,
+      onClickOutside,
       onCancelClicked,
       onOkClicked,
       onTransitionEnd,
@@ -78,7 +100,7 @@ export default defineComponent({
 <template>
   <div
     class="infoPopUp"
-    v-on:click="onCancelClicked"
+    v-on:click="onClickOutside"
     v-bind:class="{
       isOpen: isOpen,
     }"
@@ -101,12 +123,14 @@ export default defineComponent({
           isLarge: isLarge,
         }"
       >
-        <div class="button cancel" v-on:click="onCancelClicked">
-          {{ infoPopUpVm.textCancel }}
-        </div>
-        <div class="button ok" v-on:click="onOkClicked">
-          {{ infoPopUpVm.textOk }}
-        </div>
+        <ButtonDefault
+          v-bind:text="infoPopUpVm.textCancel"
+          v-on:onButtonClicked="onCancelClicked"
+        ></ButtonDefault>
+        <ButtonDefault
+          v-bind:text="infoPopUpVm.textOk"
+          v-on:onButtonClicked="onOkClicked"
+        ></ButtonDefault>
       </div>
     </div>
   </div>
@@ -143,6 +167,7 @@ export default defineComponent({
     align-items: flex-end;
     padding: 10px;
     background-color: white;
+    user-select: none;
 
     &.isOpen {
       top: 0;
@@ -152,6 +177,7 @@ export default defineComponent({
       display: flex;
       align-items: center;
       margin: 10px;
+
       .successIcon {
         --iconSize: 50px;
       }
@@ -176,16 +202,8 @@ export default defineComponent({
         flex-wrap: nowrap;
       }
 
-      .button {
-        width: 100%;
+      .button-default {
         height: 30px;
-        border: 1px solid var(--lineColor);
-        border-radius: 2px;
-        padding: 5px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 2;
         margin: 10px;
       }
     }

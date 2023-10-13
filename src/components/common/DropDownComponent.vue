@@ -3,6 +3,7 @@ import { defineComponent, onMounted, PropType, ref, watch } from "vue";
 
 export default defineComponent({
   props: {
+    selectedIndex: { type: Number, required: false },
     items: { type: Array as PropType<(string | number)[]>, required: true },
   },
   emits: ["dropDownChanged"],
@@ -15,7 +16,12 @@ export default defineComponent({
         return;
       }
 
-      selected.value = props.items[0];
+      let index = 0;
+      if (props.selectedIndex > 0 && props.selectedIndex < props.items.length) {
+        index = props.selectedIndex;
+      }
+
+      selected.value = props.items[index];
     });
 
     function onArrowDropDownClick(): void {

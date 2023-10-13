@@ -2,18 +2,19 @@
 import { IUserService } from "@/common/services/user-service.interface";
 import { defineComponent, inject, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import ButtonComponent from "@/components/common/ButtonComponent.vue";
 import SpinnerComponent from "@/components/common/SpinnerComponent.vue";
+import GoogleButtonComponent from "@/components/common/GoogleButtonComponent.vue";
 
 export default defineComponent({
-  components: { SpinnerComponent, ButtonComponent },
+  components: {
+    GoogleButton: GoogleButtonComponent,
+    SpinnerComponent,
+  },
   setup() {
     const userService = inject<IUserService>("userService");
     const router = useRouter();
     let isLoading = ref(true);
     let isSignedIn = ref(false);
-    const googleSvg =
-      "https://accounts.scdn.co/sso/images/new-google-icon.72fd940a229bc94cf9484a3320b3dccb.svg";
 
     onMounted(async () => {
       if (userService.isSignedIn) {
@@ -43,7 +44,6 @@ export default defineComponent({
     return {
       isLoading,
       isSignedIn,
-      googleSvg,
       onClickSignInWithGoogle,
       onClickSignOut,
     };
@@ -59,21 +59,9 @@ export default defineComponent({
     </div>
     <div v-else class="loginWrapper">
       <div class="header">
-        <div v-if="isSignedIn" class="headerText">Bei EcoKirchner abmelden</div>
-        <div v-else class="headerText">Bei EcoKirchner anmelden</div>
+        <div class="headerText">Bei EcoKirchner anmelden</div>
       </div>
-      <ButtonComponent
-        v-if="isSignedIn"
-        v-bind:icon-svg="googleSvg"
-        v-bind:button-text="'Abmelden'"
-        v-on:click="onClickSignOut"
-      />
-      <ButtonComponent
-        v-else
-        v-bind:icon-svg="googleSvg"
-        v-bind:button-text="'Weiter mit Google'"
-        v-on:click="onClickSignInWithGoogle"
-      />
+      <GoogleButton v-on:onButtonClicked="onClickSignInWithGoogle" />
     </div>
   </div>
 </template>
@@ -102,7 +90,7 @@ export default defineComponent({
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    --signInButtonHeight: 50px;
+    --signInButtonHeight: 55px;
 
     .header {
       position: absolute;
@@ -114,6 +102,12 @@ export default defineComponent({
         font-weight: bold;
         font-size: 24px;
       }
+    }
+
+    .google-button {
+      height: var(--signInButtonHeight);
+      max-width: 340px;
+      width: 100%;
     }
 
     @media (max-height: 360px) {
