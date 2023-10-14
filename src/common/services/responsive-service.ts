@@ -28,6 +28,10 @@ export class ResponsiveService implements IResponsiveService {
     this._startListening();
   }
 
+  init(): void {
+    this._updateWindowWidth();
+  }
+
   private _setSizes(): void {
     this.widthSize.value = this._getWidthSize(window.innerWidth);
     this.heightSize.value = this._getHeightSize(window.innerHeight);

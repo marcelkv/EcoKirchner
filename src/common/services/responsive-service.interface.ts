@@ -6,5 +6,6 @@ export interface IResponsiveService {
   windowHeight: Ref<number>;
   widthSize: Ref<SizeType>;
   heightSize: Ref<SizeType>;
+  init(): void;
   destroy(): void;
 }

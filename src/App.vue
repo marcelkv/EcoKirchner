@@ -1,8 +1,9 @@
 <script lang="ts">
-import { defineComponent, onBeforeMount } from "vue";
+import { defineComponent, inject, onBeforeMount, onMounted } from "vue";
 import HeaderComponent from "@/components/header/HeaderComponent.vue";
 import BodyComponent from "@/components/body/BodyComponent.vue";
 import FooterComponent from "@/components/footer/FooterComponent.vue";
+import { IResponsiveService } from "@/common/services/responsive-service.interface";
 
 export default defineComponent({
   name: "App",
@@ -12,9 +13,13 @@ export default defineComponent({
     Footer: FooterComponent,
   },
   setup() {
+    const responsiveService = inject<IResponsiveService>("responsiveService");
+
     onBeforeMount(() => {
       document.title = "Ecokirchner";
     });
+
+    onMounted(() => responsiveService.init());
 
     return {};
   },
