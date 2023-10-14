@@ -1,15 +1,15 @@
 <script lang="ts">
-import { defineComponent, inject, onBeforeMount, ref } from "vue";
+import { defineComponent, inject } from "vue";
 import { CartItem } from "@/common/models/cart-item";
 import SectionImageComponent from "@/components/product-card/SectionImageComponent.vue";
 import TrashIconComponent from "@/components/common/TrashIconComponent.vue";
 import SectionSeparatorComponent from "@/components/product-card/SectionSeparatorComponent.vue";
-import DropDownComponent from "@/components/common/DropDownComponent.vue";
+import DecrementIncrementComponent from "@/components/common/DecrementIncrementComponent.vue";
 import { IClientService } from "@/common/services/client-service.interface";
 
 export default defineComponent({
   components: {
-    DropDown: DropDownComponent,
+    DecrementIncrement: DecrementIncrementComponent,
     SectionSeparator: SectionSeparatorComponent,
     SectionImage: SectionImageComponent,
     TrashIcon: TrashIconComponent,
@@ -19,25 +19,30 @@ export default defineComponent({
   },
   setup(props) {
     const clientService = inject<IClientService>("clientService");
-    const dropDownItems = ref<number[]>([]);
-
-    onBeforeMount(() => {
-      let quantity = 20;
-      if (props.cartItem.product.quantity < 20) {
-        quantity = props.cartItem.product.quantity;
-      }
-      dropDownItems.value = Array.from({ length: quantity }, (_, i) => i + 1);
-    });
 
     function onDelete(): void {
       clientService.deleteProductFromCart(props.cartItem.product);
     }
 
-    function onNumItemsChanged(numItems: number): void {
-      clientService.updateProductFromCart(props.cartItem.product, numItems);
+    function onDecrementClicked(): void {
+      clientService.updateProductFromCart(
+        props.cartItem.product,
+        props.cartItem.numItems - 1
+      );
     }
 
-    return { dropDownItems, onDelete, onNumItemsChanged };
+    function onIncrementClicked(): void {
+      clientService.updateProductFromCart(
+        props.cartItem.product,
+        props.cartItem.numItems + 1
+      );
+    }
+
+    function onSetValue(value: number): void {
+      clientService.updateProductFromCart(props.cartItem.product, value);
+    }
+
+    return { onDelete, onDecrementClicked, onIncrementClicked, onSetValue };
   },
 });
 </script>
@@ -52,10 +57,11 @@ export default defineComponent({
       <TrashIcon v-on:click="onDelete" />
     </div>
     <div class="row-2">
-      <DropDown
-        v-bind:items="dropDownItems"
-        v-bind:selectedIndex="cartItem.numItems - 1"
-        v-on:dropDownChanged="onNumItemsChanged"
+      <DecrementIncrement
+        v-bind:initialNumber="cartItem.numItems"
+        v-on:onDecrementClicked="onDecrementClicked"
+        v-on:onIncrementClicked="onIncrementClicked"
+        v-on:onSetValue="onSetValue"
       />
       <div class="section-price">{{ cartItem.product.costAsString }}</div>
       <div class="section-total-price">{{ cartItem.costAsString }}</div>
@@ -104,9 +110,10 @@ export default defineComponent({
     margin: 5px 10px 10px 10px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
-    .dropDown {
-      width: 60px;
+    .decrement-increment {
+      width: 90px;
       height: 30px;
     }
   }

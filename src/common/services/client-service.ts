@@ -16,6 +16,7 @@ import {
 } from "firebase/storage";
 import { CartItem } from "@/common/models/cart-item";
 import { SimpleEvent } from "../simple-event";
+import { clamp } from "lodash";
 
 export class ClientService implements IClientService {
   private readonly _firebaseApp: FirebaseApp;
@@ -83,8 +84,7 @@ export class ClientService implements IClientService {
 
     if (existingProduct) {
       const newTotal = existingProduct.numItems + numItems;
-      existingProduct.numItems =
-        newTotal <= product.quantity ? newTotal : product.quantity;
+      existingProduct.numItems = clamp(newTotal, 1, product.quantity);
     } else {
       this._cartItems.push(new CartItem(product, numItems));
     }
@@ -101,8 +101,7 @@ export class ClientService implements IClientService {
       return;
     }
 
-    existingProduct.numItems =
-      numItems <= product.quantity ? numItems : product.quantity;
+    existingProduct.numItems = clamp(numItems, 1, product.quantity);
   }
 
   deleteProductFromCart(product: Product): Promise<void> {
