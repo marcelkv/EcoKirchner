@@ -1,52 +1,55 @@
 <script lang="ts">
-import { computed, defineComponent, inject, ref } from "vue";
+import { computed, defineComponent, inject } from "vue";
 import { useRouter } from "vue-router";
 import { IClientService } from "@/common/services/client-service.interface";
-import { IUserService } from "@/common/services/user-service.interface";
+
 import ButtonDefaultComponent from "@/components/common/ButtonDefaultComponent.vue";
-import GoogleButtonComponent from "@/components/common/GoogleButtonComponent.vue";
 import CartItemComponent from "@/components/cart/CartItemComponent.vue";
+import { IResponsiveService } from "@/common/services/responsive-service.interface";
+import { SizeType } from "@/common/services/size-type";
 
 export default defineComponent({
   components: {
     CartItem: CartItemComponent,
-    GoogleButton: GoogleButtonComponent,
     ButtonDefault: ButtonDefaultComponent,
   },
   setup() {
     const clientService = inject<IClientService>("clientService");
-    const userService = inject<IUserService>("userService");
+    const responsiveService = inject<IResponsiveService>("responsiveService");
     const router = useRouter();
-    let isLoggingIn = ref(false);
 
     const hasCartItems = computed(() => clientService.cartItems.length > 0);
     const cartItems = computed(() => clientService.cartItems);
-    const isSignedIn = computed(() => userService.isSignedIn);
+    const isSmallSize = computed(() => {
+      return (
+        responsiveService.windowWidth.value <
+          responsiveService.windowHeight.value &&
+        (responsiveService.widthSize.value === SizeType.Small ||
+          responsiveService.widthSize.value === SizeType.ExtraSmall)
+      );
+    });
 
     async function onContinueShoppingClicked(): Promise<void> {
       await router.push({ name: "Products" });
     }
 
-    async function onClickSignInWithGoogle(): Promise<void> {
-      isLoggingIn.value = true;
-      await userService.signInWithGoogle();
-      isLoggingIn.value = false;
+    async function onBuyClicked(): Promise<void> {
+      return;
     }
 
     return {
-      isLoggingIn,
-      isSignedIn,
+      isSmallSize,
       hasCartItems,
       cartItems,
       onContinueShoppingClicked,
-      onClickSignInWithGoogle,
+      onBuyClicked,
     };
   },
 });
 </script>
 
 <template>
-  <div class="cart-page">
+  <div class="cart-page" v-bind:class="{ isSmallSize: isSmallSize }">
     <div class="cart-title">DEIN EINKAUFSWAGEN</div>
     <div v-if="hasCartItems" class="cart-items">
       <CartItem
@@ -58,21 +61,15 @@ export default defineComponent({
     <div v-else class="no-cartItems">
       Es befinden sich noch keine Artikel im Einkaufswagen.
     </div>
-    <div class="continue-shopping">
+    <div class="buttons-section">
       <ButtonDefault
         text="WEITER SHOPEN"
         v-on:onButtonClicked="onContinueShoppingClicked"
       />
-    </div>
-    <div v-if="hasCartItems" class="login-continue">
-      <div v-if="!isSignedIn" class="info-text">
-        Melde dich an um mit dem Einkauf fortzufahren.
-      </div>
-      <ButtonDefault v-if="isSignedIn" text="EINKAUF FORTSETZEN" />
-      <GoogleButton
-        v-else
-        v-bind:isLoading="isLoggingIn"
-        v-on:onButtonClicked="onClickSignInWithGoogle"
+      <ButtonDefault
+        v-if="hasCartItems"
+        text="EINKAUF FORTSETZEN"
+        v-on:onButtonClicked="onBuyClicked"
       />
     </div>
   </div>
@@ -80,72 +77,57 @@ export default defineComponent({
 
 <style scoped lang="less">
 .cart-page {
-  height: 100%;
-  width: 100%;
+  --marginTop: 30px;
+  --marginBottom: 30px;
+  --marginLeft: 60px;
+  --marginRight: 60px;
+  height: calc(100% - var(--marginTop) - var(--marginBottom));
+  width: calc(100% - var(--marginLeft) - var(--marginRight));
   display: flex;
   flex-direction: column;
   overflow: auto;
+  margin: var(--marginTop) var(--marginRight) var(--marginBottom)
+    var(--marginLeft);
+
+  &.isSmallSize {
+    --marginLeft: 5px;
+    --marginRight: 5px;
+  }
 
   .cart-title {
     font-size: 24px;
     padding: 10px;
-    margin-left: 30px;
-    margin-top: 50px;
   }
 
   .no-cartItems {
-    margin: 60px 50px;
+    margin: 60px 20px;
     font-size: 18px;
     padding: 10px;
   }
 
   .cart-items {
-    height: 100%;
-    width: calc(100% - 60px);
     min-width: 300px;
     max-width: 590px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-    margin: 30px;
+    margin: 30px 5px;
   }
 
-  .continue-shopping {
-    margin: 10px 20px;
+  .buttons-section {
+    height: 55px;
+    min-width: 300px;
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-end;
+    align-items: flex-start;
+    margin: 20px;
 
     .button-default {
-      height: 40px;
-      width: 180px;
-      margin: 10px;
-    }
-  }
-
-  .login-continue {
-    margin: 10px 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    .button-default {
-      height: 40px;
-      width: 180px;
-      margin: 10px;
-    }
-
-    .info-text {
-      margin: 50px 10px 30px 10px;
-    }
-
-    .google-button {
-      height: 55px;
-      width: 100%;
-      max-width: 250px;
+      max-width: 350px;
+      height: 30px;
+      margin: 5px;
     }
   }
 }

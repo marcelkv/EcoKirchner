@@ -92,6 +92,7 @@ export default defineComponent({
 
     .trash-icon {
       --iconSize: 20px;
+      margin: 10px;
       min-width: var(--iconSize);
       min-height: var(--iconeSize);
       max-width: var(--iconSize);
