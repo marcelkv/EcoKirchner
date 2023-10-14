@@ -4,9 +4,13 @@ export class CartItem {
   readonly product: Product;
   numItems: number;
 
-  get costAsString(): string {
+  get cost(): number {
     const totalCost = this.product.cost * this.numItems;
-    return Number(totalCost).toFixed(2).replace(".", ",") + " €";
+    return parseFloat(totalCost.toFixed(2));
+  }
+
+  get costAsString(): string {
+    return this.cost.toFixed(2).replace(".", ",") + " €";
   }
 
   constructor(product: Product, numItems: number) {

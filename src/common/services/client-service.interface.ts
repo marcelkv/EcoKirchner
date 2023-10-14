@@ -3,6 +3,8 @@ import { ISimpleEvent } from "../simple-event.interface";
 import { CartItem } from "@/common/models/cart-item";
 
 export interface IClientService {
+  totalCostCart: number;
+  totalCostCartAsString: string;
   cartItems: CartItem[];
   onProductsAddedToCart: ISimpleEvent;
   getProductsAsync(): Promise<Product[]>;

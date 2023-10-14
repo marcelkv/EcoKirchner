@@ -46,6 +46,7 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  user-select: none;
 
   &.is-loading {
     cursor: default;

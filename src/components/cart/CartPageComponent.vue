@@ -20,6 +20,7 @@ export default defineComponent({
 
     const hasCartItems = computed(() => clientService.cartItems.length > 0);
     const cartItems = computed(() => clientService.cartItems);
+    const totalCost = computed(() => clientService.totalCostCartAsString);
     const isSmallSize = computed(() => {
       return (
         responsiveService.windowWidth.value <
@@ -41,6 +42,7 @@ export default defineComponent({
       isSmallSize,
       hasCartItems,
       cartItems,
+      totalCost,
       onContinueShoppingClicked,
       onBuyClicked,
     };
@@ -61,6 +63,10 @@ export default defineComponent({
     <div v-else class="no-cartItems">
       Es befinden sich noch keine Artikel im Einkaufswagen.
     </div>
+    <div v-if="hasCartItems" class="total-cost">
+      <div class="total-cost-text">Gesamtsumme:</div>
+      <div class="total-cost-cost">{{ totalCost }}</div>
+    </div>
     <div class="buttons-section">
       <ButtonDefault
         text="WEITER SHOPEN"
@@ -68,7 +74,7 @@ export default defineComponent({
       />
       <ButtonDefault
         v-if="hasCartItems"
-        text="EINKAUF FORTSETZEN"
+        text="ZUR KASSE"
         v-on:onButtonClicked="onBuyClicked"
       />
     </div>
@@ -103,6 +109,22 @@ export default defineComponent({
     margin: 60px 20px;
     font-size: 18px;
     padding: 10px;
+  }
+
+  .total-cost {
+    margin: 10px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    .total-cost-text {
+      margin-right: 10px;
+    }
+
+    .total-cost-cost {
+      margin-right: 10px;
+      font-weight: bold;
+    }
   }
 
   .cart-items {

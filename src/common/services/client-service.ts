@@ -32,6 +32,16 @@ export class ClientService implements IClientService {
     return this._cartItems.map((cartItem) => cartItem);
   }
 
+  get totalCostCart(): number {
+    let totalCost = 0;
+    this.cartItems.forEach((cartItem) => (totalCost += cartItem.cost));
+    return parseFloat(totalCost.toFixed(2));
+  }
+
+  get totalCostCartAsString(): string {
+    return this.totalCostCart.toFixed(2).replace(".", ",") + " €";
+  }
+
   constructor() {
     this._firebaseApp = initializeApp(firebaseConfig);
     this._firestore = getFirestore(this._firebaseApp);
