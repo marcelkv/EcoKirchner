@@ -66,10 +66,10 @@ export default defineComponent({
 <template>
   <div class="dropDownMenu" v-on:click="onClickCloseMenu">
     <div class="menuItems item">
-      <div class="item" v-on:click="onClickProducts">Produkte</div>
-      <div class="item" v-on:click="onClickAbout">Über uns</div>
-      <div class="item" v-on:click="onClickContact">Kontakt</div>
-      <div class="item" v-on:click="onClickShoppingCart">Einkaufswagen</div>
+      <div class="menu-item item" v-on:click="onClickProducts">Produkte</div>
+      <div class="menu-item item" v-on:click="onClickShoppingCart">
+        Warenkorb
+      </div>
       <UserMenuItem
         v-if="
           heightSize === SizeType.ExtraSmall || heightSize === SizeType.Small
@@ -106,6 +106,10 @@ export default defineComponent({
     flex-grow: 1;
     justify-content: flex-start;
     overflow-y: auto;
+
+    .menu-item {
+      cursor: pointer;
+    }
   }
 }
 </style>

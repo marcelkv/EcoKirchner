@@ -64,6 +64,7 @@ export default defineComponent({
   align-items: center;
   height: auto;
   width: 100%;
+  cursor: pointer;
 
   .item {
     display: flex;

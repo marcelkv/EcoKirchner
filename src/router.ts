@@ -5,6 +5,9 @@ import ProductsComponent from "@/components/body/ProductsComponent.vue";
 import AboutComponent from "@/components/body/AboutComponent.vue";
 import ContactComponent from "@/components/body/ContactComponent.vue";
 import CartPageComponent from "@/components/cart/CartPageComponent.vue";
+import CheckoutDataComponent from "@/components/cart/CheckoutDataComponent.vue";
+import CheckoutPaymentComponent from "@/components/cart/CheckoutPaymentComponent.vue";
+import CheckoutSummaryComponent from "@/components/cart/CheckoutSummaryComponent.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -36,6 +39,21 @@ const routes: Array<RouteRecordRaw> = [
     path: "/cart-page",
     name: "CartPage",
     component: CartPageComponent,
+  },
+  {
+    path: "/checkout/data",
+    name: "CheckoutData",
+    component: CheckoutDataComponent,
+  },
+  {
+    path: "/checkout/payment",
+    name: "CheckoutPayment",
+    component: CheckoutPaymentComponent,
+  },
+  {
+    path: "/checkout/summary",
+    name: "CheckoutSummary",
+    component: CheckoutSummaryComponent,
   },
   { path: "/:catchAll(.*)", redirect: "/products" },
 ];

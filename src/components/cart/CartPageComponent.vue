@@ -35,7 +35,7 @@ export default defineComponent({
     }
 
     async function onBuyClicked(): Promise<void> {
-      return;
+      await router.push({ name: "CheckoutData" });
     }
 
     return {

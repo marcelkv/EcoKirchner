@@ -1,18 +1,23 @@
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, inject, ref } from "vue";
 import ButtonDefaultComponent from "@/components/common/ButtonDefaultComponent.vue";
+import { IUserService } from "@/common/services/user-service.interface";
 
 export default defineComponent({
   components: { ButtonDefault: ButtonDefaultComponent },
-  emits: ["onButtonClicked"],
-  props: {
-    isLoading: { type: Boolean, required: false, default: false },
-  },
-  setup(props, context) {
-    function onButtonClicked(): void {
-      context.emit("onButtonClicked");
+
+  setup() {
+    let isLoading = ref(false);
+    const userService = inject<IUserService>("userService");
+
+    async function onButtonClicked(): Promise<void> {
+      isLoading.value = true;
+      await userService.signInWithGoogle();
+      isLoading.value = false;
     }
+
     return {
+      isLoading,
       onButtonClicked,
     };
   },

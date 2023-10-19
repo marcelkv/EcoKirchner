@@ -17,6 +17,8 @@ import {
 import { CartItem } from "@/common/models/cart-item";
 import { SimpleEvent } from "../simple-event";
 import { clamp } from "lodash";
+import { Order } from "@/common/models/order";
+import { Contact } from "../models/Contact";
 
 export class ClientService implements IClientService {
   private readonly _firebaseApp: FirebaseApp;
@@ -24,12 +26,16 @@ export class ClientService implements IClientService {
   private readonly _productsCol;
   private readonly _storage: FirebaseStorage;
   private _products: Product[];
-  private _cartItems: CartItem[] = [];
+  private _order: Order = new Order();
 
   onProductsAddedToCart = new SimpleEvent();
 
   get cartItems(): CartItem[] {
-    return this._cartItems.map((cartItem) => cartItem);
+    return this._order.cartItems.map((cartItem) => cartItem);
+  }
+
+  get contact(): Contact {
+    return this._order.contact;
   }
 
   get totalCostCart(): number {
@@ -88,7 +94,7 @@ export class ClientService implements IClientService {
       return;
     }
 
-    const existingProduct = this._cartItems.find(
+    const existingProduct = this._order.cartItems.find(
       (cartItem) => cartItem.product.productId === product.productId
     );
 
@@ -96,14 +102,14 @@ export class ClientService implements IClientService {
       const newTotal = existingProduct.numItems + numItems;
       existingProduct.numItems = clamp(newTotal, 1, product.quantity);
     } else {
-      this._cartItems.push(new CartItem(product, numItems));
+      this._order.cartItems.push(new CartItem(product, numItems));
     }
 
     this.onProductsAddedToCart.emit();
   }
 
   updateProductFromCart(product: Product, numItems: number): Promise<void> {
-    const existingProduct = this._cartItems.find(
+    const existingProduct = this._order.cartItems.find(
       (cartItem) => cartItem.product.productId === product.productId
     );
 
@@ -115,7 +121,7 @@ export class ClientService implements IClientService {
   }
 
   deleteProductFromCart(product: Product): Promise<void> {
-    const index = this._cartItems.findIndex(
+    const index = this._order.cartItems.findIndex(
       (cartItem) => cartItem.product.productId === product.productId
     );
 
@@ -123,7 +129,11 @@ export class ClientService implements IClientService {
       return;
     }
 
-    this._cartItems.splice(index, 1);
+    this._order.cartItems.splice(index, 1);
+  }
+
+  async addContactToCart(contact: Contact): Promise<void> {
+    this._order.contact = contact;
   }
 
   private async _getImageDownloadUrl(imagePath: string): Promise<string> {
