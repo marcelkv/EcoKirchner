@@ -125,7 +125,7 @@ export default defineComponent({
   flex-direction: column;
   width: 100%;
   height: 100%;
-  border: var(--borderWidth) solid black;
+  border: var(--borderWidth) solid var(--lineColor);
   padding: var(--padding);
 
   &:focus {
