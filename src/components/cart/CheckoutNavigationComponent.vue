@@ -62,6 +62,8 @@ export default defineComponent({
 .cart-navigation {
   display: flex;
   width: 100%;
+  overflow-x: auto;
+  flex-shrink: 0;
   --marginNavItem: 2px;
   --marginOutNavItem: calc(2 * var(--marginNavItem));
 

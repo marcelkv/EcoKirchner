@@ -15,6 +15,7 @@ export default defineComponent({
     TrashIcon: TrashIconComponent,
   },
   props: {
+    isEditable: { type: Boolean, required: false, default: true },
     cartItem: { type: CartItem, required: true },
   },
   setup(props) {
@@ -54,15 +55,17 @@ export default defineComponent({
       <div class="section-title">
         {{ cartItem.product.name }}
       </div>
-      <TrashIcon v-on:click="onDelete" />
+      <TrashIcon v-if="$props.isEditable" v-on:click="onDelete" />
     </div>
     <div class="row-2">
       <DecrementIncrement
+        v-if="$props.isEditable"
         v-bind:initialNumber="cartItem.numItems"
         v-on:onDecrementClicked="onDecrementClicked"
         v-on:onIncrementClicked="onIncrementClicked"
         v-on:onSetValue="onSetValue"
       />
+      <div class="section-quantity" v-else>Menge: {{ cartItem.numItems }}</div>
       <div class="section-price">{{ cartItem.product.costAsString }}</div>
       <div class="section-total-price">{{ cartItem.costAsString }}</div>
     </div>

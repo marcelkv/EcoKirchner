@@ -53,22 +53,26 @@ export default defineComponent({
 .checkout-payment {
   display: flex;
   flex-direction: column;
+  align-items: center;
   overflow: auto;
   width: 100%;
   height: 100%;
   --maxWidth: 600px;
+  --minWidth: 240px;
 
   .radio-item {
-    width: calc(100% - 22px);
+    width: 80%;
     max-width: var(--maxWidth);
+    min-width: var(--minWidth);
     margin: 5px;
     margin-top: 50px;
     padding: 5px;
   }
 
   .button-default {
-    width: calc(100% - 22px);
+    width: 80%;
     max-width: var(--maxWidth);
+    min-width: var(--minWidth);
     margin: 5px;
     height: 21px;
     margin-top: 50px;

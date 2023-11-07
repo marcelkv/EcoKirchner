@@ -136,6 +136,10 @@ export class ClientService implements IClientService {
     this._order.contact = contact;
   }
 
+  async buy(): Promise<void> {
+    this._order.cartItems = [];
+    this._order.contact = null;
+  }
   private async _getImageDownloadUrl(imagePath: string): Promise<string> {
     const imageReference = storageRef(this._storage, imagePath);
     return await getDownloadURL(imageReference);

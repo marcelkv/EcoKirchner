@@ -72,6 +72,7 @@ export default defineComponent({
   border-radius: 2px;
   border: 1px solid var(--lineColor);
   position: relative;
+  user-select: none;
 
   .decrement-section,
   .increment-section {
