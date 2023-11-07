@@ -3,6 +3,8 @@ import { computed, defineComponent, inject } from "vue";
 import HamburgerComponent from "@/components/header/HamburgerComponent.vue";
 import { IResponsiveService } from "@/common/services/responsive-service.interface";
 import { SizeType } from "@/common/services/size-type";
+import { useRouter } from "vue-router";
+import { IMenuService } from "@/common/services/menu-service.interface";
 
 export default defineComponent({
   name: "HeaderComponent",
@@ -14,10 +16,17 @@ export default defineComponent({
   components: { Hamburger: HamburgerComponent },
 
   setup() {
+    const menuService = inject<IMenuService>("menuService");
     const responsiveService = inject<IResponsiveService>("responsiveService");
     const deviceType = computed(() => responsiveService.widthSize.value);
+    const router = useRouter();
 
-    return { deviceType };
+    async function onIconClick(): Promise<void> {
+      menuService.isHamburgerOpen = false;
+      await router.push({ name: "Products" });
+    }
+
+    return { deviceType, onIconClick };
   },
 });
 </script>
@@ -32,6 +41,7 @@ export default defineComponent({
         wrapperM: deviceType === DeviceType.Medium,
         wrapperL: deviceType === DeviceType.Large,
       }"
+      v-on:click="onIconClick"
     >
       <img
         v-if="deviceType === DeviceType.ExtraSmall"

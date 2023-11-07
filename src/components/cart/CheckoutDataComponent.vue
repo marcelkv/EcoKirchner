@@ -1,9 +1,11 @@
 <script lang="ts">
-import { computed, defineComponent, inject } from "vue";
+import { computed, defineComponent, inject, onBeforeUnmount } from "vue";
 import CartNavigationComponent from "@/components/cart/CheckoutNavigationComponent.vue";
 import { IUserService } from "@/common/services/user-service.interface";
 import CheckoutSignInComponent from "@/components/cart/CheckoutSignInComponent.vue";
 import CartContactDataComponent from "@/components/cart/CheckoutContactFormComponent.vue";
+import { IClientService } from "@/common/services/client-service.interface";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   components: {
@@ -13,8 +15,16 @@ export default defineComponent({
   },
   setup() {
     const userService = inject<IUserService>("userService");
+    const clientService = inject<IClientService>("clientService");
+    const router = useRouter();
 
     const isSignedIn = computed(() => userService.isSignedIn);
+
+    onBeforeUnmount(async () => {
+      if (clientService.cartItems.length === 0 || !userService.isSignedIn) {
+        await router.push({ name: "Products" });
+      }
+    });
 
     return { isSignedIn };
   },
