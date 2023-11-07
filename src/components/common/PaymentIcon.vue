@@ -10,7 +10,11 @@ export default defineComponent({
 
 <template>
   <div class="payment-icon">
-    <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 512 512"
+      preserveAspectRatio="xMidYMid meet"
+    >
       <path
         d="M410.11,242.92V469.71h74.78V242.92Zm37.44,57.15a16.32,16.32,0,1,1,16.32-16.32A16.32,16.32,0,0,1,447.55,300.07Z"
       />
