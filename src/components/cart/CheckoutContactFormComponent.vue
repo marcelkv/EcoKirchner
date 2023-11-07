@@ -51,7 +51,11 @@ export default defineComponent({
       phoneNumber: 5,
     });
 
-    onBeforeMount(() => {
+    onBeforeMount(async () => {
+      if (clientService.cartItems.length === 0) {
+        await router.push({ name: "Products" });
+      }
+
       const contact = clientService.contact;
       if (!contact) {
         return;

@@ -1,9 +1,11 @@
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, inject, onBeforeMount, ref } from "vue";
 import CartNavigationComponent from "@/components/cart/CheckoutNavigationComponent.vue";
 import ButtonDefaultComponent from "@/components/common/ButtonDefaultComponent.vue";
 import RadioItem from "@/components/common/RadioItem.vue";
 import { useRouter } from "vue-router";
+import { IClientService } from "@/common/services/client-service.interface";
+import { IUserService } from "@/common/services/user-service.interface";
 
 export default defineComponent({
   components: {
@@ -12,8 +14,16 @@ export default defineComponent({
     CartNavigation: CartNavigationComponent,
   },
   setup() {
+    const clientService = inject<IClientService>("clientService");
+    const userService = inject<IUserService>("userService");
     const isChecked = ref(false);
     const router = useRouter();
+
+    onBeforeMount(async () => {
+      if (clientService.cartItems.length === 0 || !userService.isSignedIn) {
+        await router.push({ name: "Products" });
+      }
+    });
 
     async function onContinue(): Promise<void> {
       if (!isChecked.value) {
