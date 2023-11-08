@@ -77,9 +77,7 @@ export default defineComponent({
     }
 
     .payment-icon {
-      margin: 10px;
       width: 40px;
-      height: 100%;
     }
   }
 

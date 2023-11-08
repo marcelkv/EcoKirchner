@@ -43,12 +43,4 @@ export default defineComponent({
   </div>
 </template>
 
-<style scoped lang="less">
-.payment-icon {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>
+<style lang="less"></style>

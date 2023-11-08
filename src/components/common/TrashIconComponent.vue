@@ -8,7 +8,7 @@ export default {
   <div class="trash-icon">
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 512.000000 512.000000"
+      viewBox="0 0 512 512"
       preserveAspectRatio="xMidYMid meet"
     >
       <g
@@ -51,7 +51,7 @@ export default {
   </div>
 </template>
 
-<style scoped>
+<style lang="less">
 .trash-icon {
   cursor: pointer;
 }

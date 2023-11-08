@@ -11,7 +11,7 @@ export default defineComponent({
 <template>
   <div class="cart-success">
     <div class="row1">Vielen Dank für Ihre Bestellung</div>
-    <div class="row2">In Kürze erhalten Sie eine Bestätigungsemail.</div>
+    <div class="row2">In Kürze erhalten Sie eine Bestätigungsmail.</div>
   </div>
 </template>
 
