@@ -42,7 +42,7 @@ export default defineComponent({
       if (success) {
         await router.push({ name: "CheckoutSuccess" });
       } else {
-        prompt("Ops... An error occurred...");
+        alert("Ops... An error occurred...");
       }
     }
 

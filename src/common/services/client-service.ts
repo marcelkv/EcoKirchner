@@ -213,6 +213,8 @@ export class ClientService implements IClientService {
       deliveredAt: serverTimestamp(),
       isPayed: false,
       isDelivered: false,
+      totalCost: this.totalCostCart,
+      totalCostString: this.totalCostCartAsString,
     };
     const newOrderRef = doc(ordersCollection);
     transaction.set(newOrderRef, newOrder);
