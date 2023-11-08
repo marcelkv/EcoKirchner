@@ -16,5 +16,5 @@ export interface IClientService {
   addContactToCart(contact: Contact): Promise<void>;
   updateProductFromCart(product: Product, numItems: number): Promise<void>;
   deleteProductFromCart(product: Product): Promise<void>;
-  buy(): Promise<void>;
+  buyAsync(uid: string): Promise<boolean>;
 }

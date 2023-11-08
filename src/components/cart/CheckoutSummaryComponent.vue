@@ -38,8 +38,12 @@ export default defineComponent({
 
     async function onBuyNowClicked(): Promise<void> {
       isLoading.value = true;
-      await clientService.buy();
-      await router.push({ name: "CheckoutSuccess" });
+      const success = await clientService.buyAsync(userService.uid);
+      if (success) {
+        await router.push({ name: "CheckoutSuccess" });
+      } else {
+        prompt("Ops... An error occurred...");
+      }
     }
 
     return { isLoading, email, contact, cartItems, totalCost, onBuyNowClicked };

@@ -12,7 +12,6 @@ import UserInfo = firebase.UserInfo;
 
 export class UserService implements IUserService {
   private readonly _auth;
-  private readonly _googleAuthProvider: GoogleAuthProvider;
   private _user: UserInfo;
   private _token: string;
 
@@ -20,7 +19,6 @@ export class UserService implements IUserService {
     const firebaseApp = initializeApp(firebaseConfig);
     this._auth = getAuth(firebaseApp);
     this._auth.languageCode = "de";
-    this._googleAuthProvider = new GoogleAuthProvider();
   }
 
   get isSignedIn(): boolean {
@@ -41,6 +39,14 @@ export class UserService implements IUserService {
     }
 
     return this._user.email;
+  }
+
+  get uid(): string {
+    if (!this.isSignedIn) {
+      return null;
+    }
+
+    return this._user.uid;
   }
 
   async signInWithGoogle(): Promise<void> {

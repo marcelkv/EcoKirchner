@@ -4,14 +4,18 @@ import firebaseConfig from "@/firebase/firebaseConfig";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import {
   collection,
+  doc,
   Firestore,
   getDocs,
   getFirestore,
+  runTransaction,
+  serverTimestamp,
+  Transaction,
 } from "firebase/firestore";
 import {
   FirebaseStorage,
-  getStorage,
   getDownloadURL,
+  getStorage,
   ref as storageRef,
 } from "firebase/storage";
 import { CartItem } from "@/common/models/cart-item";
@@ -55,8 +59,8 @@ export class ClientService implements IClientService {
     this._storage = getStorage(this._firebaseApp);
   }
 
-  async getProductsAsync(): Promise<Product[]> {
-    if (this._products) {
+  async getProductsAsync(forceUpdate = false): Promise<Product[]> {
+    if (!forceUpdate && this._products) {
       return this._products;
     }
 
@@ -72,6 +76,7 @@ export class ClientService implements IClientService {
         data.image
       );
     });
+
     return this._products;
   }
 
@@ -136,10 +141,83 @@ export class ClientService implements IClientService {
     this._order.contact = contact;
   }
 
-  async buy(): Promise<void> {
-    this._order.cartItems = [];
-    this._order.contact = null;
+  async buyAsync(uid: string): Promise<boolean> {
+    if (this._order.cartItems.length === 0 || !this._order.contact) {
+      return;
+    }
+
+    try {
+      await runTransaction(this._firestore, async (transaction) => {
+        await this._updateProductsQuantities(transaction);
+        this._createNewOrder(uid, transaction);
+        this._order.cartItems = [];
+        this._order.contact = null;
+      });
+    } catch (error) {
+      return false;
+    } finally {
+      await this.getProductsAsync(true);
+    }
+
+    return true;
   }
+
+  private async _updateProductsQuantities(transaction: Transaction) {
+    const productsCollection = collection(this._firestore, "products");
+
+    const updatePromises = this._order.cartItems.map(async (cartItem) => {
+      const productRef = doc(productsCollection, cartItem.product.productId);
+      const productDoc = await transaction.get(productRef);
+
+      if (!productDoc.exists()) {
+        throw Error(
+          "Product does not exist. ProductId: " + cartItem.product.productId
+        );
+      }
+
+      const productData = productDoc.data();
+      const newTotalItems = productData.totalItems - cartItem.numItems;
+
+      if (newTotalItems < 0) {
+        throw new Error("Insufficient quantity for some products.");
+      }
+
+      return transaction.update(productRef, { totalItems: newTotalItems });
+    });
+    await Promise.all(updatePromises);
+  }
+
+  private _createNewOrder(uid: string, transaction: Transaction) {
+    const ordersCollection = collection(this._firestore, "orders");
+    const newOrder = {
+      uid: uid,
+      products: this._order.cartItems.map((cartItem) => ({
+        productId: cartItem.product.productId,
+        name: cartItem.product.name,
+        cost: cartItem.product.cost,
+        imageReference: cartItem.product.imageReference,
+        quantity: cartItem.numItems,
+        totalCost: cartItem.cost,
+        totalCostString: cartItem.costAsString,
+      })),
+      contact: {
+        firstName: this.contact.firstName,
+        lastName: this.contact.lastName,
+        street: this.contact.street,
+        city: this.contact.city,
+        zipCode: this.contact.zipCode,
+        phoneNumber: this.contact.phoneNumber,
+      },
+      createdAt: serverTimestamp(),
+      payedAt: serverTimestamp(),
+      deliveredAt: serverTimestamp(),
+      isPayed: false,
+      isDelivered: false,
+    };
+    const newOrderRef = doc(ordersCollection);
+    transaction.set(newOrderRef, newOrder);
+  }
+
   private async _getImageDownloadUrl(imagePath: string): Promise<string> {
     const imageReference = storageRef(this._storage, imagePath);
     return await getDownloadURL(imageReference);

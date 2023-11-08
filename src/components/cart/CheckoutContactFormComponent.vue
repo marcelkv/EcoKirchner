@@ -57,6 +57,7 @@ export default defineComponent({
       }
 
       const contact = clientService.contact;
+
       if (!contact) {
         return;
       }
@@ -142,6 +143,11 @@ export default defineComponent({
         return;
       }
 
+      addContactToCart();
+      await router.push({ name: "CheckoutPayment" });
+    }
+
+    function addContactToCart(): void {
       const contact = new Contact(
         formData.value.firstName,
         formData.value.lastName,
@@ -150,8 +156,8 @@ export default defineComponent({
         formData.value.city,
         formData.value.phoneNumber
       );
+
       clientService.addContactToCart(contact);
-      await router.push({ name: "CheckoutPayment" });
     }
 
     function getErrorMsg(minLength: number): string {
