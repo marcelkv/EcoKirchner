@@ -126,6 +126,7 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   border: var(--borderWidth) solid var(--lineColor);
+  border-radius: 2px;
   padding: var(--padding);
 
   &:focus {

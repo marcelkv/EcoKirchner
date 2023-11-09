@@ -1,4 +1,4 @@
-export class Contact {
+export class OrderContact {
   firstName: string;
   lastName: string;
   street: string;

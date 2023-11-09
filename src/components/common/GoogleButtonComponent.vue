@@ -6,13 +6,15 @@ import { IUserService } from "@/common/services/user-service.interface";
 export default defineComponent({
   components: { ButtonDefault: ButtonDefaultComponent },
 
-  setup() {
+  emits: ["onButtonClicked"],
+  setup(props, context) {
     let isLoading = ref(false);
     const userService = inject<IUserService>("userService");
 
     async function onButtonClicked(): Promise<void> {
       isLoading.value = true;
       await userService.signInWithGoogle();
+      context.emit("onButtonClicked");
       isLoading.value = false;
     }
 

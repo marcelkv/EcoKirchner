@@ -1,16 +1,16 @@
 import { Product } from "@/common/models/product";
+import { calculateCost, costAsString } from "@/common/currency-helper";
 
-export class CartItem {
+export class CartOrderItem {
   readonly product: Product;
   numItems: number;
 
   get cost(): number {
-    const totalCost = this.product.cost * this.numItems;
-    return parseFloat(totalCost.toFixed(2));
+    return calculateCost(this.numItems, this.product.cost);
   }
 
   get costAsString(): string {
-    return this.cost.toFixed(2).replace(".", ",") + " €";
+    return costAsString(this.cost);
   }
 
   constructor(product: Product, numItems: number) {

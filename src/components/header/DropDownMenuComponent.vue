@@ -5,6 +5,7 @@ import UserMenuItemComponent from "@/components/header/UserMenuItemComponent.vue
 import { ResponsiveService } from "@/common/services/responsive-service";
 import { SizeType } from "@/common/services/size-type";
 import { useRouter } from "vue-router";
+import { IUserService } from "@/common/services/user-service.interface";
 
 export default defineComponent({
   computed: {
@@ -16,11 +17,18 @@ export default defineComponent({
   setup() {
     const responsiveService = inject<ResponsiveService>("responsiveService");
     const menuService = inject<IMenuService>("menuService");
+    const userService = inject<IUserService>("userService");
     const router = useRouter();
     const heightSize = computed(() => responsiveService.heightSize.value);
 
+    const isSignedIn = computed(() => userService.isSignedIn);
+
     async function onClickProducts(): Promise<void> {
       await router.push({ name: "Products" });
+    }
+
+    async function onClickMyOrders(): Promise<void> {
+      await router.push({ name: "MyOrders" });
     }
 
     async function onClickAbout(): Promise<void> {
@@ -52,10 +60,12 @@ export default defineComponent({
     );
 
     return {
+      isSignedIn,
       heightSize,
       onClickProducts,
       onClickAbout,
       onClickContact,
+      onClickMyOrders,
       onClickShoppingCart,
       onClickCloseMenu,
     };
@@ -69,6 +79,13 @@ export default defineComponent({
       <div class="menu-item item" v-on:click="onClickProducts">Produkte</div>
       <div class="menu-item item" v-on:click="onClickShoppingCart">
         Warenkorb
+      </div>
+      <div
+        class="menu-item item"
+        v-if="isSignedIn"
+        v-on:click="onClickMyOrders"
+      >
+        Meine Bestellungen
       </div>
       <UserMenuItem
         v-if="

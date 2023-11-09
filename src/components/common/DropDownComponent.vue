@@ -93,6 +93,7 @@ export default defineComponent({
     position: relative;
     width: 100%;
     border: 1px solid lightgray;
+    border-radius: 2px;
 
     .dropDown {
       padding-left: 10px;

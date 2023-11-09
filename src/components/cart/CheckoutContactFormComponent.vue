@@ -6,7 +6,7 @@ import { ResponsiveService } from "@/common/services/responsive-service";
 import { SizeType } from "@/common/services/size-type";
 import { useRouter } from "vue-router";
 import { IClientService } from "@/common/services/client-service.interface";
-import { Contact } from "@/common/models/Contact";
+import { CartOrderContact } from "@/common/models/cart-order-contact";
 
 export default defineComponent({
   components: {
@@ -148,7 +148,7 @@ export default defineComponent({
     }
 
     function addContactToCart(): void {
-      const contact = new Contact(
+      const contact = new CartOrderContact(
         formData.value.firstName,
         formData.value.lastName,
         formData.value.street,

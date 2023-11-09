@@ -52,7 +52,7 @@ export default defineComponent({
 
 <template>
   <div class="cart-page" v-bind:class="{ isSmallSize: isSmallSize }">
-    <div class="cart-title">DEIN EINKAUFSWAGEN</div>
+    <div class="cart-title">WARENKORB</div>
     <div v-if="hasCartItems" class="cart-items">
       <CartItem
         v-for="(cartItem, index) in cartItems"

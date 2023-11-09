@@ -9,6 +9,7 @@ import CheckoutDataComponent from "@/components/cart/CheckoutDataComponent.vue";
 import CheckoutPaymentComponent from "@/components/cart/CheckoutPaymentComponent.vue";
 import CheckoutSummaryComponent from "@/components/cart/CheckoutSummaryComponent.vue";
 import CartSuccess from "@/components/cart/CartSuccess.vue";
+import MyOrders from "@/components/body/MyOrders.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -60,6 +61,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/checkout/success",
     name: "CheckoutSuccess",
     component: CartSuccess,
+  },
+  {
+    path: "/my-orders",
+    name: "MyOrders",
+    component: MyOrders,
   },
   { path: "/:catchAll(.*)", redirect: "/products" },
 ];

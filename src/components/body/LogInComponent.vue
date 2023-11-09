@@ -18,7 +18,7 @@ export default defineComponent({
 
     onMounted(async () => {
       if (userService.isSignedIn) {
-        await router.push({ name: "Home" });
+        await router.push({ name: "Products" });
       }
 
       isSignedIn.value = false;
@@ -27,9 +27,8 @@ export default defineComponent({
 
     async function onClickSignInWithGoogle(): Promise<void> {
       isLoading.value = true;
-      await userService.signInWithGoogle();
       if (userService.isSignedIn) {
-        await router.push({ name: "Home" });
+        await router.push({ name: "Products" });
       }
 
       isSignedIn.value = userService.isSignedIn;

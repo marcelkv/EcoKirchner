@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, inject } from "vue";
-import { CartItem } from "@/common/models/cart-item";
+import { CartOrderItem } from "@/common/models/cart-order-item";
 import SectionImageComponent from "@/components/product-card/SectionImageComponent.vue";
 import TrashIconComponent from "@/components/common/TrashIconComponent.vue";
 import SectionSeparatorComponent from "@/components/product-card/SectionSeparatorComponent.vue";
@@ -16,7 +16,7 @@ export default defineComponent({
   },
   props: {
     isEditable: { type: Boolean, required: false, default: true },
-    cartItem: { type: CartItem, required: true },
+    cartItem: { type: CartOrderItem, required: true },
   },
   setup(props) {
     const clientService = inject<IClientService>("clientService");

@@ -6,7 +6,7 @@ import { useRouter } from "vue-router";
 import { IUserService } from "@/common/services/user-service.interface";
 import SectionSeparatorComponent from "@/components/product-card/SectionSeparatorComponent.vue";
 import PaymentIcon from "@/components/common/PaymentIcon.vue";
-import CartItem from "@/components/cart/CartItemComponent.vue";
+import CartOrderItem from "@/components/cart/CartItemComponent.vue";
 import ButtonDefaultComponent from "@/components/common/ButtonDefaultComponent.vue";
 import SpinnerComponent from "@/components/common/SpinnerComponent.vue";
 
@@ -14,7 +14,7 @@ export default defineComponent({
   components: {
     SpinnerComponent,
     ButtonDefault: ButtonDefaultComponent,
-    CartItem,
+    CartOrderItem,
     PaymentIcon,
     SectionSeparator: SectionSeparatorComponent,
     CartNavigation: CartNavigationComponent,
@@ -42,7 +42,28 @@ export default defineComponent({
       if (success) {
         await router.push({ name: "CheckoutSuccess" });
       } else {
-        alert("Ops... An error occurred...");
+        const { deleted, modified } = clientService.getChangedProducts();
+
+        if (deleted.length > 0) {
+          const deletedProductNames = deleted
+            .map((product) => product.name)
+            .join(", ");
+          alert(
+            `Oops... Folgende Produkte haben wir nicht mehr: ${deletedProductNames}. Bitte überprüfen Sie Ihren Warenkorb.`
+          );
+        }
+
+        if (modified.length > 0) {
+          const modifiedProductNames = modified
+            .map((product) => product.name)
+            .join(", ");
+
+          alert(
+            `Oops... Folgende Produkte wurden verändert: ${modifiedProductNames}. Bitte überprüfen Sie Ihren Warenkorb.`
+          );
+        }
+
+        await router.push({ name: "CartPage" });
       }
     }
 
@@ -86,7 +107,7 @@ export default defineComponent({
       <div class="title-section products-title-section">WARENKORB</div>
       <SectionSeparator v-bind:withGradient="false" />
       <div class="products-section">
-        <CartItem
+        <CartOrderItem
           v-for="(cartItem, index) in cartItems"
           v-bind:key="index"
           v-bind:cartItem="cartItem"

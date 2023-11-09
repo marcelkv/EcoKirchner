@@ -1,20 +1,26 @@
 import { Product } from "@/common/models/product";
 import { ISimpleEvent } from "../simple-event.interface";
-import { CartItem } from "@/common/models/cart-item";
-import { Contact } from "@/common/models/Contact";
+import { CartOrderItem } from "@/common/models/cart-order-item";
+import { CartOrderContact } from "@/common/models/cart-order-contact";
+import { Order } from "@/common/models/order";
 
 export interface IClientService {
   totalCostCart: number;
   totalCostCartAsString: string;
-  cartItems: CartItem[];
-  contact: Contact;
+  cartItems: CartOrderItem[];
+  contact: CartOrderContact;
   onProductsAddedToCart: ISimpleEvent;
   getProductsAsync(): Promise<Product[]>;
   setProductsImagesAsync(products: Product[]): Promise<void>;
   setProductImageAsync(product: Product): Promise<void>;
   addProductToCart(product: Product, numItems: number): Promise<void>;
-  addContactToCart(contact: Contact): Promise<void>;
+  addContactToCart(contact: CartOrderContact): Promise<void>;
   updateProductFromCart(product: Product, numItems: number): Promise<void>;
   deleteProductFromCart(product: Product): Promise<void>;
   buyAsync(uid: string): Promise<boolean>;
+  getChangedProducts(): {
+    deleted: Product[];
+    modified: Product[];
+  };
+  getMyOrdersAsync(uid: string): Promise<Order[]>;
 }
