@@ -5,11 +5,13 @@ import SectionSeparatorComponent from "@/components/product-card/SectionSeparato
 import SectionImageComponent from "@/components/product-card/SectionImageComponent.vue";
 import CircleIndicatorIcon from "@/components/common/CircleIndicator.vue";
 import OrderedIcon from "@/components/common/OrderedIcon.vue";
-import DeliveredIcon from "@/components/common/delivered-icon.vue";
-import PayedIcon from "@/components/common/payed-icon.vue";
+import DeliveredIcon from "@/components/common/DeliveredIcon.vue";
+import PayedIcon from "@/components/common/PayedIcon.vue";
+import OrderReturnedIcon from "@/components/common/OrderReturnedIcon.vue";
 
 export default defineComponent({
   components: {
+    OrderReturnedIcon,
     PayedIcon,
     DeliveredIcon,
     OrderedIcon,
@@ -49,8 +51,18 @@ export default defineComponent({
           v-bind:option3-active="product.isDelivered"
         >
           <OrderedIcon v-if="!product.isPayed && !product.isDelivered" />
-          <DeliveredIcon v-else-if="product.isPayed && product.isDelivered" />
+          <DeliveredIcon
+            v-else-if="
+              product.isPayed &&
+              product.isDelivered &&
+              !product.isPayedBack &&
+              !product.isReturned
+            "
+          />
           <PayedIcon v-else-if="product.isPayed && !product.isDelivered" />
+          <OrderReturnedIcon
+            v-else-if="product.isReturned || product.isPayedBack"
+          />
         </CircleIndicatorIcon>
       </div>
       <div class="row2"></div>
