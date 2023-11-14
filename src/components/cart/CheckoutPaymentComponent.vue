@@ -74,7 +74,6 @@ export default defineComponent({
     max-width: var(--maxWidth);
     min-width: var(--minWidth);
     margin: 5px;
-    height: 21px;
     margin-top: 50px;
   }
 }

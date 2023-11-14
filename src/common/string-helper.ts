@@ -31,7 +31,13 @@ function calculateCharactersThatFitIn(
 }
 
 export function getDateFormatted_1(date: Date): string {
-  return date.getDay() + ". " + getMonth(date) + " " + date.getFullYear();
+  const options: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  };
+
+  return new Intl.DateTimeFormat("de-DE", options).format(date);
 }
 
 export function getDateFormatted_2(date: Date): string {
@@ -39,38 +45,6 @@ export function getDateFormatted_2(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = String(date.getFullYear());
   return `${day}.${month}.${year}`;
-}
-
-function getMonth(date: Date) {
-  const month = date.getMonth();
-  switch (month) {
-    case 0:
-      return "Januar";
-    case 1:
-      return "Februar";
-    case 2:
-      return "März";
-    case 3:
-      return "April";
-    case 4:
-      return "Mai";
-    case 5:
-      return "Juni";
-    case 6:
-      return "Juli";
-    case 7:
-      return "August";
-    case 8:
-      return "September";
-    case 9:
-      return "Oktober";
-    case 10:
-      return "November";
-    case 11:
-      return "Dezember";
-    default:
-      return "";
-  }
 }
 
 export function getOldDate(): Date {

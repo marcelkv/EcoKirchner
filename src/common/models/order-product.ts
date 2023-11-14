@@ -11,6 +11,7 @@ export default class {
   private _totalCost: number;
   private _totalCostString: string;
   private _quantity: number;
+  private _product: Product = null;
 
   readonly productId: string;
   readonly productName: string;
@@ -57,13 +58,17 @@ export default class {
   }
 
   get product(): Product {
-    return new Product(
-      this.productId,
-      this.productName,
-      this.cost,
-      this._quantity,
-      this.imageReference
-    );
+    if (!this._product) {
+      this._product = new Product(
+        this.productId,
+        this.productName,
+        this.cost,
+        this._quantity,
+        this.imageReference
+      );
+    }
+
+    return this._product;
   }
 
   constructor(

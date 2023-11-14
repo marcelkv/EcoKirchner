@@ -38,7 +38,7 @@ export default defineComponent({
 <style scoped lang="less">
 .button-default {
   width: 100%;
-  height: 100%;
+  height: 40px;
   border: 1px solid var(--lineColor);
   border-radius: 2px;
   padding: 5px;

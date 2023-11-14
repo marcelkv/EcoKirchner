@@ -52,14 +52,15 @@ export default defineComponent({
   position: relative;
   width: 100%;
   height: 100%;
-  --spinnerSize: 50px;
+  --iconSize: 50px;
   --borderSize: 6px;
 
   .part {
+    cursor: pointer;
     border: var(--borderSize) solid rgba(255, 255, 255, 0);
     border-radius: 50%;
-    width: var(--spinnerSize);
-    height: var(--spinnerSize);
+    width: var(--iconSize);
+    height: var(--iconSize);
     position: absolute;
     --color1: lightgray;
     --color2: lightgray;

@@ -12,9 +12,6 @@ export default defineComponent({
     Order() {
       return Order;
     },
-    ProcessedOrder() {
-      return Order;
-    },
   },
   components: { OrderCard, Spinner: SpinnerComponent },
   setup() {
@@ -61,25 +58,33 @@ export default defineComponent({
 
 <style scoped lang="less">
 .my-orders {
-  width: 100%;
   height: 100%;
-  overflow: auto;
   display: flex;
   flex-direction: column;
+  margin: 0 5px;
+  overflow: auto;
 
   .main-title {
+    flex: 1 0 80px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 16px;
+
     font-weight: Bold;
     font-size: 24px;
-    padding: 24px 16px;
   }
 
   .no-orders {
-    padding-left: 20px;
+    padding-left: 16px;
+    height: 100%;
   }
 
   .orders-list {
+    height: 100%;
     display: flex;
     flex-direction: column;
+    min-width: 322px;
   }
 }
 </style>

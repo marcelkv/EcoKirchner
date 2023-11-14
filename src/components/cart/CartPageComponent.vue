@@ -148,7 +148,6 @@ export default defineComponent({
 
     .button-default {
       max-width: 350px;
-      height: 30px;
       margin: 20px 5px;
     }
   }

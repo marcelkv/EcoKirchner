@@ -41,6 +41,10 @@ body {
   border: 0;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 #app {
   margin: 0;
   left: 0;

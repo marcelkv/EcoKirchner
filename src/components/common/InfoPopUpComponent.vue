@@ -203,7 +203,6 @@ export default defineComponent({
       }
 
       .button-default {
-        height: 30px;
         margin: 10px;
       }
     }
