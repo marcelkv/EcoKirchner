@@ -98,7 +98,7 @@ export default defineComponent({
 
   .hamburgerWrapper {
     --padding: 7px;
-    --hamburgerSize: calc(var(--headerHeight) - 2 * var(--padding));
+    --hamburgerSize: var(--headerHeight);
     position: absolute;
     width: var(--hamburgerSize);
     height: var(--hamburgerSize);

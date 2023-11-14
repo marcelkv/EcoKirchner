@@ -139,6 +139,7 @@ export default defineComponent({
 
   .checkout-content {
     margin: 10px;
+    padding: 10px;
     overflow: auto;
 
     .main-title-section {
@@ -193,6 +194,7 @@ export default defineComponent({
     .apply-section {
       width: 100%;
       margin-top: 50px;
+      margin-bottom: 50px;
       display: flex;
       justify-content: center;
       .button-default {

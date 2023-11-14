@@ -5,7 +5,7 @@ import { Order } from "@/common/models/order";
 import { IUserService } from "@/common/services/user-service.interface";
 import SpinnerComponent from "@/components/common/SpinnerComponent.vue";
 import { useRouter } from "vue-router";
-import OrderCard from "@/components/processed-order/OrderCard.vue";
+import OrderCard from "@/components/order/OrderCard.vue";
 
 export default defineComponent({
   computed: {
@@ -41,12 +41,12 @@ export default defineComponent({
 
 <template>
   <div class="my-orders">
-    <div class="main-title">Meine Bestellungen</div>
+    <div class="main-title">MEINE BESTELLUNGEN</div>
     <Spinner v-if="isLoading" v-bind:withText="true" />
-    <div class="no-orders" v-else-if="orders.length === 0">
+    <div class="main-body no-orders" v-else-if="orders.length === 0">
       Sie haben noch keine Bestellungen
     </div>
-    <div class="orders-list" v-else>
+    <div class="main-body orders-list" v-else>
       <OrderCard
         v-for="order in orders"
         v-bind:order="order as Order"
@@ -57,31 +57,18 @@ export default defineComponent({
 </template>
 
 <style scoped lang="less">
+@import "@/common/shared-styles.less";
 .my-orders {
   height: 100%;
   display: flex;
   flex-direction: column;
-  margin: 0 5px;
   overflow: auto;
-
-  .main-title {
-    flex: 1 0 80px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding-left: 16px;
-
-    font-weight: Bold;
-    font-size: 24px;
-  }
 
   .no-orders {
     padding-left: 16px;
-    height: 100%;
   }
 
   .orders-list {
-    height: 100%;
     display: flex;
     flex-direction: column;
     min-width: 322px;

@@ -51,60 +51,49 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="cart-page" v-bind:class="{ isSmallSize: isSmallSize }">
-    <div class="cart-title">WARENKORB</div>
-    <div v-if="hasCartItems" class="cart-items">
-      <CartItem
-        v-for="(cartItem, index) in cartItems"
-        v-bind:key="index"
-        v-bind:cartItem="cartItem"
-      />
-    </div>
-    <div v-else class="no-cartItems">
-      Es befinden sich noch keine Artikel im Einkaufswagen.
-    </div>
-    <div v-if="hasCartItems" class="total-cost">
-      <div class="total-cost-text">Gesamtsumme:</div>
-      <div class="total-cost-cost">{{ totalCost }}</div>
-    </div>
-    <div class="buttons-section">
-      <ButtonDefault
-        text="WEITER SHOPEN"
-        v-on:onButtonClicked="onContinueShoppingClicked"
-      />
-      <ButtonDefault
-        v-if="hasCartItems"
-        text="ZUR KASSE"
-        v-on:onButtonClicked="onBuyClicked"
-      />
+  <div class="cart-page">
+    <div class="main-title">WARENKORB</div>
+    <div class="main-body">
+      <div v-if="hasCartItems" class="cart-items">
+        <CartItem
+          v-for="(cartItem, index) in cartItems"
+          v-bind:key="index"
+          v-bind:cartItem="cartItem"
+        />
+      </div>
+      <div v-else class="no-cartItems">
+        Es befinden sich noch keine Artikel im Warenkorb.
+      </div>
+      <div v-if="hasCartItems" class="total-cost">
+        <div class="total-cost-text">Gesamtsumme:</div>
+        <div class="total-cost-cost">{{ totalCost }}</div>
+      </div>
+      <div class="buttons-section">
+        <ButtonDefault
+          text="WEITER SHOPEN"
+          v-on:onButtonClicked="onContinueShoppingClicked"
+        />
+        <ButtonDefault
+          v-if="hasCartItems"
+          text="ZUR KASSE"
+          v-on:onButtonClicked="onBuyClicked"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped lang="less">
+@import "@/common/shared-styles.less";
 .cart-page {
-  --marginTop: 30px;
-  --marginBottom: 30px;
-  --marginLeft: 60px;
-  --marginRight: 60px;
-  height: calc(100% - var(--marginTop) - var(--marginBottom));
-  width: calc(100% - var(--marginLeft) - var(--marginRight));
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: auto;
-  margin: var(--marginTop) var(--marginRight) var(--marginBottom)
-    var(--marginLeft);
 
-  &.isSmallSize {
-    --marginLeft: 5px;
-    --marginRight: 5px;
+  .main-body {
+    max-width: 620px;
   }
-
-  .cart-title {
-    font-size: 24px;
-    padding: 10px;
-  }
-
   .no-cartItems {
     margin: 60px 20px;
     font-size: 18px;
@@ -138,7 +127,7 @@ export default defineComponent({
   }
 
   .buttons-section {
-    height: 55px;
+    min-height: 55px;
     min-width: 300px;
     display: flex;
     flex-wrap: wrap;

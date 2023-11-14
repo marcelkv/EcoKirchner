@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { Order } from "@/common/models/order";
-import OrderedProductCard from "@/components/processed-order/OrderedProductCard.vue";
+import OrderedProductCard from "@/components/order/OrderedProductCard.vue";
 
 export default defineComponent({
   components: {
