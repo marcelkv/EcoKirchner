@@ -3,7 +3,8 @@ import { IUserService } from "@/common/services/user-service.interface";
 import { defineComponent, inject, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import SpinnerComponent from "@/components/common/SpinnerComponent.vue";
-import GoogleButtonComponent from "@/components/common/GoogleButtonComponent.vue";
+import GoogleButtonComponent from "@/components/common/google-button.vue";
+import { IAuthService } from "@/common/services/auth-service.interface";
 
 export default defineComponent({
   components: {
@@ -12,6 +13,7 @@ export default defineComponent({
   },
   setup() {
     const userService = inject<IUserService>("userService");
+    const authService = inject<IAuthService>("authService");
     const router = useRouter();
     let isLoading = ref(true);
     let isSignedIn = ref(false);
@@ -25,25 +27,14 @@ export default defineComponent({
       isLoading.value = false;
     });
 
-    async function onClickSignInWithGoogle(): Promise<void> {
-      isLoading.value = true;
-      if (userService.isSignedIn) {
-        await router.push({ name: "Products" });
-      }
-
-      isSignedIn.value = userService.isSignedIn;
-      isLoading.value = false;
-    }
-
     async function onClickSignOut(): Promise<void> {
-      await userService.signOut();
+      await authService.signOut();
       isSignedIn.value = userService.isSignedIn;
     }
 
     return {
       isLoading,
       isSignedIn,
-      onClickSignInWithGoogle,
       onClickSignOut,
     };
   },
@@ -60,7 +51,7 @@ export default defineComponent({
       <div class="header">
         <div class="headerText">Bei EcoKirchner anmelden</div>
       </div>
-      <GoogleButton v-on:onButtonClicked="onClickSignInWithGoogle" />
+      <GoogleButton v-bind:redirectTo="'Products'" />
     </div>
   </div>
 </template>

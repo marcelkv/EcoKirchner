@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, inject, ref, watch } from "vue";
-import GoogleButton from "@/components/common/GoogleButtonComponent.vue";
+import GoogleButton from "@/components/common/google-button.vue";
 import { ResponsiveService } from "@/common/services/responsive-service";
 
 export default defineComponent({

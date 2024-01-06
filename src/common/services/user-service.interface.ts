@@ -1,8 +1,9 @@
+import { UserData } from "@/common/models/user-data";
+
 export interface IUserService {
-  userName: string;
+  isSignedIn: boolean;
   userEmail: string;
   uid: string;
-  isSignedIn: boolean;
-  signInWithGoogle(): Promise<void>;
-  signOut(): Promise<void>;
+  saveUser(user: UserData): void;
+  clearUser(): void;
 }

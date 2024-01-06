@@ -1,7 +1,7 @@
 <script lang="ts">
 import { computed, defineComponent, inject, watch } from "vue";
 import { IMenuService } from "@/common/services/menu-service.interface";
-import UserMenuItemComponent from "@/components/header/UserMenuItemComponent.vue";
+import UserMenuItemComponent from "@/components/header/user-menu-item.vue";
 import { ResponsiveService } from "@/common/services/responsive-service";
 import { SizeType } from "@/common/services/size-type";
 import { useRouter } from "vue-router";

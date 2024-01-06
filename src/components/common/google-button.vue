@@ -1,21 +1,25 @@
 <script lang="ts">
 import { defineComponent, inject, ref } from "vue";
 import ButtonDefaultComponent from "@/components/common/ButtonDefaultComponent.vue";
-import { IUserService } from "@/common/services/user-service.interface";
+import { IAuthService } from "@/common/services/auth-service.interface";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   components: { ButtonDefault: ButtonDefaultComponent },
-
   emits: ["onButtonClicked"],
-  setup(props, context) {
+  props: { redirectTo: { type: String, default: null } },
+  setup(props) {
+    const authService = inject<IAuthService>("authService");
+    const router = useRouter();
     let isLoading = ref(false);
-    const userService = inject<IUserService>("userService");
 
     async function onButtonClicked(): Promise<void> {
       isLoading.value = true;
-      await userService.signInWithGoogle();
-      context.emit("onButtonClicked");
+      await authService.signInWithGoogle();
       isLoading.value = false;
+      if (props.redirectTo) {
+        await router.push({ name: props.redirectTo });
+      }
     }
 
     return {

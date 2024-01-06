@@ -1,9 +1,13 @@
 <script lang="ts">
-import { defineComponent, inject, onBeforeMount, onMounted } from "vue";
+import { defineComponent, inject, onBeforeMount, onMounted, watch } from "vue";
 import HeaderComponent from "@/components/header/HeaderComponent.vue";
 import BodyComponent from "@/components/body/BodyComponent.vue";
 import FooterComponent from "@/components/footer/FooterComponent.vue";
 import { IResponsiveService } from "@/common/services/responsive-service.interface";
+import { IAutoLogoutService } from "@/common/services/auto-logout-service.interface";
+import throttle from "lodash/throttle";
+import { IUserService } from "@/common/services/user-service.interface";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "App",
@@ -14,6 +18,10 @@ export default defineComponent({
   },
   setup() {
     const responsiveService = inject<IResponsiveService>("responsiveService");
+    const userService = inject<IUserService>("userService");
+    const autoLogoutService = inject<IAutoLogoutService>("autoLogoutService");
+    const router = useRouter();
+    const isAliveThrottled = throttle(onIsAlive, 2000);
 
     onBeforeMount(() => {
       document.title = "Ecokirchner";
@@ -21,14 +29,32 @@ export default defineComponent({
 
     onMounted(() => responsiveService.init());
 
-    return {};
+    function onIsAlive(): void {
+      if (!userService.isSignedIn) {
+        return;
+      }
+
+      autoLogoutService.resetAutoLogout();
+    }
+
+    async function onSignedInChanged(): Promise<void> {
+      if (userService.isSignedIn) {
+        return;
+      }
+
+      await router.push({ name: "Products" });
+    }
+
+    watch(() => userService.isSignedIn, onSignedInChanged);
+
+    return { isAliveThrottled };
   },
 });
 </script>
 
 <template>
   <Header />
-  <Body />
+  <Body v-on:mousemove="isAliveThrottled" v-on:mousedown="isAliveThrottled" />
   <Footer />
 </template>
 

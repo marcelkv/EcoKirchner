@@ -4,11 +4,13 @@ import { useRouter } from "vue-router";
 import { fitStringIntoElement } from "@/common/string-helper";
 import { IUserService } from "@/common/services/user-service.interface";
 import { IMenuService } from "@/common/services/menu-service.interface";
+import { IAuthService } from "@/common/services/auth-service.interface";
 
 export default defineComponent({
   setup() {
     const ref_email = ref(null);
     const router = useRouter();
+    const authService = inject<IAuthService>("authService");
     const userService = inject<IUserService>("userService");
     const menuService = inject<IMenuService>("menuService");
 
@@ -26,7 +28,7 @@ export default defineComponent({
     }
 
     async function onClickSignOut(): Promise<void> {
-      await userService.signOut();
+      await authService.signOut();
       await goToLogInPage();
     }
 
@@ -37,7 +39,7 @@ export default defineComponent({
     return {
       ref_email,
       email,
-      userService: userService,
+      userService,
       onClickSignOut,
       onClickSignIn,
     };
