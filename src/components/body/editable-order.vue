@@ -38,7 +38,7 @@ export default defineComponent({
       isLoading.value = true;
       order.value = await clientService.geOrderAsync(
         clientService.currentOrderId,
-        userService.uid
+        userService.isAdmin ? null : userService.uid
       );
       if (!order.value) {
         goBack();

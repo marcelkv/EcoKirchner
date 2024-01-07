@@ -96,11 +96,13 @@ export class ClientService implements IClientService {
       if (orderSnapshot.exists()) {
         const data = orderSnapshot.data();
         const orderProductsCol = collection(this._firestore, "orderedProducts");
-        const orderProductsQuery = query(
-          orderProductsCol,
-          where("orderId", "==", data.orderId),
-          where("uid", "==", uid)
-        );
+        const orderProductsQuery = uid
+          ? query(
+              orderProductsCol,
+              where("orderId", "==", data.orderId),
+              where("uid", "==", uid)
+            )
+          : query(orderProductsCol, where("orderId", "==", data.orderId));
         const orderProductsSnapshot = await getDocs(orderProductsQuery);
 
         const orderProducts = orderProductsSnapshot.docs.map((productDoc) => {
