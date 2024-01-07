@@ -19,9 +19,10 @@ export default defineComponent({
     const menuService = inject<IMenuService>("menuService");
     const userService = inject<IUserService>("userService");
     const router = useRouter();
-    const heightSize = computed(() => responsiveService.heightSize.value);
 
+    const heightSize = computed(() => responsiveService.heightSize.value);
     const isSignedIn = computed(() => userService.isSignedIn);
+    const isAdmin = computed(() => userService.isAdmin);
 
     async function onClickProducts(): Promise<void> {
       await router.push({ name: "Products" });
@@ -29,6 +30,10 @@ export default defineComponent({
 
     async function onClickMyOrders(): Promise<void> {
       await router.push({ name: "MyOrders" });
+    }
+
+    async function onClickAllOrders(): Promise<void> {
+      await router.push({ name: "AllOrders" });
     }
 
     async function onClickAbout(): Promise<void> {
@@ -61,11 +66,13 @@ export default defineComponent({
 
     return {
       isSignedIn,
+      isAdmin,
       heightSize,
       onClickProducts,
       onClickAbout,
       onClickContact,
       onClickMyOrders,
+      onClickAllOrders,
       onClickShoppingCart,
       onClickCloseMenu,
     };
@@ -86,6 +93,9 @@ export default defineComponent({
         v-on:click="onClickMyOrders"
       >
         Meine Bestellungen
+      </div>
+      <div class="menu-item item" v-if="isAdmin" v-on:click="onClickAllOrders">
+        Alle Bestellungen
       </div>
       <UserMenuItem
         v-if="

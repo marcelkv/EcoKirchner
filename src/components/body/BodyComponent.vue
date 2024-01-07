@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, inject, onMounted, ref, watch } from "vue";
-import DropDownMenuComponent from "@/components/header/DropDownMenuComponent.vue";
+import DropDownMenuComponent from "@/components/header/drop-down-menu.vue";
 import { IMenuService } from "@/common/services/menu-service.interface";
 import InfoPopUpComponent from "@/components/common/InfoPopUpComponent.vue";
 import { InfoPopUpVm } from "../common/InfoPopUpVm";

@@ -21,4 +21,8 @@ export class OrderContact {
     this.city = city;
     this.phoneNumber = phoneNumber;
   }
+
+  get fullName(): string {
+    return this.firstName + " " + this.lastName;
+  }
 }

@@ -12,6 +12,7 @@ import {
   runTransaction,
   serverTimestamp,
   Transaction,
+  Timestamp,
   where,
 } from "firebase/firestore";
 import {
@@ -26,10 +27,11 @@ import { clamp } from "lodash";
 import { CartOrder } from "@/common/models/cart-order";
 import { CartOrderContact } from "../models/cart-order-contact";
 import { Order } from "@/common/models/order";
-import { ProductDto } from "@/common/models/ProductDto";
 import { OrderContact } from "@/common/models/order-contact";
 import OrderProduct from "@/common/models/order-product";
 import { getOldDate } from "@/common/string-helper";
+import { OrderSummary } from "../models/order-summary";
+import { OrderSummaryQuery } from "@/common/models/order-summary-query";
 
 export class ClientService implements IClientService {
   private readonly _firebaseApp: FirebaseApp;
@@ -66,29 +68,44 @@ export class ClientService implements IClientService {
     this._storage = getStorage(this._firebaseApp);
   }
 
-  async getMyOrdersAsync(uid: string): Promise<Order[]> {
+  async getAllOrdersAsync(
+    queryOptions: OrderSummaryQuery
+  ): Promise<OrderSummary[]> {
     const ordersCol = collection(this._firestore, "orders");
-    const ordersQuery = query(ordersCol, where("uid", "==", uid));
+    const orderProductsCol = collection(this._firestore, "orderedProducts");
+    const startDate = Timestamp.fromDate(getOldDate());
+
+    const allOrderIds: string[] = [];
+
+    const q = queryOptions.payed
+      ? where("payedAt", ">", startDate)
+      : where("payedAt", "==", startDate);
+    const orderProductsQuery = query(orderProductsCol, q);
+    const orderProductsSnapshot = await getDocs(orderProductsQuery);
+    const orderIds = new Set<string>();
+    orderProductsSnapshot.docs.forEach((productDoc) => {
+      const productData = productDoc.data();
+      if (
+        (productData.deliveredAt.toDate().getFullYear() > 2000 &&
+          queryOptions.delivered) ||
+        (productData.deliveredAt.toDate().getFullYear() === 2000 &&
+          !queryOptions.delivered)
+      ) {
+        orderIds.add(productData.orderId);
+      }
+    });
+    allOrderIds.push(...Array.from(orderIds));
+
+    if (allOrderIds.length === 0) {
+      return [];
+    }
+
+    const ordersQuery = query(ordersCol, where("orderId", "in", allOrderIds));
     const ordersSnapshot = await getDocs(ordersQuery);
 
-    const orders = ordersSnapshot.docs.map((doc) => {
+    const orderSummaries = ordersSnapshot.docs.map((doc) => {
       const data = doc.data();
-      const orderProducts = data.products.map(
-        (product: ProductDto) =>
-          new OrderProduct(
-            product.productId,
-            product.productName,
-            product.imageReference,
-            product.cost,
-            product.totalCost,
-            product.totalCostString,
-            product.quantity,
-            product.payedAt.toDate(),
-            product.deliveredAt.toDate(),
-            product.returnedAt.toDate(),
-            product.payedBackAt.toDate()
-          )
-      );
+
       const orderContact = new OrderContact(
         data.contact.firstName,
         data.contact.lastName,
@@ -97,16 +114,73 @@ export class ClientService implements IClientService {
         data.contact.city,
         data.contact.phoneNumber
       );
-      return new Order(
-        data.uid,
-        data.orderId,
-        orderProducts,
+
+      return new OrderSummary(
+        doc.id,
         orderContact,
         data.createdAt.toDate(),
-        data.totalCost,
-        data.totalCostString
+        queryOptions.payed,
+        queryOptions.delivered
       );
     });
+
+    return orderSummaries.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+  }
+
+  async getMyOrdersAsync(uid: string): Promise<Order[]> {
+    const ordersCol = collection(this._firestore, "orders");
+    const ordersQuery = query(ordersCol, where("uid", "==", uid));
+    const ordersSnapshot = await getDocs(ordersQuery);
+
+    const orders = await Promise.all(
+      ordersSnapshot.docs.map(async (doc) => {
+        const data = doc.data();
+
+        const orderProductsCol = collection(this._firestore, "orderedProducts");
+        const orderProductsQuery = query(
+          orderProductsCol,
+          where("orderId", "==", data.orderId)
+        );
+        const orderProductsSnapshot = await getDocs(orderProductsQuery);
+
+        const orderProducts = orderProductsSnapshot.docs.map((productDoc) => {
+          const productData = productDoc.data();
+          return new OrderProduct(
+            productData.productId,
+            productData.productName,
+            productData.imageReference,
+            productData.cost,
+            productData.totalCost,
+            productData.totalCostString,
+            productData.quantity,
+            productData.payedAt.toDate(),
+            productData.deliveredAt.toDate(),
+            productData.returnedAt.toDate(),
+            productData.payedBackAt.toDate()
+          );
+        });
+
+        const orderContact = new OrderContact(
+          data.contact.firstName,
+          data.contact.lastName,
+          data.contact.street,
+          data.contact.zipCode,
+          data.contact.city,
+          data.contact.phoneNumber
+        );
+        return new Order(
+          data.uid,
+          data.orderId,
+          orderProducts,
+          orderContact,
+          data.createdAt.toDate(),
+          data.totalCost,
+          data.totalCostString
+        );
+      })
+    );
 
     return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
@@ -240,12 +314,16 @@ export class ClientService implements IClientService {
   }
 
   private _createNewOrder(uid: string, transaction: Transaction) {
-    const ordersCollection = collection(this._firestore, "orders");
     const orderId = this._getOrderId();
-    const newOrder = {
-      uid: uid,
-      orderId: orderId,
-      products: this._order.cartItems.map((cartItem) => ({
+
+    const orderedProductsCollection = collection(
+      this._firestore,
+      "orderedProducts"
+    );
+
+    this._order.cartItems.map((cartItem) => {
+      const newOrderedProduct = {
+        orderId: orderId,
         productId: cartItem.product.productId,
         productName: cartItem.product.name,
         cost: cartItem.product.cost,
@@ -257,7 +335,20 @@ export class ClientService implements IClientService {
         deliveredAt: getOldDate(),
         returnedAt: getOldDate(),
         payedBackAt: getOldDate(),
-      })),
+      };
+      const orderedProductId = orderId + "-" + cartItem.product.productId;
+      const newOrderedProductRef = doc(
+        orderedProductsCollection,
+        orderedProductId
+      );
+      transaction.set(newOrderedProductRef, newOrderedProduct);
+    });
+
+    const ordersCollection = collection(this._firestore, "orders");
+
+    const newOrder = {
+      uid: uid,
+      orderId: orderId,
       contact: {
         firstName: this.contact.firstName,
         lastName: this.contact.lastName,

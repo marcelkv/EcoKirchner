@@ -3,6 +3,8 @@ import { ISimpleEvent } from "../simple-event.interface";
 import { CartOrderItem } from "@/common/models/cart-order-item";
 import { CartOrderContact } from "@/common/models/cart-order-contact";
 import { Order } from "@/common/models/order";
+import { OrderSummary } from "@/common/models/order-summary";
+import { OrderSummaryQuery } from "@/common/models/order-summary-query";
 
 export interface IClientService {
   totalCostCart: number;
@@ -23,4 +25,5 @@ export interface IClientService {
     modified: Product[];
   };
   getMyOrdersAsync(uid: string): Promise<Order[]>;
+  getAllOrdersAsync(queryOptions: OrderSummaryQuery): Promise<OrderSummary[]>;
 }

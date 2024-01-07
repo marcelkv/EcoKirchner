@@ -1,6 +1,6 @@
 <script lang="ts">
 import { computed, defineComponent, inject } from "vue";
-import HamburgerComponent from "@/components/header/HamburgerComponent.vue";
+import HamburgerComponent from "@/components/header/hamburger-button.vue";
 import { IResponsiveService } from "@/common/services/responsive-service.interface";
 import { SizeType } from "@/common/services/size-type";
 import { useRouter } from "vue-router";
@@ -76,6 +76,7 @@ export default defineComponent({
   background-color: var(--headerColor);
   display: flex;
   flex-direction: row-reverse;
+  cursor: pointer;
 
   .logoWrapper {
     flex: 1;

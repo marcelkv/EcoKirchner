@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, inject, onBeforeMount, onMounted, watch } from "vue";
-import HeaderComponent from "@/components/header/HeaderComponent.vue";
+import HeaderComponent from "@/components/header/header-component.vue";
 import BodyComponent from "@/components/body/BodyComponent.vue";
 import FooterComponent from "@/components/footer/FooterComponent.vue";
 import { IResponsiveService } from "@/common/services/responsive-service.interface";
