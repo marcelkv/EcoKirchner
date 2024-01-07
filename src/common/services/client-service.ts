@@ -72,7 +72,7 @@ export class ClientService implements IClientService {
     this._storage = getStorage(this._firebaseApp);
   }
 
-  async geOrderAsync(orderId: string): Promise<Order> {
+  async geOrderAsync(orderId: string, uid: string): Promise<Order> {
     const orderRef = doc(collection(this._firestore, "orders"), orderId);
 
     try {
@@ -82,7 +82,8 @@ export class ClientService implements IClientService {
         const orderProductsCol = collection(this._firestore, "orderedProducts");
         const orderProductsQuery = query(
           orderProductsCol,
-          where("orderId", "==", data.orderId)
+          where("orderId", "==", data.orderId),
+          where("uid", "==", uid)
         );
         const orderProductsSnapshot = await getDocs(orderProductsQuery);
 
@@ -201,7 +202,8 @@ export class ClientService implements IClientService {
         const orderProductsCol = collection(this._firestore, "orderedProducts");
         const orderProductsQuery = query(
           orderProductsCol,
-          where("orderId", "==", data.orderId)
+          where("orderId", "==", data.orderId),
+          where("uid", "==", uid)
         );
         const orderProductsSnapshot = await getDocs(orderProductsQuery);
 
@@ -383,6 +385,7 @@ export class ClientService implements IClientService {
 
     this._order.cartItems.map((cartItem) => {
       const newOrderedProduct = {
+        uid: uid,
         orderId: orderId,
         productId: cartItem.product.productId,
         productName: cartItem.product.name,

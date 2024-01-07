@@ -29,5 +29,5 @@ export interface IClientService {
   };
   getMyOrdersAsync(uid: string): Promise<Order[]>;
   getAllOrdersAsync(queryOptions: OrderSummaryQuery): Promise<OrderSummary[]>;
-  geOrderAsync(orderId: string): Promise<Order>;
+  geOrderAsync(orderId: string, uid: string): Promise<Order>;
 }
