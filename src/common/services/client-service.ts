@@ -14,6 +14,7 @@ import {
   Transaction,
   Timestamp,
   where,
+  getDoc,
 } from "firebase/firestore";
 import {
   FirebaseStorage,
@@ -41,6 +42,7 @@ export class ClientService implements IClientService {
   private _products: Product[];
   private _order: CartOrder = new CartOrder();
 
+  currentOrderId: string = null;
   onProductsAddedToCart = new SimpleEvent();
 
   get cartItems(): CartOrderItem[] {
@@ -66,6 +68,62 @@ export class ClientService implements IClientService {
     this._firestore = getFirestore(this._firebaseApp);
     this._productsCol = collection(this._firestore, "products");
     this._storage = getStorage(this._firebaseApp);
+  }
+
+  async geOrderAsync(orderId: string): Promise<Order> {
+    const orderRef = doc(collection(this._firestore, "orders"), orderId);
+
+    try {
+      const orderSnapshot = await getDoc(orderRef);
+      if (orderSnapshot.exists()) {
+        const data = orderSnapshot.data();
+        const orderProductsCol = collection(this._firestore, "orderedProducts");
+        const orderProductsQuery = query(
+          orderProductsCol,
+          where("orderId", "==", data.orderId)
+        );
+        const orderProductsSnapshot = await getDocs(orderProductsQuery);
+
+        const orderProducts = orderProductsSnapshot.docs.map((productDoc) => {
+          const productData = productDoc.data();
+          return new OrderProduct(
+            productData.productId,
+            productData.productName,
+            productData.imageReference,
+            productData.cost,
+            productData.totalCost,
+            productData.totalCostString,
+            productData.quantity,
+            productData.payedAt.toDate(),
+            productData.deliveredAt.toDate(),
+            productData.returnedAt.toDate(),
+            productData.payedBackAt.toDate()
+          );
+        });
+
+        const orderContact = new OrderContact(
+          data.contact.firstName,
+          data.contact.lastName,
+          data.contact.street,
+          data.contact.zipCode,
+          data.contact.city,
+          data.contact.phoneNumber
+        );
+        return new Order(
+          data.uid,
+          data.orderId,
+          orderProducts,
+          orderContact,
+          data.createdAt.toDate(),
+          data.totalCost,
+          data.totalCostString
+        );
+      } else {
+        return null;
+      }
+    } catch (error) {
+      return null;
+    }
   }
 
   async getAllOrdersAsync(

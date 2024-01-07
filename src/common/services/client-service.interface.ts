@@ -12,6 +12,7 @@ export interface IClientService {
   cartItems: CartOrderItem[];
   contact: CartOrderContact;
   onProductsAddedToCart: ISimpleEvent;
+  currentOrderId: string;
   getProductsAsync(): Promise<Product[]>;
   setProductsImagesAsync(products: Product[]): Promise<void>;
   setProductImageAsync(product: Product): Promise<void>;
@@ -26,4 +27,5 @@ export interface IClientService {
   };
   getMyOrdersAsync(uid: string): Promise<Order[]>;
   getAllOrdersAsync(queryOptions: OrderSummaryQuery): Promise<OrderSummary[]>;
+  geOrderAsync(orderId: string): Promise<Order>;
 }

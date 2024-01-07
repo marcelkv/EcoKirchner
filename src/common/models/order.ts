@@ -20,6 +20,10 @@ export class Order {
     return this._products.map((orderProduct) => orderProduct);
   }
 
+  get totalCostString(): string {
+    return this._totalCostString;
+  }
+
   constructor(
     uid: string,
     orderId: string,

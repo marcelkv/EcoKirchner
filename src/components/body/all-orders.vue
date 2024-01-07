@@ -65,6 +65,13 @@ export default defineComponent({
       }
     }
 
+    async function onOrderClick(orderSummary: OrderSummary): Promise<void> {
+      clientService.currentOrderId = orderSummary.orderId;
+      await router.push({
+        name: "EditableOrder",
+      });
+    }
+
     watch(() => currentFilter.value, loadOrders);
 
     return {
@@ -73,6 +80,7 @@ export default defineComponent({
       filterOptions,
       currentFilter,
       getIndicatorColor,
+      onOrderClick,
     };
   },
 });
@@ -97,6 +105,7 @@ export default defineComponent({
         v-bind:text="
           order.orderContact.fullName + ' - ' + order.createdAtAsString
         "
+        v-on:click="onOrderClick(order)"
       />
     </div>
   </div>
