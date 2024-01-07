@@ -101,7 +101,8 @@ export default defineComponent({
           <PaymentIcon />
         </div>
         <div class="payment-row2">
-          Die Kontodaten für eine Überweisung übermitteln wir Ihnen per E-Mail.
+          Die Kontodaten für eine Überweisung sehen Sie später unter 'Meine
+          Bestellungen'
         </div>
       </div>
       <div class="title-section products-title-section">WARENKORB</div>

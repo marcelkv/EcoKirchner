@@ -16,6 +16,7 @@ import { CartOrderItem } from "@/common/models/cart-order-item";
 import { Product } from "@/common/models/product";
 import CartItemComponent from "@/components/cart/CartItemComponent.vue";
 import { IUserService } from "@/common/services/user-service.interface";
+import { BankingData } from "@/common/models/banking-data";
 
 export default defineComponent({
   components: { CartItemComponent, SectionSeparator, SpinnerComponent },
@@ -27,6 +28,7 @@ export default defineComponent({
     const order = ref<Order>(null);
     const hovers = ref<boolean[]>([]);
     const router = useRouter();
+    const bankingData = ref<BankingData>(null);
 
     onBeforeMount(async () => {
       if (!clientService.currentOrderId) {
@@ -41,6 +43,8 @@ export default defineComponent({
       if (!order.value) {
         goBack();
       }
+
+      bankingData.value = await clientService.getBankingData();
       clearHovers();
       isLoading.value = false;
     });
@@ -155,7 +159,11 @@ export default defineComponent({
     }
 
     async function goBack(): Promise<void> {
-      router.push({ name: clientService.backPath });
+      if (clientService.backPath) {
+        router.push({ name: clientService.backPath });
+      } else {
+        router.push({ name: "MyOrders" });
+      }
     }
 
     return {
@@ -164,6 +172,7 @@ export default defineComponent({
       cartItems,
       payedAt,
       deliveredAt,
+      bankingData,
       onClickPayed,
       onClickDelivered,
       getCartItemStyle,
@@ -220,6 +229,32 @@ export default defineComponent({
           v-bind:isEditable="false"
           v-on:click="setHover(index)"
         />
+      </div>
+      <div class="title-section address-title-section" v-if="bankingData">
+        Zahlung
+      </div>
+      <SectionSeparator v-bind:withGradient="false" />
+      <div class="address-section" v-if="bankingData">
+        <div class="summary-section">
+          <div>IBAN:</div>
+          <strong>{{ bankingData.iban }}</strong>
+        </div>
+        <div class="summary-section">
+          <div>BIC:</div>
+          <strong>{{ bankingData.bic }}</strong>
+        </div>
+        <div class="summary-section">
+          <div>Verwendungszweck:</div>
+          <strong>{{ order.orderId }}</strong>
+        </div>
+        <div class="summary-section">
+          <div>Email:</div>
+          <strong>{{ bankingData.email }}</strong>
+        </div>
+        <div class="summary-section">
+          <div>Telefon:</div>
+          <strong>{{ bankingData.phone }}</strong>
+        </div>
       </div>
       <div class="title-section address-title-section">RECHNUNGSADRESSE</div>
       <SectionSeparator v-bind:withGradient="false" />

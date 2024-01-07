@@ -5,6 +5,7 @@ import { CartOrderContact } from "@/common/models/cart-order-contact";
 import { Order } from "@/common/models/order";
 import { OrderSummary } from "@/common/models/order-summary";
 import { OrderSummaryQuery } from "@/common/models/order-summary-query";
+import { BankingData } from "@/common/models/banking-data";
 
 export interface IClientService {
   backPath: string;
@@ -30,4 +31,5 @@ export interface IClientService {
   getMyOrdersAsync(uid: string): Promise<Order[]>;
   getAllOrdersAsync(queryOptions: OrderSummaryQuery): Promise<OrderSummary[]>;
   geOrderAsync(orderId: string, uid: string): Promise<Order>;
+  getBankingData(): Promise<BankingData>;
 }

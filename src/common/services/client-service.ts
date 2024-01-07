@@ -33,6 +33,7 @@ import OrderProduct from "@/common/models/order-product";
 import { getOldDate } from "@/common/string-helper";
 import { OrderSummary } from "../models/order-summary";
 import { OrderSummaryQuery } from "@/common/models/order-summary-query";
+import { BankingData } from "@/common/models/banking-data";
 
 export class ClientService implements IClientService {
   private readonly _firebaseApp: FirebaseApp;
@@ -72,10 +73,25 @@ export class ClientService implements IClientService {
     this._storage = getStorage(this._firebaseApp);
   }
 
-  async geOrderAsync(orderId: string, uid: string): Promise<Order> {
-    const orderRef = doc(collection(this._firestore, "orders"), orderId);
+  async getBankingData(): Promise<BankingData | null> {
+    const bankingDataRef = collection(this._firestore, "paymentData");
+    const bankingSnapshot = await getDocs(bankingDataRef);
 
+    if (!bankingSnapshot.empty) {
+      const data = bankingSnapshot.docs[0].data();
+
+      if (data) {
+        const { iban, bic, email, phone } = data;
+        return new BankingData(iban, bic, email, phone);
+      }
+    }
+
+    return null;
+  }
+
+  async geOrderAsync(orderId: string, uid: string): Promise<Order> {
     try {
+      const orderRef = doc(collection(this._firestore, "orders"), orderId);
       const orderSnapshot = await getDoc(orderRef);
       if (orderSnapshot.exists()) {
         const data = orderSnapshot.data();
