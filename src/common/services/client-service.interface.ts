@@ -7,6 +7,8 @@ import { OrderSummary } from "@/common/models/order-summary";
 import { OrderSummaryQuery } from "@/common/models/order-summary-query";
 
 export interface IClientService {
+  backPath: string;
+  backFilterIndex: number;
   totalCostCart: number;
   totalCostCartAsString: string;
   cartItems: CartOrderItem[];

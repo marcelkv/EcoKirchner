@@ -27,6 +27,10 @@ export default defineComponent({
     const currentFilter = ref(0);
 
     onMounted(async () => {
+      if (!isNaN(clientService.backFilterIndex)) {
+        currentFilter.value = clientService.backFilterIndex;
+      }
+
       loadOrders();
     });
 
@@ -37,6 +41,7 @@ export default defineComponent({
         await router.push({ name: "Products" });
         return;
       }
+
       const queryOptions = getQueryOptions();
       const loadedOrders = await clientService.getAllOrdersAsync(queryOptions);
       orders.splice(0, orders.length, ...loadedOrders);
@@ -67,6 +72,8 @@ export default defineComponent({
 
     async function onOrderClick(orderSummary: OrderSummary): Promise<void> {
       clientService.currentOrderId = orderSummary.orderId;
+      clientService.backPath = "AllOrders";
+      clientService.backFilterIndex = currentFilter.value;
       await router.push({
         name: "EditableOrder",
       });
@@ -90,7 +97,7 @@ export default defineComponent({
   <div class="all-orders">
     <div class="main-title">Alle BESTELLUNGEN</div>
     <OptionsSelector
-      v-bind:selector-options="filterOptions"
+      v-bind:selectorOptions="filterOptions"
       v-model:currentSelection="currentFilter"
     />
     <Spinner v-if="isLoading" v-bind:withText="true" />

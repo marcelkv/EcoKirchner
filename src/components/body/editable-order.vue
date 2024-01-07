@@ -15,11 +15,13 @@ import SectionSeparator from "@/components/product-card/SectionSeparatorComponen
 import { CartOrderItem } from "@/common/models/cart-order-item";
 import { Product } from "@/common/models/product";
 import CartItemComponent from "@/components/cart/CartItemComponent.vue";
+import { IUserService } from "@/common/services/user-service.interface";
 
 export default defineComponent({
   components: { CartItemComponent, SectionSeparator, SpinnerComponent },
   props: {},
   setup() {
+    const userService = inject<IUserService>("userService");
     const clientService = inject<IClientService>("clientService");
     const isLoading = ref(true);
     const order = ref<Order>(null);
@@ -82,6 +84,10 @@ export default defineComponent({
     });
 
     async function onClickPayed(): Promise<void> {
+      if (!userService.isAdmin) {
+        return;
+      }
+
       if (isPayed.value) {
         alert("Wert kann nicht geändert werden.");
         return;
@@ -100,6 +106,10 @@ export default defineComponent({
     }
 
     async function onClickDelivered(): Promise<void> {
+      if (!userService.isAdmin) {
+        return;
+      }
+
       if (isDelivered.value) {
         alert("Wert kann nicht geändert werden.");
         return;
@@ -128,14 +138,23 @@ export default defineComponent({
     }
 
     function clearHovers(): void {
+      if (!userService.isAdmin) {
+        return;
+      }
+
       hovers.value = order.value.products.map(() => false);
     }
+
     function setHover(index: number): void {
+      if (!userService.isAdmin) {
+        return;
+      }
+
       hovers.value[index] = !hovers.value[index];
     }
 
     async function goBack(): Promise<void> {
-      router.push({ name: "AllOrders" });
+      router.push({ name: clientService.backPath });
     }
 
     return {

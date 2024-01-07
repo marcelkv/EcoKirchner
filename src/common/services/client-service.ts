@@ -43,6 +43,8 @@ export class ClientService implements IClientService {
   private _order: CartOrder = new CartOrder();
 
   currentOrderId: string = null;
+  backPath: string = null;
+  backFilterIndex = 0;
   onProductsAddedToCart = new SimpleEvent();
 
   get cartItems(): CartOrderItem[] {

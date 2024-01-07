@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, inject, onMounted, ref } from "vue";
+import { defineComponent, inject, onMounted, reactive, ref } from "vue";
 import { IClientService } from "@/common/services/client-service.interface";
 import { Order } from "@/common/models/order";
 import { IUserService } from "@/common/services/user-service.interface";
@@ -8,18 +8,13 @@ import { useRouter } from "vue-router";
 import OrderCard from "@/components/order/OrderCard.vue";
 
 export default defineComponent({
-  computed: {
-    Order() {
-      return Order;
-    },
-  },
   components: { OrderCard, Spinner: SpinnerComponent },
   setup() {
     const clientService = inject<IClientService>("clientService");
     const userService = inject<IUserService>("userService");
     const router = useRouter();
     const isLoading = ref(true);
-    const orders = ref<Order[]>([]);
+    const orders = reactive([]) as Order[];
 
     onMounted(async () => {
       if (!userService.isSignedIn) {
@@ -30,11 +25,17 @@ export default defineComponent({
       const loadedOrders = await clientService.getMyOrdersAsync(
         userService.uid
       );
-      orders.value.splice(0, loadedOrders.length, ...loadedOrders);
+      orders.splice(0, loadedOrders.length, ...loadedOrders);
       isLoading.value = false;
     });
 
-    return { isLoading, orders };
+    async function onOrderClick(order: Order): Promise<void> {
+      clientService.currentOrderId = order.orderId;
+      clientService.backPath = "MyOrders";
+      await router.push({ name: "EditableOrder" });
+    }
+
+    return { isLoading, orders, onOrderClick };
   },
 });
 </script>
@@ -49,8 +50,9 @@ export default defineComponent({
     <div class="main-body orders-list" v-else>
       <OrderCard
         v-for="order in orders"
-        v-bind:order="order as Order"
+        v-bind:order="order"
         v-bind:key="order.orderId"
+        v-on:click="onOrderClick(order)"
       />
     </div>
   </div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { computed, defineComponent, PropType, ref } from "vue";
+import { computed, defineComponent, PropType, ref, watch } from "vue";
 import { SelectorOption } from "@/common/selector-option";
 import InfoText from "@/common/info-text.vue";
 
@@ -24,6 +24,12 @@ export default defineComponent({
         index.value + 1 === props.selectorOptions.length ? 0 : index.value + 1;
       context.emit("update:currentSelection", index.value);
     }
+
+    function initSelection(): void {
+      index.value = props.currentSelection;
+    }
+
+    watch(() => props.currentSelection, initSelection);
 
     return { currentItem, onClick };
   },
