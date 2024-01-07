@@ -107,6 +107,7 @@ export default defineComponent({
 
       if (result === "Ja") {
         order.value.products.map((product) => product.setPayed());
+        await clientService.updateOrder(order.value as Order);
       }
     }
 
@@ -133,6 +134,7 @@ export default defineComponent({
 
       if (result === "Ja") {
         order.value.products.map((product) => product.setDelivered());
+        await clientService.updateOrder(order.value as Order);
       }
     }
 

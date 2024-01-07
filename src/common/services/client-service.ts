@@ -493,4 +493,39 @@ export class ClientService implements IClientService {
 
     return `${first3FirstName}${first3LastName}${currentYearLast2Digits}${currentMonth}${currentDay}${currentHour}${currentMinute}`;
   }
+
+  async updateOrder(order: Order): Promise<boolean> {
+    const orderedProductsCollection = collection(
+      this._firestore,
+      "orderedProducts"
+    );
+
+    try {
+      await runTransaction(this._firestore, async (transaction) => {
+        const updatePromises = order.products.map(async (product) => {
+          const orderedProductId = order.orderId + "-" + product.productId;
+          const orderedProductRef = doc(
+            orderedProductsCollection,
+            orderedProductId
+          );
+          const orderedProductDoc = await transaction.get(orderedProductRef);
+
+          if (!orderedProductDoc.exists()) {
+            throw Error(
+              "OrderedProductDoc does not exist. OrderedProductId: " +
+                orderedProductId
+            );
+          }
+
+          return transaction.update(orderedProductRef, {
+            payedAt: product.payedAt,
+            deliveredAt: product.deliveredAt,
+          });
+        });
+        await Promise.all(updatePromises);
+      });
+    } catch (e) {
+      return false;
+    }
+  }
 }

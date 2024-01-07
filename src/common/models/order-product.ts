@@ -49,8 +49,16 @@ export default class {
     return this._isDateSet(this._payedBackAt);
   }
 
+  get payedAt(): Date {
+    return this._payedAt;
+  }
+
   get payedAtAsString(): string {
     return getDateFormatted_2(this._payedAt);
+  }
+
+  get deliveredAt(): Date {
+    return this._deliveredAt;
   }
 
   get deliveredAtAsString(): string {
