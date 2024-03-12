@@ -11,6 +11,7 @@ import CartSuccess from "@/components/cart/CartSuccess.vue";
 import MyOrders from "@/components/body/MyOrders.vue";
 import AllOrders from "@/components/body/all-orders.vue";
 import EditableOrder from "@/components/body/editable-order.vue";
+import HowMuch from "@/components/body/how-much.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -67,6 +68,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/all-orders",
     name: "AllOrders",
     component: AllOrders,
+  },
+  {
+    path: "/how-much",
+    name: "HowMuch",
+    component: HowMuch,
   },
   {
     path: "/editable-order",

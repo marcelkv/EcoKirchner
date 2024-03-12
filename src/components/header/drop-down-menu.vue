@@ -36,6 +36,10 @@ export default defineComponent({
       await router.push({ name: "AllOrders" });
     }
 
+    async function onClickHowMuch(): Promise<void> {
+      await router.push({ name: "HowMuch" });
+    }
+
     async function onClickAbout(): Promise<void> {
       await router.push({ name: "About" });
     }
@@ -73,6 +77,7 @@ export default defineComponent({
       onClickContact,
       onClickMyOrders,
       onClickAllOrders,
+      onClickHowMuch,
       onClickShoppingCart,
       onClickCloseMenu,
     };
@@ -96,6 +101,9 @@ export default defineComponent({
       </div>
       <div class="menu-item item" v-if="isAdmin" v-on:click="onClickAllOrders">
         Alle Bestellungen
+      </div>
+      <div class="menu-item item" v-if="isAdmin" v-on:click="onClickHowMuch">
+        Wie viel?
       </div>
       <UserMenuItem
         v-if="

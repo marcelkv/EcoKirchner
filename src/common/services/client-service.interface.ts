@@ -30,6 +30,7 @@ export interface IClientService {
   };
   getMyOrdersAsync(uid: string): Promise<Order[]>;
   getAllOrdersAsync(queryOptions: OrderSummaryQuery): Promise<OrderSummary[]>;
+  getTotalOrderedProducts(): Promise<string[]>;
   geOrderAsync(orderId: string, uid: string): Promise<Order>;
   getBankingData(): Promise<BankingData>;
   updateOrder(order: Order): Promise<boolean>;

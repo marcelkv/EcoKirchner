@@ -530,4 +530,34 @@ export class ClientService implements IClientService {
       return false;
     }
   }
+
+  async getTotalOrderedProducts(): Promise<string[]> {
+    const productsCol = collection(this._firestore, "products");
+    const orderProductsCol = collection(this._firestore, "orderedProducts");
+    const startDate = Timestamp.fromDate(getOldDate());
+    const q = where("deliveredAt", "==", startDate);
+    const orderProductsQuery = query(orderProductsCol, q);
+    const orderProductsSnapshot = await getDocs(orderProductsQuery);
+    const productsQuery = query(productsCol);
+    const productsSnapshot = await getDocs(productsQuery);
+    const productNames: { [key: string]: string } = {};
+    productsSnapshot.docs.forEach((productDoc) => {
+      const productData = productDoc.data();
+      productNames[productData.productId] = productData.name;
+    });
+    const productQuantities: { [key: string]: number } = {};
+    orderProductsSnapshot.docs.forEach((productDoc) => {
+      const productData = productDoc.data();
+      productQuantities[productData.productId] =
+        (productQuantities[productData.productId] || 0) + productData.quantity;
+    });
+
+    const result: string[] = [];
+    for (const key in productQuantities) {
+      const productName =
+        productNames[key] !== undefined ? productNames[key] : "Invalid name";
+      result.push(productQuantities[key] + ": " + productName);
+    }
+    return result;
+  }
 }
