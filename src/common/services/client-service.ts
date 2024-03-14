@@ -179,29 +179,41 @@ export class ClientService implements IClientService {
       return [];
     }
 
-    const ordersQuery = query(ordersCol, where("orderId", "in", allOrderIds));
-    const ordersSnapshot = await getDocs(ordersQuery);
+    const batchSize = 30;
+    const batches = [];
 
-    const orderSummaries = ordersSnapshot.docs.map((doc) => {
-      const data = doc.data();
+    for (let i = 0; i < allOrderIds.length; i += batchSize) {
+      const batchIds = allOrderIds.slice(i, i + batchSize);
+      const batchQuery = query(ordersCol, where("orderId", "in", batchIds));
+      batches.push(batchQuery);
+    }
 
-      const orderContact = new OrderContact(
-        data.contact.firstName,
-        data.contact.lastName,
-        data.contact.street,
-        data.contact.zipCode,
-        data.contact.city,
-        data.contact.phoneNumber
-      );
+    const orderSummaries = [];
 
-      return new OrderSummary(
-        doc.id,
-        orderContact,
-        data.createdAt.toDate(),
-        queryOptions.payed,
-        queryOptions.delivered
-      );
-    });
+    for (const batchQuery of batches) {
+      const batchSnapshot = await getDocs(batchQuery);
+      const batchOrderSummaries = batchSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const orderContact = new OrderContact(
+          data.contact.firstName,
+          data.contact.lastName,
+          data.contact.street,
+          data.contact.zipCode,
+          data.contact.city,
+          data.contact.phoneNumber
+        );
+
+        return new OrderSummary(
+          doc.id,
+          orderContact,
+          data.createdAt.toDate(),
+          queryOptions.payed,
+          queryOptions.delivered
+        );
+      });
+
+      orderSummaries.push(...batchOrderSummaries);
+    }
 
     return orderSummaries.sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
