@@ -12,7 +12,11 @@ import {
   runTransaction,
   serverTimestamp,
   Transaction,
+  DocumentData,
+  CollectionReference,
+  QueryFieldFilterConstraint,
   Timestamp,
+  Query,
   where,
   getDoc,
 } from "firebase/firestore";
@@ -35,10 +39,24 @@ import { OrderSummary } from "../models/order-summary";
 import { OrderSummaryQuery } from "@/common/models/order-summary-query";
 import { BankingData } from "@/common/models/banking-data";
 
+class Collections {
+  readonly products: CollectionReference<DocumentData, DocumentData>;
+  readonly orders: CollectionReference<DocumentData, DocumentData>;
+  readonly orderedProducts: CollectionReference<DocumentData, DocumentData>;
+  readonly paymentData: CollectionReference<DocumentData, DocumentData>;
+
+  constructor(firestore: Firestore) {
+    this.products = collection(firestore, "products");
+    this.orders = collection(firestore, "orders");
+    this.orderedProducts = collection(firestore, "orderedProducts");
+    this.paymentData = collection(firestore, "paymentData");
+  }
+}
+
 export class ClientService implements IClientService {
   private readonly _firebaseApp: FirebaseApp;
   private readonly _firestore: Firestore;
-  private readonly _productsCol;
+  private readonly collections: Collections;
   private readonly _storage: FirebaseStorage;
   private _products: Product[];
   private _order: CartOrder = new CartOrder();
@@ -69,97 +87,98 @@ export class ClientService implements IClientService {
   constructor() {
     this._firebaseApp = initializeApp(firebaseConfig);
     this._firestore = getFirestore(this._firebaseApp);
-    this._productsCol = collection(this._firestore, "products");
+    this.collections = new Collections(this._firestore);
     this._storage = getStorage(this._firebaseApp);
   }
 
-  async getBankingData(): Promise<BankingData | null> {
-    const bankingDataRef = collection(this._firestore, "paymentData");
-    const bankingSnapshot = await getDocs(bankingDataRef);
+  async getBankingData(): Promise<BankingData> {
+    const bankingSnapshot = await getDocs(this.collections.paymentData);
 
-    if (!bankingSnapshot.empty) {
-      const data = bankingSnapshot.docs[0].data();
-
-      if (data) {
-        const { iban, bic, email, phone } = data;
-        return new BankingData(iban, bic, email, phone);
-      }
+    if (bankingSnapshot.empty || bankingSnapshot.docs.length < 1) {
+      return null;
     }
 
-    return null;
+    const data = bankingSnapshot.docs[0].data();
+    const { iban, bic, email, phone } = data;
+    return new BankingData(iban, bic, email, phone);
   }
 
   async geOrderAsync(orderId: string, uid: string): Promise<Order> {
     try {
-      const orderRef = doc(collection(this._firestore, "orders"), orderId);
+      const orderRef = doc(this.collections.orders, orderId);
       const orderSnapshot = await getDoc(orderRef);
-      if (orderSnapshot.exists()) {
-        const data = orderSnapshot.data();
-        const orderProductsCol = collection(this._firestore, "orderedProducts");
-        const orderProductsQuery = uid
-          ? query(
-              orderProductsCol,
-              where("orderId", "==", data.orderId),
-              where("uid", "==", uid)
-            )
-          : query(orderProductsCol, where("orderId", "==", data.orderId));
-        const orderProductsSnapshot = await getDocs(orderProductsQuery);
 
-        const orderProducts = orderProductsSnapshot.docs.map((productDoc) => {
-          const productData = productDoc.data();
-          return new OrderProduct(
-            productData.productId,
-            productData.productName,
-            productData.imageReference,
-            productData.cost,
-            productData.totalCost,
-            productData.totalCostString,
-            productData.quantity,
-            productData.payedAt.toDate(),
-            productData.deliveredAt.toDate(),
-            productData.returnedAt.toDate(),
-            productData.payedBackAt.toDate()
-          );
-        });
-
-        const orderContact = new OrderContact(
-          data.contact.firstName,
-          data.contact.lastName,
-          data.contact.street,
-          data.contact.zipCode,
-          data.contact.city,
-          data.contact.phoneNumber
-        );
-        return new Order(
-          data.uid,
-          data.orderId,
-          orderProducts,
-          orderContact,
-          data.createdAt.toDate(),
-          data.totalCost,
-          data.totalCostString
-        );
-      } else {
+      if (!orderSnapshot.exists()) {
         return null;
       }
+
+      const data = orderSnapshot.data();
+      const orderProductsQuery = this._getOrderedProductsQuery(orderId, uid);
+      const orderProductsSnapshot = await getDocs(orderProductsQuery);
+      const orderProducts = orderProductsSnapshot.docs.map((productDoc) => {
+        const productData = productDoc.data();
+        return new OrderProduct(
+          productData.productId,
+          productData.productName,
+          productData.imageReference,
+          productData.cost,
+          productData.totalCost,
+          productData.totalCostString,
+          productData.quantity,
+          productData.payedAt.toDate(),
+          productData.deliveredAt.toDate(),
+          productData.returnedAt.toDate(),
+          productData.payedBackAt.toDate()
+        );
+      });
+
+      const orderContact = new OrderContact(
+        data.contact.firstName,
+        data.contact.lastName,
+        data.contact.street,
+        data.contact.zipCode,
+        data.contact.city,
+        data.contact.phoneNumber
+      );
+      return new Order(
+        data.uid,
+        data.orderId,
+        orderProducts,
+        orderContact,
+        data.createdAt.toDate(),
+        data.totalCost,
+        data.totalCostString
+      );
     } catch (error) {
       return null;
     }
   }
 
+  private _getOrderedProductsQuery(
+    orderId: string,
+    uid: string
+  ): Query<DocumentData, DocumentData> {
+    const queryConditions: QueryFieldFilterConstraint[] = [
+      where("orderId", "==", orderId),
+    ];
+
+    if (uid) {
+      queryConditions.push(where("uid", "==", uid));
+    }
+
+    return query(this.collections.orderedProducts, ...queryConditions);
+  }
+
   async getAllOrdersAsync(
     queryOptions: OrderSummaryQuery
   ): Promise<OrderSummary[]> {
-    const ordersCol = collection(this._firestore, "orders");
-    const orderProductsCol = collection(this._firestore, "orderedProducts");
     const startDate = Timestamp.fromDate(getOldDate());
-
     const allOrderIds: string[] = [];
 
     const q = queryOptions.payed
       ? where("payedAt", ">", startDate)
       : where("payedAt", "==", startDate);
-    const orderProductsQuery = query(orderProductsCol, q);
+    const orderProductsQuery = query(this.collections.orderedProducts, q);
     const orderProductsSnapshot = await getDocs(orderProductsQuery);
     const orderIds = new Set<string>();
     orderProductsSnapshot.docs.forEach((productDoc) => {
@@ -184,7 +203,10 @@ export class ClientService implements IClientService {
 
     for (let i = 0; i < allOrderIds.length; i += batchSize) {
       const batchIds = allOrderIds.slice(i, i + batchSize);
-      const batchQuery = query(ordersCol, where("orderId", "in", batchIds));
+      const batchQuery = query(
+        this.collections.orders,
+        where("orderId", "in", batchIds)
+      );
       batches.push(batchQuery);
     }
 
@@ -221,17 +243,14 @@ export class ClientService implements IClientService {
   }
 
   async getMyOrdersAsync(uid: string): Promise<Order[]> {
-    const ordersCol = collection(this._firestore, "orders");
-    const ordersQuery = query(ordersCol, where("uid", "==", uid));
+    const ordersQuery = query(this.collections.orders, where("uid", "==", uid));
     const ordersSnapshot = await getDocs(ordersQuery);
 
     const orders = await Promise.all(
       ordersSnapshot.docs.map(async (doc) => {
         const data = doc.data();
-
-        const orderProductsCol = collection(this._firestore, "orderedProducts");
         const orderProductsQuery = query(
-          orderProductsCol,
+          this.collections.orderedProducts,
           where("orderId", "==", data.orderId),
           where("uid", "==", uid)
         );
@@ -282,7 +301,7 @@ export class ClientService implements IClientService {
       return this._products;
     }
 
-    const productsSnapshot = await getDocs(this._productsCol);
+    const productsSnapshot = await getDocs(this.collections.products);
 
     this._products = productsSnapshot.docs.map((doc) => {
       const data = doc.data();
@@ -509,17 +528,12 @@ export class ClientService implements IClientService {
   }
 
   async updateOrder(order: Order): Promise<boolean> {
-    const orderedProductsCollection = collection(
-      this._firestore,
-      "orderedProducts"
-    );
-
     try {
       await runTransaction(this._firestore, async (transaction) => {
         const updatePromises = order.products.map(async (product) => {
           const orderedProductId = order.orderId + "-" + product.productId;
           const orderedProductRef = doc(
-            orderedProductsCollection,
+            this.collections.orderedProducts,
             orderedProductId
           );
           const orderedProductDoc = await transaction.get(orderedProductRef);
@@ -544,13 +558,11 @@ export class ClientService implements IClientService {
   }
 
   async getTotalOrderedProducts(): Promise<string[]> {
-    const productsCol = collection(this._firestore, "products");
-    const orderProductsCol = collection(this._firestore, "orderedProducts");
     const startDate = Timestamp.fromDate(getOldDate());
     const q = where("deliveredAt", "==", startDate);
-    const orderProductsQuery = query(orderProductsCol, q);
+    const orderProductsQuery = query(this.collections.orderedProducts, q);
     const orderProductsSnapshot = await getDocs(orderProductsQuery);
-    const productsQuery = query(productsCol);
+    const productsQuery = query(this.collections.products);
     const productsSnapshot = await getDocs(productsQuery);
     const productNames: { [key: string]: string } = {};
     productsSnapshot.docs.forEach((productDoc) => {
