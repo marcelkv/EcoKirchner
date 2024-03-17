@@ -14,9 +14,7 @@ import {
   Transaction,
   DocumentData,
   CollectionReference,
-  QueryFieldFilterConstraint,
   Timestamp,
-  Query,
   where,
   getDoc,
 } from "firebase/firestore";
@@ -38,8 +36,10 @@ import { getOldDate } from "@/common/string-helper";
 import { OrderSummary } from "../models/order-summary";
 import { OrderSummaryQuery } from "@/common/models/order-summary-query";
 import { BankingData } from "@/common/models/banking-data";
+import { DataToObjectMapper } from "@/common/services/data-to-object-mapper";
+import { Queries } from "@/common/services/queries";
 
-class Collections {
+export class Collections {
   readonly products: CollectionReference<DocumentData, DocumentData>;
   readonly orders: CollectionReference<DocumentData, DocumentData>;
   readonly orderedProducts: CollectionReference<DocumentData, DocumentData>;
@@ -53,6 +53,7 @@ class Collections {
   }
 }
 
+const BATCH_SIZE = 30;
 export class ClientService implements IClientService {
   private readonly _firebaseApp: FirebaseApp;
   private readonly _firestore: Firestore;
@@ -98,9 +99,35 @@ export class ClientService implements IClientService {
       return null;
     }
 
-    const data = bankingSnapshot.docs[0].data();
-    const { iban, bic, email, phone } = data;
-    return new BankingData(iban, bic, email, phone);
+    return DataToObjectMapper.toBankingData(bankingSnapshot.docs[0].data());
+  }
+
+  async getProductsAsync(forceUpdate = false): Promise<Product[]> {
+    if (!forceUpdate && this._products) {
+      return this._products;
+    }
+
+    const productsSnapshot = await getDocs(this.collections.products);
+    return productsSnapshot.docs.map((doc) =>
+      DataToObjectMapper.toProduct(doc.data())
+    );
+  }
+
+  async setProductImageAsync(product: Product): Promise<void> {
+    product.imageUrl = await this._getImageDownloadUrl(product.imageReference);
+  }
+
+  async getMyOrdersAsync(uid: string): Promise<Order[]> {
+    const ordersData = await this._fetchOrders(uid);
+    const orderIds = ordersData.map((data) =>
+      DataToObjectMapper.toOrderId(data)
+    );
+    const orderProductsData = await this._fetchOrderProductsBatched(
+      orderIds,
+      uid
+    );
+    const orders = this._mapOrders(ordersData, orderProductsData);
+    return this._sortOrdersByDateDesc(orders);
   }
 
   async geOrderAsync(orderId: string, uid: string): Promise<Order> {
@@ -113,7 +140,11 @@ export class ClientService implements IClientService {
       }
 
       const data = orderSnapshot.data();
-      const orderProductsQuery = this._getOrderedProductsQuery(orderId, uid);
+      const orderProductsQuery = Queries.orderedProducts(
+        this.collections,
+        orderId,
+        uid
+      );
       const orderProductsSnapshot = await getDocs(orderProductsQuery);
       const orderProducts = orderProductsSnapshot.docs.map((productDoc) => {
         const productData = productDoc.data();
@@ -152,21 +183,6 @@ export class ClientService implements IClientService {
     } catch (error) {
       return null;
     }
-  }
-
-  private _getOrderedProductsQuery(
-    orderId: string,
-    uid: string
-  ): Query<DocumentData, DocumentData> {
-    const queryConditions: QueryFieldFilterConstraint[] = [
-      where("orderId", "==", orderId),
-    ];
-
-    if (uid) {
-      queryConditions.push(where("uid", "==", uid));
-    }
-
-    return query(this.collections.orderedProducts, ...queryConditions);
   }
 
   async getAllOrdersAsync(
@@ -240,95 +256,6 @@ export class ClientService implements IClientService {
     return orderSummaries.sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
     );
-  }
-
-  async getMyOrdersAsync(uid: string): Promise<Order[]> {
-    const ordersQuery = query(this.collections.orders, where("uid", "==", uid));
-    const ordersSnapshot = await getDocs(ordersQuery);
-
-    const orders = await Promise.all(
-      ordersSnapshot.docs.map(async (doc) => {
-        const data = doc.data();
-        const orderProductsQuery = query(
-          this.collections.orderedProducts,
-          where("orderId", "==", data.orderId),
-          where("uid", "==", uid)
-        );
-        const orderProductsSnapshot = await getDocs(orderProductsQuery);
-
-        const orderProducts = orderProductsSnapshot.docs.map((productDoc) => {
-          const productData = productDoc.data();
-          return new OrderProduct(
-            productData.productId,
-            productData.productName,
-            productData.imageReference,
-            productData.cost,
-            productData.totalCost,
-            productData.totalCostString,
-            productData.quantity,
-            productData.payedAt.toDate(),
-            productData.deliveredAt.toDate(),
-            productData.returnedAt.toDate(),
-            productData.payedBackAt.toDate()
-          );
-        });
-
-        const orderContact = new OrderContact(
-          data.contact.firstName,
-          data.contact.lastName,
-          data.contact.street,
-          data.contact.zipCode,
-          data.contact.city,
-          data.contact.phoneNumber
-        );
-        return new Order(
-          data.uid,
-          data.orderId,
-          orderProducts,
-          orderContact,
-          data.createdAt.toDate(),
-          data.totalCost,
-          data.totalCostString
-        );
-      })
-    );
-
-    return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-  }
-
-  async getProductsAsync(forceUpdate = false): Promise<Product[]> {
-    if (!forceUpdate && this._products) {
-      return this._products;
-    }
-
-    const productsSnapshot = await getDocs(this.collections.products);
-
-    this._products = productsSnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return new Product(
-        data.productId,
-        data.name,
-        data.cost,
-        data.totalItems,
-        data.image
-      );
-    });
-
-    return this._products;
-  }
-
-  async setProductsImagesAsync(products: Product[]): Promise<void> {
-    const imageUrlPromises = products.map((product) =>
-      this._getImageDownloadUrl(product.imageReference)
-    );
-    const imageUrls = await Promise.all(imageUrlPromises);
-    for (let i = 0; i < products.length; i++) {
-      products[i].imageUrl = imageUrls[i];
-    }
-  }
-
-  async setProductImageAsync(product: Product): Promise<void> {
-    product.imageUrl = await this._getImageDownloadUrl(product.imageReference);
   }
 
   async addProductToCart(product: Product, numItems: number): Promise<void> {
@@ -583,5 +510,60 @@ export class ClientService implements IClientService {
       result.push(productQuantities[key] + ": " + productName);
     }
     return result;
+  }
+
+  private _batchArray<T>(array: T[], batchSize: number): T[][] {
+    const batchedArray: T[][] = [];
+    for (let i = 0; i < array.length; i += batchSize) {
+      batchedArray.push(array.slice(i, i + batchSize));
+    }
+    return batchedArray;
+  }
+
+  async _fetchOrders(uid: string): Promise<DocumentData[]> {
+    const ordersQuery = Queries.orders(this.collections, uid);
+    const ordersSnapshot = await getDocs(ordersQuery);
+    return ordersSnapshot.docs.map((doc) => doc.data());
+  }
+
+  async _fetchOrderProductsBatched(
+    orderIds: string[],
+    uid: string,
+    batchSize = BATCH_SIZE
+  ): Promise<DocumentData[]> {
+    const batchedOrderIds = this._batchArray(orderIds, batchSize);
+    const orderProductsPromises = batchedOrderIds.map((batch) =>
+      this._fetchOrderProducts(batch, uid)
+    );
+    return (await Promise.all(orderProductsPromises)).flat();
+  }
+
+  async _fetchOrderProducts(
+    orderIds: string[],
+    uid: string
+  ): Promise<DocumentData[]> {
+    const orderProductsQuery = Queries.orderedProducts(
+      this.collections,
+      orderIds,
+      uid
+    );
+    const orderProductsSnapshot = await getDocs(orderProductsQuery);
+    return orderProductsSnapshot.docs.map((doc) => doc.data());
+  }
+
+  _mapOrders(
+    ordersData: DocumentData[],
+    orderProductsData: DocumentData[]
+  ): Order[] {
+    return ordersData.map((order) => {
+      const productsForOrder = orderProductsData.filter(
+        (product) => product.orderId === DataToObjectMapper.toOrderId(order)
+      );
+      return DataToObjectMapper.toOrder(order, productsForOrder);
+    });
+  }
+
+  private _sortOrdersByDateDesc(orders: Order[]): Order[] {
+    return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 }

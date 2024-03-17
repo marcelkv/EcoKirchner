@@ -17,7 +17,6 @@ export interface IClientService {
   onProductsAddedToCart: ISimpleEvent;
   currentOrderId: string;
   getProductsAsync(): Promise<Product[]>;
-  setProductsImagesAsync(products: Product[]): Promise<void>;
   setProductImageAsync(product: Product): Promise<void>;
   addProductToCart(product: Product, numItems: number): Promise<void>;
   addContactToCart(contact: CartOrderContact): Promise<void>;
