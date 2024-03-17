@@ -8,7 +8,7 @@ import { OrderSummary } from "@/common/models/order-summary";
 import InfoText from "@/common/info-text.vue";
 import { SelectorOption } from "@/common/selector-option";
 import OptionsSelector from "@/common/options-selector.vue";
-import { OrderSummaryQuery } from "@/common/models/order-summary-query";
+import { OrderQuery } from "@/common/models/order-query";
 
 export default defineComponent({
   components: { OptionsSelector, InfoText, Spinner },
@@ -48,14 +48,14 @@ export default defineComponent({
       isLoading.value = false;
     }
 
-    function getQueryOptions(): OrderSummaryQuery {
+    function getQueryOptions(): OrderQuery {
       if (currentFilter.value === 0) {
-        return new OrderSummaryQuery(false, false);
+        return new OrderQuery(false, false);
       }
       if (currentFilter.value === 1) {
-        return new OrderSummaryQuery(true, false);
+        return new OrderQuery(true, false);
       }
-      return new OrderSummaryQuery(true, true);
+      return new OrderQuery(true, true);
     }
 
     function getIndicatorColor(order: OrderSummary): string {

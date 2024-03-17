@@ -4,7 +4,7 @@ import { CartOrderItem } from "@/common/models/cart-order-item";
 import { CartOrderContact } from "@/common/models/cart-order-contact";
 import { Order } from "@/common/models/order";
 import { OrderSummary } from "@/common/models/order-summary";
-import { OrderSummaryQuery } from "@/common/models/order-summary-query";
+import { OrderQuery } from "@/common/models/order-query";
 import { BankingData } from "@/common/models/banking-data";
 
 export interface IClientService {
@@ -27,10 +27,9 @@ export interface IClientService {
     deleted: Product[];
     modified: Product[];
   };
-  getMyOrdersAsync(uid: string): Promise<Order[]>;
-  getAllOrdersAsync(queryOptions: OrderSummaryQuery): Promise<OrderSummary[]>;
+  getOrdersAsync(uid: string, orderId?: string): Promise<Order[]>;
+  getAllOrdersAsync(queryOptions: OrderQuery): Promise<OrderSummary[]>;
   getTotalOrderedProducts(): Promise<string[]>;
-  geOrderAsync(orderId: string, uid: string): Promise<Order>;
   getBankingData(): Promise<BankingData>;
   updateOrder(order: Order): Promise<boolean>;
 }

@@ -4,6 +4,8 @@ import { BankingData } from "@/common/models/banking-data";
 import OrderProduct from "@/common/models/order-product";
 import { Order } from "@/common/models/order";
 import { OrderContact } from "@/common/models/order-contact";
+import { OrderSummary } from "@/common/models/order-summary";
+import { OrderQuery } from "@/common/models/order-query";
 
 export class DataToObjectMapper {
   static toBankingData(data: DocumentData): BankingData {
@@ -32,12 +34,20 @@ export class DataToObjectMapper {
       orderProductData.payedAt.toDate(),
       orderProductData.deliveredAt.toDate(),
       orderProductData.returnedAt.toDate(),
-      orderProductData.payedBackAt.toDate()
+      orderProductData.payedBackAt.toDate(),
+      orderProductData.payed,
+      orderProductData.delivered,
+      orderProductData.returned,
+      orderProductData.payedBack
     );
   }
 
   static toOrderId(orderData: DocumentData): string {
     return orderData.orderId;
+  }
+
+  static toUserId(orderData: DocumentData): string {
+    return orderData.uid;
   }
 
   static toOrder(
@@ -66,6 +76,19 @@ export class DataToObjectMapper {
       contactData.zipCode,
       contactData.city,
       contactData.phoneNumber
+    );
+  }
+
+  static toOrderSummary(
+    orderData: DocumentData,
+    queryOptions: OrderQuery
+  ): OrderSummary {
+    return new OrderSummary(
+      orderData.orderId,
+      DataToObjectMapper.toOrderContact(orderData.contact),
+      orderData.createdAt.toDate(),
+      queryOptions.payed,
+      queryOptions.delivered
     );
   }
 }

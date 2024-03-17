@@ -7,6 +7,12 @@ export default class {
   private _deliveredAt: Date;
   private _returnedAt: Date;
   private _payedBackAt: Date;
+
+  private _payed: boolean;
+  private _delivered: boolean;
+  private _returned: boolean;
+  private _payedBack: boolean;
+
   private readonly _cost: number;
   private _totalCost: number;
   private _totalCostString: string;
@@ -34,19 +40,19 @@ export default class {
   }
 
   get isPayed(): boolean {
-    return this._isDateSet(this._payedAt);
+    return this._isDateSet(this._payedAt) && this._payed;
   }
 
   get isDelivered(): boolean {
-    return this._isDateSet(this._deliveredAt);
+    return this._isDateSet(this._deliveredAt) && this._delivered;
   }
 
   get isReturned(): boolean {
-    return this._isDateSet(this._returnedAt);
+    return this._isDateSet(this._returnedAt) && this._returned;
   }
 
   get isPayedBack(): boolean {
-    return this._isDateSet(this._payedBackAt);
+    return this._isDateSet(this._payedBackAt) && this._payedBack;
   }
 
   get payedAt(): Date {
@@ -90,7 +96,11 @@ export default class {
     payedAt: Date,
     deliveredAt: Date,
     returnedAt: Date,
-    payedBackAt: Date
+    payedBackAt: Date,
+    payed: boolean,
+    delivered: boolean,
+    returned: boolean,
+    payedBack: boolean
   ) {
     this.productId = productId;
     this.productName = productName;
@@ -103,22 +113,30 @@ export default class {
     this._deliveredAt = deliveredAt;
     this._returnedAt = returnedAt;
     this._payedBackAt = payedBackAt;
+    this._payed = !!payed;
+    this._delivered = !!delivered;
+    this._returned = !!returned;
+    this._payedBack = !!payedBack;
   }
 
   setPayed(): void {
     this._payedAt = new Date();
+    this._payed = true;
   }
 
   setDelivered(): void {
     this._deliveredAt = new Date();
+    this._delivered = true;
   }
 
   setReturned(): void {
     this._returnedAt = new Date();
+    this._returned = true;
   }
 
   setPayedBack(): void {
     this._payedBackAt = new Date();
+    this._payedBack = true;
   }
 
   updateQuantity(quantity: number): void {

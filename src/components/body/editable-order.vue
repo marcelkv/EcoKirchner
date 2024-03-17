@@ -36,14 +36,16 @@ export default defineComponent({
       }
 
       isLoading.value = true;
-      order.value = await clientService.geOrderAsync(
-        clientService.currentOrderId,
-        userService.isAdmin ? null : userService.uid
+      const result = await clientService.getOrdersAsync(
+        userService.isAdmin ? null : userService.uid,
+        clientService.currentOrderId
       );
-      if (!order.value) {
+
+      if (!result || result.length !== 1) {
         goBack();
       }
 
+      order.value = result[0];
       bankingData.value = await clientService.getBankingData();
       clearHovers();
       isLoading.value = false;

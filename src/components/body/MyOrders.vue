@@ -22,9 +22,7 @@ export default defineComponent({
         return;
       }
 
-      const loadedOrders = await clientService.getMyOrdersAsync(
-        userService.uid
-      );
+      const loadedOrders = await clientService.getOrdersAsync(userService.uid);
       orders.splice(0, loadedOrders.length, ...loadedOrders);
       isLoading.value = false;
     });

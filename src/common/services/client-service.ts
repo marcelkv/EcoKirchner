@@ -16,7 +16,6 @@ import {
   CollectionReference,
   Timestamp,
   where,
-  getDoc,
 } from "firebase/firestore";
 import {
   FirebaseStorage,
@@ -30,11 +29,9 @@ import { clamp } from "lodash";
 import { CartOrder } from "@/common/models/cart-order";
 import { CartOrderContact } from "../models/cart-order-contact";
 import { Order } from "@/common/models/order";
-import { OrderContact } from "@/common/models/order-contact";
-import OrderProduct from "@/common/models/order-product";
 import { getOldDate } from "@/common/string-helper";
 import { OrderSummary } from "../models/order-summary";
-import { OrderSummaryQuery } from "@/common/models/order-summary-query";
+import { OrderQuery } from "@/common/models/order-query";
 import { BankingData } from "@/common/models/banking-data";
 import { DataToObjectMapper } from "@/common/services/data-to-object-mapper";
 import { Queries } from "@/common/services/queries";
@@ -117,8 +114,8 @@ export class ClientService implements IClientService {
     product.imageUrl = await this._getImageDownloadUrl(product.imageReference);
   }
 
-  async getMyOrdersAsync(uid: string): Promise<Order[]> {
-    const ordersData = await this._fetchOrders(uid);
+  async getOrdersAsync(uid: string, orderId: string = null): Promise<Order[]> {
+    const ordersData = await this._fetchOrders(orderId, uid);
     const orderIds = ordersData.map((data) =>
       DataToObjectMapper.toOrderId(data)
     );
@@ -130,132 +127,13 @@ export class ClientService implements IClientService {
     return this._sortOrdersByDateDesc(orders);
   }
 
-  async geOrderAsync(orderId: string, uid: string): Promise<Order> {
-    try {
-      const orderRef = doc(this.collections.orders, orderId);
-      const orderSnapshot = await getDoc(orderRef);
-
-      if (!orderSnapshot.exists()) {
-        return null;
-      }
-
-      const data = orderSnapshot.data();
-      const orderProductsQuery = Queries.orderedProducts(
-        this.collections,
-        orderId,
-        uid
-      );
-      const orderProductsSnapshot = await getDocs(orderProductsQuery);
-      const orderProducts = orderProductsSnapshot.docs.map((productDoc) => {
-        const productData = productDoc.data();
-        return new OrderProduct(
-          productData.productId,
-          productData.productName,
-          productData.imageReference,
-          productData.cost,
-          productData.totalCost,
-          productData.totalCostString,
-          productData.quantity,
-          productData.payedAt.toDate(),
-          productData.deliveredAt.toDate(),
-          productData.returnedAt.toDate(),
-          productData.payedBackAt.toDate()
-        );
-      });
-
-      const orderContact = new OrderContact(
-        data.contact.firstName,
-        data.contact.lastName,
-        data.contact.street,
-        data.contact.zipCode,
-        data.contact.city,
-        data.contact.phoneNumber
-      );
-      return new Order(
-        data.uid,
-        data.orderId,
-        orderProducts,
-        orderContact,
-        data.createdAt.toDate(),
-        data.totalCost,
-        data.totalCostString
-      );
-    } catch (error) {
-      return null;
-    }
-  }
-
-  async getAllOrdersAsync(
-    queryOptions: OrderSummaryQuery
-  ): Promise<OrderSummary[]> {
-    const startDate = Timestamp.fromDate(getOldDate());
-    const allOrderIds: string[] = [];
-
-    const q = queryOptions.payed
-      ? where("payedAt", ">", startDate)
-      : where("payedAt", "==", startDate);
-    const orderProductsQuery = query(this.collections.orderedProducts, q);
-    const orderProductsSnapshot = await getDocs(orderProductsQuery);
-    const orderIds = new Set<string>();
-    orderProductsSnapshot.docs.forEach((productDoc) => {
-      const productData = productDoc.data();
-      if (
-        (productData.deliveredAt.toDate().getFullYear() > 2000 &&
-          queryOptions.delivered) ||
-        (productData.deliveredAt.toDate().getFullYear() === 2000 &&
-          !queryOptions.delivered)
-      ) {
-        orderIds.add(productData.orderId);
-      }
-    });
-    allOrderIds.push(...Array.from(orderIds));
-
-    if (allOrderIds.length === 0) {
-      return [];
-    }
-
-    const batchSize = 30;
-    const batches = [];
-
-    for (let i = 0; i < allOrderIds.length; i += batchSize) {
-      const batchIds = allOrderIds.slice(i, i + batchSize);
-      const batchQuery = query(
-        this.collections.orders,
-        where("orderId", "in", batchIds)
-      );
-      batches.push(batchQuery);
-    }
-
-    const orderSummaries = [];
-
-    for (const batchQuery of batches) {
-      const batchSnapshot = await getDocs(batchQuery);
-      const batchOrderSummaries = batchSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        const orderContact = new OrderContact(
-          data.contact.firstName,
-          data.contact.lastName,
-          data.contact.street,
-          data.contact.zipCode,
-          data.contact.city,
-          data.contact.phoneNumber
-        );
-
-        return new OrderSummary(
-          doc.id,
-          orderContact,
-          data.createdAt.toDate(),
-          queryOptions.payed,
-          queryOptions.delivered
-        );
-      });
-
-      orderSummaries.push(...batchOrderSummaries);
-    }
-
-    return orderSummaries.sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+  async getAllOrdersAsync(queryOptions: OrderQuery): Promise<OrderSummary[]> {
+    const orderIds = await this._fetchUserOrderIds(queryOptions);
+    const orderSummaries = await this._fetchOrderSummaries(
+      orderIds,
+      queryOptions
     );
+    return this._sortOrderSummariesByDateDesc(orderSummaries);
   }
 
   async addProductToCart(product: Product, numItems: number): Promise<void> {
@@ -374,6 +252,10 @@ export class ClientService implements IClientService {
         deliveredAt: getOldDate(),
         returnedAt: getOldDate(),
         payedBackAt: getOldDate(),
+        payed: false,
+        delivered: false,
+        returned: false,
+        payedBack: false,
       };
       const orderedProductId = orderId + "-" + cartItem.product.productId;
       const newOrderedProductRef = doc(
@@ -475,6 +357,10 @@ export class ClientService implements IClientService {
           return transaction.update(orderedProductRef, {
             payedAt: product.payedAt,
             deliveredAt: product.deliveredAt,
+            payed: product.isPayed,
+            delivered: product.isDelivered,
+            returned: product.isReturned,
+            payedBack: product.isPayedBack,
           });
         });
         await Promise.all(updatePromises);
@@ -520,13 +406,28 @@ export class ClientService implements IClientService {
     return batchedArray;
   }
 
-  async _fetchOrders(uid: string): Promise<DocumentData[]> {
-    const ordersQuery = Queries.orders(this.collections, uid);
+  private async _fetchOrderBatched(
+    orderIds: string[],
+    uid: string,
+    batchSize = BATCH_SIZE
+  ): Promise<DocumentData[]> {
+    const batchedOrderIds = this._batchArray(orderIds, batchSize);
+    const orderPromises = batchedOrderIds.map((batch) =>
+      this._fetchOrders(batch, uid)
+    );
+    return (await Promise.all(orderPromises)).flat();
+  }
+
+  private async _fetchOrders(
+    orderId: string | string[] = null,
+    uid: string = null
+  ): Promise<DocumentData[]> {
+    const ordersQuery = Queries.orders(this.collections, orderId, uid);
     const ordersSnapshot = await getDocs(ordersQuery);
     return ordersSnapshot.docs.map((doc) => doc.data());
   }
 
-  async _fetchOrderProductsBatched(
+  private async _fetchOrderProductsBatched(
     orderIds: string[],
     uid: string,
     batchSize = BATCH_SIZE
@@ -538,7 +439,7 @@ export class ClientService implements IClientService {
     return (await Promise.all(orderProductsPromises)).flat();
   }
 
-  async _fetchOrderProducts(
+  private async _fetchOrderProducts(
     orderIds: string[],
     uid: string
   ): Promise<DocumentData[]> {
@@ -551,7 +452,53 @@ export class ClientService implements IClientService {
     return orderProductsSnapshot.docs.map((doc) => doc.data());
   }
 
-  _mapOrders(
+  private async _fetchUserOrderIds(
+    queryOptions: OrderQuery
+  ): Promise<{ [uid: string]: Set<string> }> {
+    const orderId: string = null;
+    const uid: string = null;
+    const orderProductsQuery = Queries.orderedProducts(
+      this.collections,
+      orderId,
+      uid,
+      queryOptions
+    );
+    const orderProductsSnapshot = await getDocs(orderProductsQuery);
+    const orderIds: { [uid: string]: Set<string> } = {};
+    orderProductsSnapshot.docs.forEach((productDoc) => {
+      const data = productDoc.data();
+      const uid = DataToObjectMapper.toUserId(data);
+      const orderId = DataToObjectMapper.toOrderId(data);
+      if (!orderIds[uid]) {
+        orderIds[uid] = new Set<string>();
+      }
+      orderIds[uid].add(orderId);
+    });
+
+    return orderIds;
+  }
+
+  private async _fetchOrderSummaries(
+    orderIds: { [p: string]: Set<string> },
+    queryOptions: OrderQuery
+  ) {
+    const orderSummaries: OrderSummary[] = [];
+
+    const promises = Object.entries(orderIds).map(async ([uid, orderIdSet]) => {
+      const currentOrderIds = Array.from(orderIdSet);
+      const ordersData = await this._fetchOrderBatched(currentOrderIds, uid);
+      const currentOrderSummaries = ordersData.map((orderData) =>
+        DataToObjectMapper.toOrderSummary(orderData, queryOptions)
+      );
+      orderSummaries.push(...currentOrderSummaries);
+    });
+
+    await Promise.all(promises);
+
+    return orderSummaries;
+  }
+
+  private _mapOrders(
     ordersData: DocumentData[],
     orderProductsData: DocumentData[]
   ): Order[] {
@@ -565,5 +512,13 @@ export class ClientService implements IClientService {
 
   private _sortOrdersByDateDesc(orders: Order[]): Order[] {
     return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  private _sortOrderSummariesByDateDesc(
+    orderSummaries: OrderSummary[]
+  ): OrderSummary[] {
+    return orderSummaries.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
   }
 }
