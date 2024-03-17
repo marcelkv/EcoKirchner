@@ -9,9 +9,18 @@ import InfoText from "@/common/info-text.vue";
 import { SelectorOption } from "@/common/selector-option";
 import OptionsSelector from "@/common/options-selector.vue";
 import { OrderQuery } from "@/common/models/order-query";
+import FilterIcon from "@/components/common/filter-icon.vue";
+import InputFieldComponent from "@/components/cart/InputFieldComponent.vue";
+import { debounce } from "lodash";
 
 export default defineComponent({
-  components: { OptionsSelector, InfoText, Spinner },
+  components: {
+    InputFieldComponent,
+    FilterIcon,
+    OptionsSelector,
+    InfoText,
+    Spinner,
+  },
   props: {},
   setup() {
     const filterOptions = [
@@ -23,8 +32,11 @@ export default defineComponent({
     const userService = inject<IUserService>("userService");
     const router = useRouter();
     const isLoading = ref(true);
+    const showFilter = ref(false);
+    const searchString = ref("");
     const orders = reactive<OrderSummary[]>([]) as OrderSummary[];
     const currentFilter = ref(0);
+    const debouncedFilter = debounce(() => filterChanged(), 500);
 
     onMounted(async () => {
       if (!isNaN(clientService.backFilterIndex)) {
@@ -43,6 +55,7 @@ export default defineComponent({
       }
 
       const queryOptions = getQueryOptions();
+      queryOptions.searchString = searchString.value;
       const loadedOrders = await clientService.getAllOrdersAsync(queryOptions);
       orders.splice(0, orders.length, ...loadedOrders);
       isLoading.value = false;
@@ -79,6 +92,18 @@ export default defineComponent({
       });
     }
 
+    async function onFilterClick(): Promise<void> {
+      showFilter.value = !showFilter.value;
+      if (!showFilter.value) {
+        searchString.value = "";
+      }
+    }
+
+    async function filterChanged(): Promise<void> {
+      await loadOrders();
+    }
+
+    watch(() => searchString.value, debouncedFilter);
     watch(() => currentFilter.value, loadOrders);
 
     return {
@@ -86,8 +111,11 @@ export default defineComponent({
       orders,
       filterOptions,
       currentFilter,
+      searchString,
+      showFilter,
       getIndicatorColor,
       onOrderClick,
+      onFilterClick,
     };
   },
 });
@@ -95,7 +123,17 @@ export default defineComponent({
 
 <template>
   <div class="all-orders">
-    <div class="main-title">Alle BESTELLUNGEN</div>
+    <div class="all-orders-title">
+      <div class="main-title">Alle BESTELLUNGEN</div>
+      <FilterIcon v-on:click="onFilterClick" />
+    </div>
+    <InputFieldComponent
+      v-if="showFilter"
+      v-bind:has-error="false"
+      v-model:input-text="searchString"
+      v-bind:label="'Filter nach Vorname, Nachname oder Bestellnnummer'"
+      v-bind:autocomplete="''"
+    />
     <OptionsSelector
       v-bind:selectorOptions="filterOptions"
       v-model:currentSelection="currentFilter"
@@ -125,6 +163,23 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   overflow: auto;
+
+  .all-orders-title {
+    display: flex;
+
+    .filter-icon {
+      --size: 20px;
+      margin: 5px 10px 5px 0;
+      width: var(--size);
+      height: var(--size);
+    }
+  }
+
+  .input-field {
+    margin: 5px 10px;
+    max-width: calc(100% - 20px);
+    height: 55px;
+  }
 
   .options-selector {
     border-bottom: 2px solid black;

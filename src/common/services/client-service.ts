@@ -129,10 +129,13 @@ export class ClientService implements IClientService {
 
   async getAllOrdersAsync(queryOptions: OrderQuery): Promise<OrderSummary[]> {
     const orderIds = await this._fetchUserOrderIds(queryOptions);
-    const orderSummaries = await this._fetchOrderSummaries(
+    let orderSummaries = await this._fetchOrderSummaries(
       orderIds,
       queryOptions
     );
+    if (this._hasSearchString(queryOptions)) {
+      orderSummaries = this._filterOrderSummaries(orderSummaries, queryOptions);
+    }
     return this._sortOrderSummariesByDateDesc(orderSummaries);
   }
 
@@ -519,6 +522,23 @@ export class ClientService implements IClientService {
   ): OrderSummary[] {
     return orderSummaries.sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+  }
+
+  private _hasSearchString(queryOptions: OrderQuery): boolean {
+    return !!queryOptions.searchString || queryOptions.searchString.length > 0;
+  }
+
+  private _filterOrderSummaries(
+    orderSummaries: OrderSummary[],
+    queryOptions: OrderQuery
+  ): OrderSummary[] {
+    const searchString = queryOptions.searchString.toLowerCase().trim();
+    return orderSummaries.filter(
+      (os) =>
+        os.orderId.toLowerCase().includes(searchString) ||
+        os.orderContact.firstName.toLowerCase().includes(searchString) ||
+        os.orderContact.lastName.toLowerCase().includes(searchString)
     );
   }
 }
