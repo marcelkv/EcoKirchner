@@ -51,6 +51,8 @@ export default defineComponent({
       isLoading.value = false;
     });
 
+    const isAdmin = computed<boolean>(() => userService?.isAdmin);
+
     const cartItems = computed<CartOrderItem[]>(() => {
       return order.value.products.map((product) => {
         const simpleProduct = new Product(
@@ -172,6 +174,7 @@ export default defineComponent({
 
     return {
       isLoading,
+      isAdmin,
       order,
       cartItems,
       payedAt,
@@ -260,9 +263,11 @@ export default defineComponent({
           <strong>{{ bankingData.phone }}</strong>
         </div>
       </div>
-      <div class="title-section address-title-section">RECHNUNGSADRESSE</div>
-      <SectionSeparator v-bind:withGradient="false" />
-      <div class="address-section">
+      <div class="title-section address-title-section" v-if="!isAdmin">
+        RECHNUNGSADRESSE
+      </div>
+      <SectionSeparator v-bind:withGradient="false" v-if="!isAdmin" />
+      <div class="address-section" v-if="!isAdmin">
         <div class="row-address">
           {{ order.contact.firstName }} {{ order.contact.lastName }}
         </div>
