@@ -102,17 +102,19 @@ export default defineComponent({
         return;
       }
 
-      const result = prompt(
+      const result = confirm(
         order.value.contact.fullName +
           " hat " +
           order.value.totalCostString +
-          " bezahlt? (Ja/Nein)"
+          " bezahlt?"
       );
 
-      if (result === "Ja") {
-        order.value.products.map((product) => product.setPayed());
-        await clientService.updateOrder(order.value as Order);
+      if (!result) {
+        return;
       }
+
+      order.value.products.map((product) => product.setPayed());
+      await clientService.updateOrder(order.value as Order);
     }
 
     async function onClickDelivered(): Promise<void> {
@@ -130,16 +132,18 @@ export default defineComponent({
         return;
       }
 
-      const result = prompt(
+      const result = confirm(
         "Die gesamte Ware wurde an " +
           order.value.contact.fullName +
-          " geliefert? (Ja/Nein)"
+          " geliefert?"
       );
 
-      if (result === "Ja") {
-        order.value.products.map((product) => product.setDelivered());
-        await clientService.updateOrder(order.value as Order);
+      if (!result) {
+        return;
       }
+
+      order.value.products.map((product) => product.setDelivered());
+      await clientService.updateOrder(order.value as Order);
     }
 
     function getCartItemStyle(index: number): CSSProperties {
