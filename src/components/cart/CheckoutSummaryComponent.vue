@@ -49,7 +49,7 @@ export default defineComponent({
             .map((product) => product.name)
             .join(", ");
           alert(
-            `Oops... Folgende Produkte haben wir nicht mehr: ${deletedProductNames}. Bitte überprüfen Sie Ihren Warenkorb.`
+            `Oops... Folgende Produkte haben wir nicht mehr: ${deletedProductNames}. Bitte überprüfen Sie Ihren Warenkorb.`,
           );
         }
 
@@ -59,7 +59,7 @@ export default defineComponent({
             .join(", ");
 
           alert(
-            `Oops... Folgende Produkte wurden verändert: ${modifiedProductNames}. Bitte überprüfen Sie Ihren Warenkorb.`
+            `Oops... Folgende Produkte wurden verändert: ${modifiedProductNames}. Bitte überprüfen Sie Ihren Warenkorb.`,
           );
         }
 

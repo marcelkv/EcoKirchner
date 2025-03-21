@@ -29,7 +29,7 @@ export default defineComponent({
       () => props.initialNumber,
       () => {
         updatedNumber.value = props.initialNumber;
-      }
+      },
     );
 
     return {
@@ -108,8 +108,9 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     font-size: 16px;
-    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
-      Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    font-family:
+      -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica,
+      Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
       "Segoe UI Symbol";
     text-align: center;
     cursor: pointer;

@@ -46,7 +46,7 @@ export default defineComponent({
     async function onBuyClicked(): Promise<void> {
       await clientService.addProductToCart(
         props.product,
-        selectedQuantity.value
+        selectedQuantity.value,
       );
     }
 

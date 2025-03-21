@@ -13,7 +13,7 @@ export class Queries {
     collections: Collections,
     orderId: string | string[] = null,
     uid: string = null,
-    queryOptions: OrderQuery = null
+    queryOptions: OrderQuery = null,
   ): Query<DocumentData, DocumentData> {
     const queryConditions: QueryFieldFilterConstraint[] = [];
 
@@ -37,7 +37,7 @@ export class Queries {
   static orders(
     collections: Collections,
     orderId: string | string[] = null,
-    uid: string = null
+    uid: string = null,
   ): Query {
     const queryConditions: QueryFieldFilterConstraint[] = [];
 
@@ -54,7 +54,7 @@ export class Queries {
   }
 
   private static _getOrderIdQuery(
-    orderId: string | string[] = null
+    orderId: string | string[] = null,
   ): QueryFieldFilterConstraint {
     if (orderId && !Array.isArray(orderId)) {
       return where("orderId", "==", orderId);

@@ -78,7 +78,7 @@ export default class {
         this.productName,
         this.cost,
         this._quantity,
-        this.imageReference
+        this.imageReference,
       );
     }
 
@@ -100,7 +100,7 @@ export default class {
     payed: boolean,
     delivered: boolean,
     returned: boolean,
-    payedBack: boolean
+    payedBack: boolean,
   ) {
     this.productId = productId;
     this.productName = productName;

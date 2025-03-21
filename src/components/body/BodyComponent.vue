@@ -30,7 +30,7 @@ export default defineComponent({
         "WEITER SHOPEN",
         "ZUM WARENKORB",
         null,
-        "CartPage"
+        "CartPage",
       );
     }
 

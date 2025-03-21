@@ -31,7 +31,7 @@ export class Order {
     contact: OrderContact,
     createdAt: Date,
     totalCost: number,
-    totalCostString: string
+    totalCostString: string,
   ) {
     this.uid = uid;
     this.orderId = orderId;

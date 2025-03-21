@@ -10,7 +10,7 @@ export class InfoPopUpVm {
     textCancel: string,
     textOk: string,
     redirectCancel: string,
-    redirectOk: string
+    redirectOk: string,
   ) {
     this.textMain = textMain;
     this.textCancel = textCancel;

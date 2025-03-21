@@ -21,7 +21,7 @@ export default defineComponent({
     const isSmallOrLess = computed(
       () =>
         responsiveService.widthSize.value === SizeType.Small ||
-        responsiveService.widthSize.value === SizeType.ExtraSmall
+        responsiveService.widthSize.value === SizeType.ExtraSmall,
     );
 
     const formData = ref({
@@ -101,14 +101,14 @@ export default defineComponent({
     function isFirstNameValid(): boolean {
       return stringHasLength(
         formData.value.firstName,
-        minLengths.value.firstName
+        minLengths.value.firstName,
       );
     }
 
     function isLastNameValid(): boolean {
       return stringHasLength(
         formData.value.lastName,
-        minLengths.value.lastName
+        minLengths.value.lastName,
       );
     }
 
@@ -127,7 +127,7 @@ export default defineComponent({
     function isPhoneNumberValid() {
       return stringHasLength(
         formData.value.phoneNumber,
-        minLengths.value.phoneNumber
+        minLengths.value.phoneNumber,
       );
     }
 
@@ -154,7 +154,7 @@ export default defineComponent({
         formData.value.street,
         formData.value.zipCode,
         formData.value.city,
-        formData.value.phoneNumber
+        formData.value.phoneNumber,
       );
 
       clientService.addContactToCart(contact);

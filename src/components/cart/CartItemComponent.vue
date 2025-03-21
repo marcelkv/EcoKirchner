@@ -28,14 +28,14 @@ export default defineComponent({
     function onDecrementClicked(): void {
       clientService.updateProductFromCart(
         props.cartItem.product,
-        props.cartItem.numItems - 1
+        props.cartItem.numItems - 1,
       );
     }
 
     function onIncrementClicked(): void {
       clientService.updateProductFromCart(
         props.cartItem.product,
-        props.cartItem.numItems + 1
+        props.cartItem.numItems + 1,
       );
     }
 

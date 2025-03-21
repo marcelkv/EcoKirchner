@@ -17,11 +17,11 @@ export default defineComponent({
     const isFocused = ref(false);
 
     const textExists = computed(
-      () => workingText.value && workingText.value.length > 0
+      () => workingText.value && workingText.value.length > 0,
     );
 
     const hasErrorMsg = computed(
-      () => props.errorMsg && props.errorMsg.length > 0
+      () => props.errorMsg && props.errorMsg.length > 0,
     );
 
     function onTextChanged(): void {

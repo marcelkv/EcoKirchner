@@ -8,7 +8,7 @@ import { useRouter } from "vue-router";
 export default defineComponent({
   components: { Spinner },
   props: {},
-  setup(props, component) {
+  setup() {
     const clientService = inject<IClientService>("clientService");
     const userService = inject<IUserService>("userService");
     const router = useRouter();

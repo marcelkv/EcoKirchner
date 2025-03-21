@@ -17,7 +17,7 @@ export default defineComponent({
     const index = ref(props.currentSelection);
 
     const currentItem = computed<SelectorOption>(
-      () => props.selectorOptions[index.value]
+      () => props.selectorOptions[index.value],
     );
     function onClick(): void {
       index.value =

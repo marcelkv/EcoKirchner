@@ -1,7 +1,7 @@
 export function fitStringIntoElement(
   msg: string,
   element: HTMLDivElement,
-  padding = 0
+  padding = 0,
 ): string {
   const numCharacters = calculateCharactersThatFitIn(element, padding);
 
@@ -13,7 +13,7 @@ export function fitStringIntoElement(
 }
 function calculateCharactersThatFitIn(
   element: HTMLDivElement,
-  padding = 0
+  padding = 0,
 ): number {
   if (!element) {
     return 0;

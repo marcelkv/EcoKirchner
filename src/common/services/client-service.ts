@@ -106,7 +106,7 @@ export class ClientService implements IClientService {
 
     const productsSnapshot = await getDocs(this.collections.products);
     return productsSnapshot.docs.map((doc) =>
-      DataToObjectMapper.toProduct(doc.data())
+      DataToObjectMapper.toProduct(doc.data()),
     );
   }
 
@@ -117,11 +117,11 @@ export class ClientService implements IClientService {
   async getOrdersAsync(uid: string, orderId: string = null): Promise<Order[]> {
     const ordersData = await this._fetchOrders(orderId, uid);
     const orderIds = ordersData.map((data) =>
-      DataToObjectMapper.toOrderId(data)
+      DataToObjectMapper.toOrderId(data),
     );
     const orderProductsData = await this._fetchOrderProductsBatched(
       orderIds,
-      uid
+      uid,
     );
     const orders = this._mapOrders(ordersData, orderProductsData);
     return this._sortOrdersByDateDesc(orders);
@@ -131,7 +131,7 @@ export class ClientService implements IClientService {
     const orderIds = await this._fetchUserOrderIds(queryOptions);
     let orderSummaries = await this._fetchOrderSummaries(
       orderIds,
-      queryOptions
+      queryOptions,
     );
     if (this._hasSearchString(queryOptions)) {
       orderSummaries = this._filterOrderSummaries(orderSummaries, queryOptions);
@@ -145,7 +145,7 @@ export class ClientService implements IClientService {
     }
 
     const existingProduct = this._order.cartItems.find(
-      (cartItem) => cartItem.product.productId === product.productId
+      (cartItem) => cartItem.product.productId === product.productId,
     );
 
     if (existingProduct) {
@@ -160,7 +160,7 @@ export class ClientService implements IClientService {
 
   updateProductFromCart(product: Product, numItems: number): Promise<void> {
     const existingProduct = this._order.cartItems.find(
-      (cartItem) => cartItem.product.productId === product.productId
+      (cartItem) => cartItem.product.productId === product.productId,
     );
 
     if (!existingProduct) {
@@ -172,7 +172,7 @@ export class ClientService implements IClientService {
 
   deleteProductFromCart(product: Product): Promise<void> {
     const index = this._order.cartItems.findIndex(
-      (cartItem) => cartItem.product.productId === product.productId
+      (cartItem) => cartItem.product.productId === product.productId,
     );
 
     if (index === -1) {
@@ -199,6 +199,7 @@ export class ClientService implements IClientService {
         this._order.cartItems = [];
         this._order.contact = null;
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       result = false;
     }
@@ -216,7 +217,7 @@ export class ClientService implements IClientService {
 
       if (!productDoc.exists()) {
         throw Error(
-          "Product does not exist. ProductId: " + cartItem.product.productId
+          "Product does not exist. ProductId: " + cartItem.product.productId,
         );
       }
 
@@ -237,7 +238,7 @@ export class ClientService implements IClientService {
 
     const orderedProductsCollection = collection(
       this._firestore,
-      "orderedProducts"
+      "orderedProducts",
     );
 
     this._order.cartItems.map((cartItem) => {
@@ -263,7 +264,7 @@ export class ClientService implements IClientService {
       const orderedProductId = orderId + "-" + cartItem.product.productId;
       const newOrderedProductRef = doc(
         orderedProductsCollection,
-        orderedProductId
+        orderedProductId,
       );
       transaction.set(newOrderedProductRef, newOrderedProduct);
     });
@@ -304,7 +305,7 @@ export class ClientService implements IClientService {
     for (let i = this._order.cartItems.length - 1; i >= 0; i--) {
       const cartItem = this._order.cartItems[i];
       const product = this._products.find(
-        (product) => product.productId === cartItem.product.productId
+        (product) => product.productId === cartItem.product.productId,
       );
 
       if (product && product.quantity > 0) {
@@ -346,14 +347,14 @@ export class ClientService implements IClientService {
           const orderedProductId = order.orderId + "-" + product.productId;
           const orderedProductRef = doc(
             this.collections.orderedProducts,
-            orderedProductId
+            orderedProductId,
           );
           const orderedProductDoc = await transaction.get(orderedProductRef);
 
           if (!orderedProductDoc.exists()) {
             throw Error(
               "OrderedProductDoc does not exist. OrderedProductId: " +
-                orderedProductId
+                orderedProductId,
             );
           }
 
@@ -368,6 +369,7 @@ export class ClientService implements IClientService {
         });
         await Promise.all(updatePromises);
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return false;
     }
@@ -412,18 +414,18 @@ export class ClientService implements IClientService {
   private async _fetchOrderBatched(
     orderIds: string[],
     uid: string,
-    batchSize = BATCH_SIZE
+    batchSize = BATCH_SIZE,
   ): Promise<DocumentData[]> {
     const batchedOrderIds = this._batchArray(orderIds, batchSize);
     const orderPromises = batchedOrderIds.map((batch) =>
-      this._fetchOrders(batch, uid)
+      this._fetchOrders(batch, uid),
     );
     return (await Promise.all(orderPromises)).flat();
   }
 
   private async _fetchOrders(
     orderId: string | string[] = null,
-    uid: string = null
+    uid: string = null,
   ): Promise<DocumentData[]> {
     const ordersQuery = Queries.orders(this.collections, orderId, uid);
     const ordersSnapshot = await getDocs(ordersQuery);
@@ -433,30 +435,30 @@ export class ClientService implements IClientService {
   private async _fetchOrderProductsBatched(
     orderIds: string[],
     uid: string,
-    batchSize = BATCH_SIZE
+    batchSize = BATCH_SIZE,
   ): Promise<DocumentData[]> {
     const batchedOrderIds = this._batchArray(orderIds, batchSize);
     const orderProductsPromises = batchedOrderIds.map((batch) =>
-      this._fetchOrderProducts(batch, uid)
+      this._fetchOrderProducts(batch, uid),
     );
     return (await Promise.all(orderProductsPromises)).flat();
   }
 
   private async _fetchOrderProducts(
     orderIds: string[],
-    uid: string
+    uid: string,
   ): Promise<DocumentData[]> {
     const orderProductsQuery = Queries.orderedProducts(
       this.collections,
       orderIds,
-      uid
+      uid,
     );
     const orderProductsSnapshot = await getDocs(orderProductsQuery);
     return orderProductsSnapshot.docs.map((doc) => doc.data());
   }
 
   private async _fetchUserOrderIds(
-    queryOptions: OrderQuery
+    queryOptions: OrderQuery,
   ): Promise<{ [uid: string]: Set<string> }> {
     const orderId: string = null;
     const uid: string = null;
@@ -464,7 +466,7 @@ export class ClientService implements IClientService {
       this.collections,
       orderId,
       uid,
-      queryOptions
+      queryOptions,
     );
     const orderProductsSnapshot = await getDocs(orderProductsQuery);
     const orderIds: { [uid: string]: Set<string> } = {};
@@ -483,7 +485,7 @@ export class ClientService implements IClientService {
 
   private async _fetchOrderSummaries(
     orderIds: { [p: string]: Set<string> },
-    queryOptions: OrderQuery
+    queryOptions: OrderQuery,
   ) {
     const orderSummaries: OrderSummary[] = [];
 
@@ -491,7 +493,7 @@ export class ClientService implements IClientService {
       const currentOrderIds = Array.from(orderIdSet);
       const ordersData = await this._fetchOrderBatched(currentOrderIds, uid);
       const currentOrderSummaries = ordersData.map((orderData) =>
-        DataToObjectMapper.toOrderSummary(orderData, queryOptions)
+        DataToObjectMapper.toOrderSummary(orderData, queryOptions),
       );
       orderSummaries.push(...currentOrderSummaries);
     });
@@ -503,11 +505,11 @@ export class ClientService implements IClientService {
 
   private _mapOrders(
     ordersData: DocumentData[],
-    orderProductsData: DocumentData[]
+    orderProductsData: DocumentData[],
   ): Order[] {
     return ordersData.map((order) => {
       const productsForOrder = orderProductsData.filter(
-        (product) => product.orderId === DataToObjectMapper.toOrderId(order)
+        (product) => product.orderId === DataToObjectMapper.toOrderId(order),
       );
       return DataToObjectMapper.toOrder(order, productsForOrder);
     });
@@ -518,10 +520,10 @@ export class ClientService implements IClientService {
   }
 
   private _sortOrderSummariesByDateDesc(
-    orderSummaries: OrderSummary[]
+    orderSummaries: OrderSummary[],
   ): OrderSummary[] {
     return orderSummaries.sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
     );
   }
 
@@ -531,14 +533,14 @@ export class ClientService implements IClientService {
 
   private _filterOrderSummaries(
     orderSummaries: OrderSummary[],
-    queryOptions: OrderQuery
+    queryOptions: OrderQuery,
   ): OrderSummary[] {
     const searchString = queryOptions.searchString.toLowerCase().trim();
     return orderSummaries.filter(
       (os) =>
         os.orderId.toLowerCase().includes(searchString) ||
         os.orderContact.firstName.toLowerCase().includes(searchString) ||
-        os.orderContact.lastName.toLowerCase().includes(searchString)
+        os.orderContact.lastName.toLowerCase().includes(searchString),
     );
   }
 }

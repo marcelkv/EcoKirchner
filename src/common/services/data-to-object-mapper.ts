@@ -18,7 +18,7 @@ export class DataToObjectMapper {
       productData.name,
       productData.cost,
       productData.totalItems,
-      productData.image
+      productData.image,
     );
   }
 
@@ -38,7 +38,7 @@ export class DataToObjectMapper {
       orderProductData.payed,
       orderProductData.delivered,
       orderProductData.returned,
-      orderProductData.payedBack
+      orderProductData.payedBack,
     );
   }
 
@@ -52,10 +52,10 @@ export class DataToObjectMapper {
 
   static toOrder(
     orderData: DocumentData,
-    orderProductsData: DocumentData[]
+    orderProductsData: DocumentData[],
   ): Order {
     const orderProducts = orderProductsData.map((data) =>
-      DataToObjectMapper.toOrderProduct(data)
+      DataToObjectMapper.toOrderProduct(data),
     );
     return new Order(
       orderData.uid,
@@ -64,7 +64,7 @@ export class DataToObjectMapper {
       DataToObjectMapper.toOrderContact(orderData.contact),
       orderData.createdAt.toDate(),
       orderData.totalCost,
-      orderData.totalCostString
+      orderData.totalCostString,
     );
   }
 
@@ -75,20 +75,20 @@ export class DataToObjectMapper {
       contactData.street,
       contactData.zipCode,
       contactData.city,
-      contactData.phoneNumber
+      contactData.phoneNumber,
     );
   }
 
   static toOrderSummary(
     orderData: DocumentData,
-    queryOptions: OrderQuery
+    queryOptions: OrderQuery,
   ): OrderSummary {
     return new OrderSummary(
       orderData.orderId,
       DataToObjectMapper.toOrderContact(orderData.contact),
       orderData.createdAt.toDate(),
       queryOptions.payed,
-      queryOptions.delivered
+      queryOptions.delivered,
     );
   }
 }

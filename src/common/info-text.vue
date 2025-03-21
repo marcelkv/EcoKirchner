@@ -7,7 +7,7 @@ export default defineComponent({
     indicatorColor: { type: String, require: true },
     text: { type: String, required: true },
   },
-  setup(props, component) {
+  setup(props) {
     const indicatorStyle = computed<CSSProperties>(() => {
       return { backgroundColor: props.indicatorColor };
     });

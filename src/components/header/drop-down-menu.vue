@@ -65,7 +65,7 @@ export default defineComponent({
         () => responsiveService.windowHeight.value,
         () => responsiveService.windowWidth.value,
       ],
-      () => onWindowResized()
+      () => onWindowResized(),
     );
 
     return {

@@ -13,7 +13,7 @@ export class OrderSummary {
     orderContact: OrderContact,
     createdAt: Date,
     payed: boolean,
-    delivered: boolean
+    delivered: boolean,
   ) {
     this.orderId = orderId;
     this.orderContact = orderContact;

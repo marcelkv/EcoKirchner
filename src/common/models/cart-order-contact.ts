@@ -12,7 +12,7 @@ export class CartOrderContact {
     street: string,
     zipCode: string,
     city: string,
-    phoneNumber: string
+    phoneNumber: string,
   ) {
     this.firstName = firstName;
     this.lastName = lastName;

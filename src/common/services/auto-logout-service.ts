@@ -1,7 +1,7 @@
 import { IAutoLogoutService } from "@/common/services/auto-logout-service.interface";
 
 export class AutoLogoutService implements IAutoLogoutService {
-  private _autoLogoutTimeout: NodeJS.Timeout;
+  private _autoLogoutTimeout: number;
   private readonly _logoutCallback: () => void;
   private readonly _timeoutDuration_ms: number;
 

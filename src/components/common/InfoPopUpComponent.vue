@@ -38,7 +38,7 @@ export default defineComponent({
     });
 
     const isLarge = computed(
-      () => responsiveService.widthSize.value === SizeType.Large
+      () => responsiveService.widthSize.value === SizeType.Large,
     );
 
     async function onClickOutside(event: MouseEvent): Promise<void> {

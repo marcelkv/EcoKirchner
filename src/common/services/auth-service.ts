@@ -48,13 +48,14 @@ export class AuthService implements IAuthService {
         const userRolesCol = collection(this._firestore, "userRoles");
         const userRolesQuery = query(
           userRolesCol,
-          where("uid", "==", user.uid)
+          where("uid", "==", user.uid),
         );
         const userRolesSnapshot = await getDocs(userRolesQuery);
         if (!userRolesSnapshot.empty) {
           const doc = userRolesSnapshot.docs[0];
           isAdmin = doc.data().role === "admin";
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         isAdmin = false;
       }

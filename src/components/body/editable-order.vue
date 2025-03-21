@@ -38,7 +38,7 @@ export default defineComponent({
       isLoading.value = true;
       const result = await clientService.getOrdersAsync(
         userService.isAdmin ? null : userService.uid,
-        clientService.currentOrderId
+        clientService.currentOrderId,
       );
 
       if (!result || result.length !== 1) {
@@ -60,7 +60,7 @@ export default defineComponent({
           product.productName,
           product.cost,
           1,
-          product.imageReference
+          product.imageReference,
         );
         return new CartOrderItem(simpleProduct, product.quantity);
       });
@@ -68,14 +68,14 @@ export default defineComponent({
 
     const isPayed = computed<boolean>(() => {
       const payedProducts = order.value.products.filter(
-        (product) => product.isPayed
+        (product) => product.isPayed,
       );
       return payedProducts.length === order.value.products.length;
     });
 
     const isDelivered = computed<boolean>(() => {
       const deliveredProducts = order.value.products.filter(
-        (product) => product.isDelivered
+        (product) => product.isDelivered,
       );
       return deliveredProducts.length === order.value.products.length;
     });
@@ -106,7 +106,7 @@ export default defineComponent({
         order.value.contact.fullName +
           " hat " +
           order.value.totalCostString +
-          " bezahlt?"
+          " bezahlt?",
       );
 
       if (!result) {
@@ -135,7 +135,7 @@ export default defineComponent({
       const result = confirm(
         "Die gesamte Ware wurde an " +
           order.value.contact.fullName +
-          " geliefert?"
+          " geliefert?",
       );
 
       if (!result) {

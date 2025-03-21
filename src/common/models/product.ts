@@ -11,7 +11,7 @@ export class Product {
     name: string,
     cost: number,
     totalItems: number,
-    imageReference: string
+    imageReference: string,
   ) {
     this.productId = productId;
     this.name = name;
