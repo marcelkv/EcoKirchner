@@ -39,6 +39,11 @@ export default defineComponent({
 
     const widthSize = computed(() => responsiveService.widthSize.value);
 
+    const noProductsAvailable = computed(() => {
+      const r = products.value.find((p) => p.quantity > 0);
+      return r === undefined;
+    });
+
     function onWidthChanged(): void {
       const { listWidth, productWidth } = getWidths();
 
@@ -84,6 +89,7 @@ export default defineComponent({
     return {
       ref_products,
       widthSize,
+      noProductsAvailable,
       isOneColumn,
       isMoreThanOneColumn,
       products,
@@ -95,6 +101,11 @@ export default defineComponent({
 
 <template>
   <div class="products" ref="ref_products">
+    <div class="warning-msg" v-if="noProductsAvailable">
+      {{
+        "Diese Lieferung war sehr schnell ausverkauft. Sollten bis zum 23.04. noch weitere Anfragen eingehen und sich eine Mindestbestellmenge ergeben, werde ich eine Nachlieferung veranlassen. Derzeit haben wir nur noch einige 5-Liter-Kanister (aus Plastik) und 0,75-Liter-Flaschen auf Lager. Bei Interesse schreiben Sie uns gerne eine E-Mail oder eine WhatsApp-Nachricht."
+      }}
+    </div>
     <Spinner v-if="isLoading" v-bind:withText="true"></Spinner>
     <div
       v-else
@@ -124,6 +135,12 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   overflow: auto;
+
+  .warning-msg {
+    padding: 20px;
+    display: flex;
+    color: red;
+  }
 
   .productsList {
     --maxWidth: 400px;
