@@ -127,11 +127,6 @@ export default defineComponent({
         return;
       }
 
-      if (!isPayed.value) {
-        alert("Erst Bezahlen, dann liefern.");
-        return;
-      }
-
       const result = confirm(
         "Die gesamte Ware wurde an " +
           order.value.contact.fullName +

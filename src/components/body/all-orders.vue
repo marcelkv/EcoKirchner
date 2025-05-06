@@ -26,6 +26,7 @@ export default defineComponent({
     const filterOptions = [
       new SelectorOption("red", "Nicht Bezahlt und Nicht Geliefert"),
       new SelectorOption("orange", "Bezahlt aber Nicht Geliefert"),
+      new SelectorOption("yellow", "Nicht Bezahlt aber geliefert"),
       new SelectorOption("green", "Bezahlt und Geliefert"),
     ];
     const clientService = inject<IClientService>("clientService");
@@ -67,6 +68,9 @@ export default defineComponent({
       }
       if (currentFilter.value === 1) {
         return new OrderQuery(true, false);
+      }
+      if (currentFilter.value === 2) {
+        return new OrderQuery(false, true);
       }
       return new OrderQuery(true, true);
     }
