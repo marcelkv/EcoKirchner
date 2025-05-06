@@ -103,12 +103,11 @@ export default defineComponent({
   <div class="products" ref="ref_products">
     <div class="warning-msg" v-if="noProductsAvailable">
       {{
-        "Diese Lieferung war sehr schnell ausverkauft. Sollten bis zum 23.04. noch weitere Anfragen eingehen und sich eine Mindestbestellmenge ergeben, werde ich eine Nachlieferung veranlassen. Derzeit haben wir nur noch einige 5-Liter-Kanister (aus Plastik) und 0,75-Liter-Flaschen auf Lager. Bei Interesse schreiben Sie uns gerne eine E-Mail oder eine WhatsApp-Nachricht."
+        "Diese Lieferung war sehr schnell ausverkauft. Bei Interesse schreiben Sie uns gerne eine E-Mail oder eine WhatsApp-Nachricht."
       }}
     </div>
     <Spinner v-if="isLoading" v-bind:withText="true"></Spinner>
     <div
-      v-else
       class="productsList"
       v-bind:class="{
         isOneColumn: isOneColumn,
