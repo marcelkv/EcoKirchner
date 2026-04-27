@@ -11,6 +11,8 @@ import {
   query,
   runTransaction,
   serverTimestamp,
+  setDoc,
+  deleteDoc,
   Transaction,
   DocumentData,
   CollectionReference,
@@ -22,6 +24,7 @@ import {
   getDownloadURL,
   getStorage,
   ref as storageRef,
+  uploadBytes,
 } from "firebase/storage";
 import { CartOrderItem } from "@/common/models/cart-order-item";
 import { SimpleEvent } from "../simple-event";
@@ -542,5 +545,42 @@ export class ClientService implements IClientService {
         os.orderContact.firstName.toLowerCase().includes(searchString) ||
         os.orderContact.lastName.toLowerCase().includes(searchString),
     );
+  }
+
+  async saveProductAsync(
+    productId: string | null,
+    name: string,
+    cost: number,
+    totalItems: number,
+    imageFile: File | null,
+    existingImageRef: string | null,
+  ): Promise<void> {
+    const productsCollection = collection(this._firestore, "products");
+    const docRef = productId
+      ? doc(productsCollection, productId)
+      : doc(productsCollection);
+    const id = docRef.id;
+
+    let imageRef = existingImageRef ?? "";
+    if (imageFile) {
+      const ext = imageFile.name.split(".").pop() ?? "jpg";
+      imageRef = `products/${id}.${ext}`;
+      await uploadBytes(storageRef(this._storage, imageRef), imageFile);
+    }
+
+    await setDoc(docRef, {
+      productId: id,
+      name,
+      cost,
+      totalItems,
+      image: imageRef,
+    });
+    this._products = null;
+  }
+
+  async deleteProductAsync(productId: string): Promise<void> {
+    const docRef = doc(collection(this._firestore, "products"), productId);
+    await deleteDoc(docRef);
+    this._products = null;
   }
 }

@@ -32,4 +32,13 @@ export interface IClientService {
   getTotalOrderedProducts(): Promise<string[]>;
   getBankingData(): Promise<BankingData>;
   updateOrder(order: Order): Promise<boolean>;
+  saveProductAsync(
+    productId: string | null,
+    name: string,
+    cost: number,
+    totalItems: number,
+    imageFile: File | null,
+    existingImageRef: string | null,
+  ): Promise<void>;
+  deleteProductAsync(productId: string): Promise<void>;
 }

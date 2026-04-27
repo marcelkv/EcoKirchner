@@ -11,11 +11,10 @@ import {
 import { UserData } from "@/common/models/user-data";
 import {
   collection,
+  doc,
   Firestore,
-  getDocs,
+  getDoc,
   getFirestore,
-  query,
-  where,
 } from "firebase/firestore";
 
 export class AuthService implements IAuthService {
@@ -45,15 +44,11 @@ export class AuthService implements IAuthService {
     if (user) {
       let isAdmin = false;
       try {
-        const userRolesCol = collection(this._firestore, "userRoles");
-        const userRolesQuery = query(
-          userRolesCol,
-          where("uid", "==", user.uid),
+        const userRoleDoc = await getDoc(
+          doc(collection(this._firestore, "userRoles"), user.uid),
         );
-        const userRolesSnapshot = await getDocs(userRolesQuery);
-        if (!userRolesSnapshot.empty) {
-          const doc = userRolesSnapshot.docs[0];
-          isAdmin = doc.data().role === "admin";
+        if (userRoleDoc.exists()) {
+          isAdmin = userRoleDoc.data().role === "admin";
         }
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {

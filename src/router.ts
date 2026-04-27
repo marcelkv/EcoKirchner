@@ -12,6 +12,7 @@ import MyOrders from "@/components/body/MyOrders.vue";
 import AllOrders from "@/components/body/all-orders.vue";
 import EditableOrder from "@/components/body/editable-order.vue";
 import HowMuch from "@/components/body/how-much.vue";
+import AdminProducts from "@/components/admin/AdminProducts.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -78,6 +79,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/editable-order",
     name: "EditableOrder",
     component: EditableOrder,
+  },
+  {
+    path: "/admin-products",
+    name: "AdminProducts",
+    component: AdminProducts,
   },
   { path: "/:catchAll(.*)", redirect: "/products" },
 ];

@@ -40,6 +40,10 @@ export default defineComponent({
       await router.push({ name: "HowMuch" });
     }
 
+    async function onClickAdminProducts(): Promise<void> {
+      await router.push({ name: "AdminProducts" });
+    }
+
     async function onClickAbout(): Promise<void> {
       await router.push({ name: "About" });
     }
@@ -78,6 +82,7 @@ export default defineComponent({
       onClickMyOrders,
       onClickAllOrders,
       onClickHowMuch,
+      onClickAdminProducts,
       onClickShoppingCart,
       onClickCloseMenu,
     };
@@ -104,6 +109,13 @@ export default defineComponent({
       </div>
       <div class="menu-item item" v-if="isAdmin" v-on:click="onClickHowMuch">
         Wie viel?
+      </div>
+      <div
+        class="menu-item item"
+        v-if="isAdmin"
+        v-on:click="onClickAdminProducts"
+      >
+        Sortiment
       </div>
       <UserMenuItem
         v-if="
