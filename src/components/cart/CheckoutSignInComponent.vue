@@ -1,40 +1,10 @@
 <script lang="ts">
-import { defineComponent, inject, ref, watch } from "vue";
+import { defineComponent } from "vue";
 import GoogleButton from "@/components/common/google-button.vue";
-import { ResponsiveService } from "@/common/services/responsive-service";
 
 export default defineComponent({
   components: { GoogleButton },
   setup() {
-    const ref_cartContactData = ref(null);
-    const isSmall = ref(false);
-    const responsiveService = inject<ResponsiveService>("responsiveService");
-
-    function onWidthChanged(): void {
-      const cartContactData =
-        ref_cartContactData.value as HTMLDivElement | null;
-
-      if (!cartContactData) {
-        return;
-      }
-
-      const googleButton =
-        cartContactData.getElementsByClassName("google-button")[0];
-
-      if (!googleButton) {
-        return;
-      }
-
-      const computedStyles = window.getComputedStyle(googleButton);
-      const marginLeft = parseFloat(computedStyles.marginLeft);
-      const marginRight = parseFloat(computedStyles.marginRight);
-      const totalWidth = googleButton.clientWidth + marginLeft + marginRight;
-
-      isSmall.value = totalWidth >= responsiveService.windowWidth.value;
-    }
-
-    watch(() => responsiveService.windowWidth.value, onWidthChanged);
-
     return {};
   },
 });
@@ -42,40 +12,56 @@ export default defineComponent({
 
 <template>
   <div class="checkout-sign-in">
-    <div class="signed-in-text">
-      Melde dich an um mit dem Einkauf fortzufahren.
+    <div class="sign-in-card">
+      <div class="sign-in-title">Anmeldung erforderlich</div>
+      <div class="sign-in-text">
+        Damit wir deine Bestellung speichern und du den Status verfolgen kannst,
+        benötigst du ein Google-Konto. Dein Warenkorb bleibt dabei erhalten.
+      </div>
+      <GoogleButton class="google-button" />
+      <div class="no-account-hint">
+        Kein Google-Konto? Schreib uns einfach per E-Mail oder WhatsApp.
+      </div>
     </div>
-    <GoogleButton />
   </div>
 </template>
 
 <style scoped lang="less">
 .checkout-sign-in {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
 
-  &.isSmall {
+  .sign-in-card {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
     align-items: flex-start;
 
-    .signed-in-text {
-      text-align: left;
-      margin: 40px 10px;
+    .sign-in-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 14px;
     }
-  }
 
-  .signed-in-text {
-    margin: 40px 50px;
-    text-align: center;
-  }
+    .sign-in-text {
+      margin-bottom: 24px;
+      line-height: 1.6;
+      color: #444;
+    }
 
-  .google-button {
-    --buttonMargin: 10px;
-    height: 50px;
-    width: calc(100% - var(--buttonMargin) - var(--buttonMargin));
-    max-width: 300px;
-    min-width: 100px;
-    margin: var(--buttonMargin);
+    .google-button {
+      height: 50px;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 20px;
+    }
+
+    .no-account-hint {
+      font-size: 13px;
+      color: #888;
+    }
   }
 }
 </style>

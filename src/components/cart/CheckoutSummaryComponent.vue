@@ -97,12 +97,8 @@ export default defineComponent({
       <SectionSeparator v-bind:withGradient="false" />
       <div class="payment-section">
         <div class="payment-row1">
-          <div class="payment-text">Vorkasse</div>
+          <div class="payment-text">Vorkasse per Überweisung</div>
           <PaymentIcon />
-        </div>
-        <div class="payment-row2">
-          Die Kontodaten für eine Überweisung sehen Sie später unter 'Meine
-          Bestellungen'
         </div>
       </div>
       <div class="title-section products-title-section">WARENKORB</div>
