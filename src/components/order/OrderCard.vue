@@ -18,13 +18,16 @@ export default defineComponent({
     );
 
     const statusLabel = computed(() => {
-      if (allDelivered.value) return "Abgeholt";
+      if (allDelivered.value && allPayed.value) return "Abgeholt";
+      if (allDelivered.value && !allPayed.value)
+        return "Abgeholt – Zahlung offen";
       if (allPayed.value) return "Wird vorbereitet";
       return "Überweisung ausstehend";
     });
 
     const statusClass = computed(() => {
-      if (allDelivered.value) return "status-done";
+      if (allDelivered.value && allPayed.value) return "status-done";
+      if (allDelivered.value && !allPayed.value) return "status-warning";
       if (allPayed.value) return "status-progress";
       return "status-pending";
     });
@@ -128,6 +131,11 @@ export default defineComponent({
     &.status-done {
       background-color: #d4edda;
       color: #155724;
+    }
+
+    &.status-warning {
+      background-color: #fde8d8;
+      color: #7d3c00;
     }
   }
 }
