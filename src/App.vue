@@ -12,9 +12,9 @@ import { useRouter } from "vue-router";
 export default defineComponent({
   name: "App",
   components: {
-    Header: HeaderComponent,
-    Body: BodyComponent,
-    Footer: FooterComponent,
+    HeaderComponent,
+    BodyComponent,
+    FooterComponent,
   },
   setup() {
     const responsiveService = inject<IResponsiveService>("responsiveService");
@@ -53,9 +53,12 @@ export default defineComponent({
 </script>
 
 <template>
-  <Header />
-  <Body v-on:mousemove="isAliveThrottled" v-on:mousedown="isAliveThrottled" />
-  <Footer />
+  <HeaderComponent />
+  <BodyComponent
+    v-on:mousemove="isAliveThrottled"
+    v-on:mousedown="isAliveThrottled"
+  />
+  <FooterComponent />
 </template>
 
 <style lang="less">

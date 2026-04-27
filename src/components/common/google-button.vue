@@ -11,7 +11,7 @@ export default defineComponent({
   setup(props) {
     const authService = inject<IAuthService>("authService");
     const router = useRouter();
-    let isLoading = ref(false);
+    const isLoading = ref(false);
 
     async function onButtonClicked(): Promise<void> {
       isLoading.value = true;

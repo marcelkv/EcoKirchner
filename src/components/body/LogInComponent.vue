@@ -15,8 +15,8 @@ export default defineComponent({
     const userService = inject<IUserService>("userService");
     const authService = inject<IAuthService>("authService");
     const router = useRouter();
-    let isLoading = ref(true);
-    let isSignedIn = ref(false);
+    const isLoading = ref(true);
+    const isSignedIn = ref(false);
 
     onMounted(async () => {
       if (userService.isSignedIn) {
