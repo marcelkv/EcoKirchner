@@ -9,6 +9,7 @@
     "lint": "eslint --fix src"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "core-js": "^3.49.0",
     "firebase": "^12.12.1",
     "lodash": "^4.18.1",

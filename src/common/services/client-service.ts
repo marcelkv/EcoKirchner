@@ -195,26 +195,26 @@ export class ClientService implements IClientService {
     this._order.contact = contact;
   }
 
-  async buyAsync(uid: string): Promise<boolean> {
+  async buyAsync(uid: string): Promise<string | null> {
     if (this._order.cartItems.length === 0 || !this._order.contact) {
-      return false;
+      return null;
     }
 
-    let result = true;
+    let orderId: string | null = null;
     try {
       await runTransaction(this._firestore, async (transaction) => {
         await this._updateProductsQuantities(transaction);
-        this._createNewOrder(uid, transaction);
+        orderId = this._createNewOrder(uid, transaction);
         this._order.cartItems = [];
         this._order.contact = null;
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      result = false;
+      orderId = null;
     }
 
     await this.getProductsAsync(true);
-    return result;
+    return orderId;
   }
 
   private async _updateProductsQuantities(transaction: Transaction) {
@@ -242,7 +242,7 @@ export class ClientService implements IClientService {
     await Promise.all(updatePromises);
   }
 
-  private _createNewOrder(uid: string, transaction: Transaction) {
+  private _createNewOrder(uid: string, transaction: Transaction): string {
     const orderId = this._getOrderId();
 
     const orderedProductsCollection = collection(
@@ -297,6 +297,7 @@ export class ClientService implements IClientService {
     };
     const newOrderRef = doc(ordersCollection, orderId);
     transaction.set(newOrderRef, newOrder);
+    return orderId;
   }
 
   private async _getImageDownloadUrl(imagePath: string): Promise<string> {

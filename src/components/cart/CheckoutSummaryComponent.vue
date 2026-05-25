@@ -4,6 +4,7 @@ import CartNavigationComponent from "@/components/cart/CheckoutNavigationCompone
 import { IClientService } from "@/common/services/client-service.interface";
 import { useRouter } from "vue-router";
 import { IUserService } from "@/common/services/user-service.interface";
+import { IEmailService } from "@/common/services/email-service.interface";
 import SectionSeparatorComponent from "@/components/product-card/SectionSeparatorComponent.vue";
 import PaymentIcon from "@/components/common/PaymentIcon.vue";
 import CartOrderItem from "@/components/cart/CartItemComponent.vue";
@@ -22,6 +23,7 @@ export default defineComponent({
   setup() {
     const clientService = inject<IClientService>("clientService");
     const userService = inject<IUserService>("userService");
+    const emailService = inject<IEmailService>("emailService");
     const router = useRouter();
     const isLoading = ref(false);
 
@@ -38,8 +40,34 @@ export default defineComponent({
 
     async function onBuyNowClicked(): Promise<void> {
       isLoading.value = true;
-      const success = await clientService.buyAsync(userService.uid);
-      if (success) {
+
+      // Snapshot order data before buyAsync clears the cart
+      const contactSnap = clientService.contact;
+      const itemsSnap = clientService.cartItems.map((i) => {
+        const img = i.product.imageUrl
+          ? `<img src="${i.product.imageUrl}" width="50" height="50" style="border-radius:4px;object-fit:cover;display:block;" />`
+          : "";
+        return `<tr><td style="padding:8px 0;width:60px;vertical-align:middle;">${img}</td><td style="padding:8px 12px;vertical-align:middle;"><strong>${i.product.name}</strong><br/><span style="color:#666;font-size:13px;">× ${i.numItems} — ${i.costAsString}</span></td></tr>`;
+      });
+      const totalSnap = clientService.totalCostCartAsString;
+      const customerEmail = userService.userEmail;
+
+      const orderId = await clientService.buyAsync(userService.uid);
+      if (orderId) {
+        const bankingData = await clientService.getBankingData();
+        emailService
+          .sendOrderEmailsAsync({
+            customer_name: `${contactSnap.firstName} ${contactSnap.lastName}`,
+            customer_email: customerEmail,
+            customer_phone: contactSnap.phoneNumber,
+            customer_address: `${contactSnap.street}, ${contactSnap.zipCode} ${contactSnap.city}`,
+            order_id: orderId,
+            order_items: itemsSnap.join(""),
+            total_cost: totalSnap,
+            iban: bankingData?.iban ?? "",
+            bic: bankingData?.bic ?? "",
+          })
+          .catch(() => {});
         await router.push({ name: "CheckoutSuccess" });
       } else {
         const { deleted, modified } = clientService.getChangedProducts();

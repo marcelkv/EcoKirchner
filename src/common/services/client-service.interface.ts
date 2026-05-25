@@ -23,7 +23,7 @@ export interface IClientService {
   addContactToCart(contact: CartOrderContact): Promise<void>;
   updateProductFromCart(product: Product, numItems: number): Promise<void>;
   deleteProductFromCart(product: Product): Promise<void>;
-  buyAsync(uid: string): Promise<boolean>;
+  buyAsync(uid: string): Promise<string | null>;
   getChangedProducts(): {
     deleted: Product[];
     modified: Product[];

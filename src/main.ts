@@ -14,6 +14,8 @@ import { UserData } from "@/common/models/user-data";
 import { IAuthService } from "@/common/services/auth-service.interface";
 import { AutoLogoutService } from "@/common/services/auto-logout-service";
 import { IAutoLogoutService } from "@/common/services/auto-logout-service.interface";
+import { EmailService } from "@/common/services/email-service";
+import { IEmailService } from "@/common/services/email-service.interface";
 
 const AUTO_LOGOUT_TIME_MS = 1000 * 60 * 10;
 
@@ -23,6 +25,7 @@ const userService: IUserService = reactive(new UserService());
 const menuService: IMenuService = reactive(new MenuService());
 const clientService: IClientService = reactive(new ClientService());
 const authService = new AuthService(onAuthStateChanged);
+const emailService: IEmailService = new EmailService();
 const autoLogoutService = new AutoLogoutService(onLogout, AUTO_LOGOUT_TIME_MS);
 
 app.provide<IResponsiveService>("responsiveService", responsiveService);
@@ -31,6 +34,7 @@ app.provide<IAuthService>("authService", authService);
 app.provide<IAutoLogoutService>("autoLogoutService", autoLogoutService);
 app.provide<IMenuService>("menuService", menuService);
 app.provide<IClientService>("clientService", clientService);
+app.provide<IEmailService>("emailService", emailService);
 app.use(router);
 app.mount("#app");
 
