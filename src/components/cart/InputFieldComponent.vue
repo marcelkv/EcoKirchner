@@ -4,6 +4,8 @@ import { computed, defineComponent, nextTick, ref, watch } from "vue";
 export default defineComponent({
   props: {
     autocomplete: { type: String, required: true },
+    name: { type: String, required: true },
+    inputType: { type: String, required: false, default: "text" },
     label: { type: String, required: true },
     inputText: { type: String, required: true },
     hasError: { type: Boolean, required: true },
@@ -97,13 +99,14 @@ export default defineComponent({
       {{ $props.label }}
     </div>
     <input
-      tabindex="0"
       ref="ref_inputBox"
       class="input-box"
       v-model="workingText"
       v-on:input="onTextChanged"
       v-on:focus="onFocus"
       v-on:focusout="onLostFocus"
+      v-bind:type="$props.inputType"
+      v-bind:name="$props.name"
       v-bind:autocomplete="$props.autocomplete"
     />
     <div class="popup-info" v-if="hasErrorMsg && workingError">

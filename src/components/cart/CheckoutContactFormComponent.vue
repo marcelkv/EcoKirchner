@@ -185,12 +185,12 @@ export default defineComponent({
     class="checkout-contact-form"
     v-bind:class="{ 'is-small-or-less': isSmallOrLess }"
   >
-    <form @submit.prevent="submitForm">
+    <form @submit.prevent="submitForm" @keydown.enter.prevent="submitForm">
       <div class="section section-names">
         <InputFieldComponent
           v-bind:hasError="errors.firstName"
           v-bind:label="'Vorname'"
-          v-bind:tabIndex="1"
+          v-bind:name="'given-name'"
           v-bind:error-msg="getErrorMsg(minLengths.firstName)"
           v-bind:autocomplete="'given-name'"
           v-model:inputText="formData.firstName"
@@ -198,7 +198,7 @@ export default defineComponent({
         <InputFieldComponent
           v-bind:hasError="errors.lastName"
           v-bind:label="'Nachname'"
-          v-bind:tabIndex="2"
+          v-bind:name="'family-name'"
           v-bind:error-msg="getErrorMsg(minLengths.lastName)"
           v-bind:autocomplete="'family-name'"
           v-model:inputText="formData.lastName"
@@ -208,7 +208,7 @@ export default defineComponent({
         <InputFieldComponent
           v-bind:hasError="errors.street"
           v-bind:label="'Straße und Hausnummer'"
-          v-bind:tabIndex="3"
+          v-bind:name="'street-address'"
           v-bind:error-msg="getErrorMsg(minLengths.street)"
           v-bind:autocomplete="'street-address'"
           v-model:inputText="formData.street"
@@ -218,7 +218,7 @@ export default defineComponent({
         <InputFieldComponent
           v-bind:hasError="errors.zipCode"
           v-bind:label="'PLZ'"
-          v-bind:tabIndex="4"
+          v-bind:name="'postal-code'"
           v-bind:error-msg="getErrorMsg(minLengths.zipCode)"
           v-bind:autocomplete="'postal-code'"
           v-model:inputText="formData.zipCode"
@@ -226,7 +226,7 @@ export default defineComponent({
         <InputFieldComponent
           v-bind:hasError="errors.city"
           v-bind:label="'Stadt'"
-          v-bind:tabIndex="5"
+          v-bind:name="'address-level2'"
           v-bind:error-msg="getErrorMsg(minLengths.city)"
           v-bind:autocomplete="'address-level2'"
           v-model:inputText="formData.city"
@@ -236,14 +236,15 @@ export default defineComponent({
         <InputFieldComponent
           v-bind:hasError="errors.phoneNumber"
           v-bind:label="'Telefonnummer, z.B. 1665xxxxxx'"
-          v-bind:tabIndex="6"
+          v-bind:name="'tel-national'"
+          v-bind:inputType="'tel'"
           v-bind:error-msg="getErrorMsg(minLengths.phoneNumber)"
           v-bind:autocomplete="'tel-national'"
           v-model:inputText="formData.phoneNumber"
         />
       </div>
+      <ButtonDefaultComponent text="WEITER" v-on:click="submitForm" />
     </form>
-    <ButtonDefaultComponent text="WEITER" v-on:click="submitForm" />
   </div>
 </template>
 
