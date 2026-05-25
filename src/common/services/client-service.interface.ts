@@ -6,6 +6,7 @@ import { Order } from "@/common/models/order";
 import { OrderSummary } from "@/common/models/order-summary";
 import { OrderQuery } from "@/common/models/order-query";
 import { BankingData } from "@/common/models/banking-data";
+import { UserEntry } from "@/common/models/user-entry";
 
 export interface IClientService {
   backPath: string;
@@ -41,4 +42,10 @@ export interface IClientService {
     existingImageRef: string | null,
   ): Promise<void>;
   deleteProductAsync(productId: string): Promise<void>;
+  getUsersPageAsync(
+    roleFilter: string | null,
+    pageSize: number,
+    cursor: unknown,
+  ): Promise<{ users: UserEntry[]; nextCursor: unknown; hasMore: boolean }>;
+  updateUserRoleAsync(uid: string, role: string): Promise<void>;
 }

@@ -37,7 +37,7 @@ export default defineComponent({
 
       isLoading.value = true;
       const result = await clientService.getOrdersAsync(
-        userService.isAdmin ? null : userService.uid,
+        userService.isAdmin || userService.isEmployee ? null : userService.uid,
         clientService.currentOrderId,
       );
 
@@ -51,7 +51,9 @@ export default defineComponent({
       isLoading.value = false;
     });
 
-    const isAdmin = computed<boolean>(() => userService?.isAdmin);
+    const isAdmin = computed<boolean>(
+      () => userService?.isAdmin || userService?.isEmployee,
+    );
 
     const cartItems = computed<CartOrderItem[]>(() => {
       return order.value.products.map((product) => {
@@ -117,7 +119,7 @@ export default defineComponent({
     }
 
     async function onClickPayed(): Promise<void> {
-      if (!userService.isAdmin) return;
+      if (!userService.isAdmin && !userService.isEmployee) return;
       if (isPayed.value) {
         alert("Wert kann nicht geändert werden.");
         return;
@@ -134,7 +136,7 @@ export default defineComponent({
     }
 
     async function onClickDelivered(): Promise<void> {
-      if (!userService.isAdmin) return;
+      if (!userService.isAdmin && !userService.isEmployee) return;
       if (isDelivered.value) {
         alert("Wert kann nicht geändert werden.");
         return;
@@ -156,12 +158,12 @@ export default defineComponent({
     }
 
     function clearHovers(): void {
-      if (!userService.isAdmin) return;
+      if (!userService.isAdmin && !userService.isEmployee) return;
       hovers.value = order.value.products.map(() => false);
     }
 
     function setHover(index: number): void {
-      if (!userService.isAdmin) return;
+      if (!userService.isAdmin && !userService.isEmployee) return;
       hovers.value[index] = !hovers.value[index];
     }
 

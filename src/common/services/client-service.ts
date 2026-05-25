@@ -8,6 +8,7 @@ import {
   Firestore,
   getDocs,
   getFirestore,
+  orderBy,
   query,
   runTransaction,
   serverTimestamp,
@@ -19,6 +20,7 @@ import {
   Timestamp,
   where,
 } from "firebase/firestore";
+import { UserEntry, UserRole } from "@/common/models/user-entry";
 import {
   FirebaseStorage,
   getDownloadURL,
@@ -44,12 +46,16 @@ export class Collections {
   readonly orders: CollectionReference<DocumentData, DocumentData>;
   readonly orderedProducts: CollectionReference<DocumentData, DocumentData>;
   readonly paymentData: CollectionReference<DocumentData, DocumentData>;
+  readonly userRoles: CollectionReference<DocumentData, DocumentData>;
+  readonly userProfiles: CollectionReference<DocumentData, DocumentData>;
 
   constructor(firestore: Firestore) {
     this.products = collection(firestore, "products");
     this.orders = collection(firestore, "orders");
     this.orderedProducts = collection(firestore, "orderedProducts");
     this.paymentData = collection(firestore, "paymentData");
+    this.userRoles = collection(firestore, "userRoles");
+    this.userProfiles = collection(firestore, "userProfiles");
   }
 }
 
@@ -576,6 +582,60 @@ export class ClientService implements IClientService {
       image: imageRef,
     });
     this._products = null;
+  }
+
+  async getUsersPageAsync(
+    roleFilter: string | null,
+    pageSize: number,
+    cursor: unknown,
+  ): Promise<{ users: UserEntry[]; nextCursor: unknown; hasMore: boolean }> {
+    const [profilesSnap, rolesSnap] = await Promise.all([
+      getDocs(query(this.collections.userProfiles, orderBy("email"))),
+      getDocs(this.collections.userRoles),
+    ]);
+
+    const roleMap = new Map<string, UserRole>();
+    rolesSnap.docs.forEach((d) => {
+      const role = d.data().role as UserRole;
+      if (role) roleMap.set(d.id, role);
+    });
+
+    // Primary list: all users who have signed in (have a profile)
+    let users: UserEntry[] = profilesSnap.docs.map((d) => ({
+      uid: d.id,
+      email: d.data().email ?? d.id,
+      role: roleMap.get(d.id) ?? "customer",
+    }));
+
+    // Append users who have a role entry but no profile yet (signed in before deploy)
+    const profileUids = new Set(profilesSnap.docs.map((d) => d.id));
+    rolesSnap.docs.forEach((d) => {
+      if (!profileUids.has(d.id)) {
+        users.push({
+          uid: d.id,
+          email: d.data().email ?? d.id,
+          role: (d.data().role as UserRole) ?? "customer",
+        });
+      }
+    });
+
+    if (roleFilter) {
+      users = users.filter((u) => u.role === roleFilter);
+    }
+
+    const startIdx = (cursor as number) ?? 0;
+    const page = users.slice(startIdx, startIdx + pageSize);
+    const nextIdx = startIdx + pageSize;
+    return {
+      users: page,
+      nextCursor: nextIdx < users.length ? nextIdx : null,
+      hasMore: nextIdx < users.length,
+    };
+  }
+
+  async updateUserRoleAsync(uid: string, role: string): Promise<void> {
+    const ref = doc(this.collections.userRoles, uid);
+    await setDoc(ref, { role }, { merge: true });
   }
 
   async deleteProductAsync(productId: string): Promise<void> {

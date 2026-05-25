@@ -50,7 +50,7 @@ export default defineComponent({
     async function loadOrders(): Promise<void> {
       isLoading.value = true;
 
-      if (!userService.isAdmin) {
+      if (!userService.isAdmin && !userService.isEmployee) {
         await router.push({ name: "Products" });
         return;
       }

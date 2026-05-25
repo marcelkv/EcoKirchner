@@ -23,6 +23,7 @@ export default defineComponent({
     const heightSize = computed(() => responsiveService.heightSize.value);
     const isSignedIn = computed(() => userService.isSignedIn);
     const isAdmin = computed(() => userService.isAdmin);
+    const isEmployee = computed(() => userService.isEmployee);
 
     async function onClickProducts(): Promise<void> {
       await router.push({ name: "Products" });
@@ -42,6 +43,10 @@ export default defineComponent({
 
     async function onClickAdminProducts(): Promise<void> {
       await router.push({ name: "AdminProducts" });
+    }
+
+    async function onClickAdminUsers(): Promise<void> {
+      await router.push({ name: "AdminUsers" });
     }
 
     async function onClickAbout(): Promise<void> {
@@ -75,6 +80,7 @@ export default defineComponent({
     return {
       isSignedIn,
       isAdmin,
+      isEmployee,
       heightSize,
       onClickProducts,
       onClickAbout,
@@ -83,6 +89,7 @@ export default defineComponent({
       onClickAllOrders,
       onClickHowMuch,
       onClickAdminProducts,
+      onClickAdminUsers,
       onClickShoppingCart,
       onClickCloseMenu,
     };
@@ -104,10 +111,18 @@ export default defineComponent({
       >
         Meine Bestellungen
       </div>
-      <div class="menu-item item" v-if="isAdmin" v-on:click="onClickAllOrders">
+      <div
+        class="menu-item item"
+        v-if="isAdmin || isEmployee"
+        v-on:click="onClickAllOrders"
+      >
         Alle Bestellungen
       </div>
-      <div class="menu-item item" v-if="isAdmin" v-on:click="onClickHowMuch">
+      <div
+        class="menu-item item"
+        v-if="isAdmin || isEmployee"
+        v-on:click="onClickHowMuch"
+      >
         Wie viel?
       </div>
       <div
@@ -116,6 +131,9 @@ export default defineComponent({
         v-on:click="onClickAdminProducts"
       >
         Sortiment
+      </div>
+      <div class="menu-item item" v-if="isAdmin" v-on:click="onClickAdminUsers">
+        Benutzer
       </div>
       <UserMenuItem
         v-if="

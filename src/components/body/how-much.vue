@@ -15,7 +15,7 @@ export default defineComponent({
     const isLoading = ref(true);
     const orderedProducts = reactive<string[]>([]);
     onMounted(async () => {
-      if (!userService.isAdmin) {
+      if (!userService.isAdmin && !userService.isEmployee) {
         await router.push({ name: "Products" });
         return;
       }

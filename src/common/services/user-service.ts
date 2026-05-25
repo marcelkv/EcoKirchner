@@ -24,6 +24,10 @@ export class UserService implements IUserService {
     return this.isSignedIn ? this.user.isAdmin : false;
   }
 
+  get isEmployee(): boolean {
+    return this.isSignedIn ? this.user.isEmployee : false;
+  }
+
   saveUser(user: UserData): void {
     this.user = user;
     localStorage.setItem("user", JSON.stringify(this.user));
