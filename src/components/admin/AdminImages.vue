@@ -245,7 +245,7 @@ export default defineComponent({
 
   .list-view {
     padding: 0 16px 32px;
-    max-width: 560px;
+    max-width: 880px;
     width: 100%;
     box-sizing: border-box;
   }
@@ -307,39 +307,45 @@ export default defineComponent({
 
   .image-list {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 16px;
 
     .empty-hint {
       padding: 24px 0;
       color: #888;
       font-size: 14px;
+      flex: 1 1 100%;
     }
 
     .image-row {
       display: flex;
-      gap: 14px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--lineColor);
-      align-items: flex-start;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--lineColor);
+      border-radius: 8px;
+      box-sizing: border-box;
+      width: 200px;
+      max-width: 100%;
 
       .image-thumb {
-        width: 64px;
-        height: 64px;
-        object-fit: cover;
+        width: 100%;
+        height: 180px;
+        object-fit: contain;
+        background-color: #f7f7f7;
         border-radius: 6px;
-        flex-shrink: 0;
         border: 1px solid var(--lineColor);
+        display: block;
       }
 
       .image-info {
-        flex: 1;
-        min-width: 0;
         display: flex;
         flex-direction: column;
         gap: 6px;
+        min-width: 0;
 
         .image-name {
-          font-size: 13px;
+          font-size: 12px;
           color: #555;
           word-break: break-all;
         }
