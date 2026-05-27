@@ -45,7 +45,7 @@ export default defineComponent({
       const contactSnap = clientService.contact;
       const itemsSnap = clientService.cartItems.map((i) => {
         const img = i.product.imageUrl
-          ? `<img src="${i.product.imageUrl}" width="50" height="50" style="border-radius:4px;object-fit:cover;display:block;" />`
+          ? `<img src="${i.product.imageUrl}" width="50" height="50" style="border-radius:4px;object-fit:contain;background-color:#fff;display:block;" />`
           : "";
         return `<tr><td style="padding:8px 0;width:60px;vertical-align:middle;">${img}</td><td style="padding:8px 12px;vertical-align:middle;"><strong>${i.product.name}</strong><br/><span style="color:#666;font-size:13px;">× ${i.numItems} — ${i.costAsString}</span></td></tr>`;
       });
