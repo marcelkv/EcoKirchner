@@ -8,6 +8,19 @@ import { OrderQuery } from "@/common/models/order-query";
 import { BankingData } from "@/common/models/banking-data";
 import { UserEntry } from "@/common/models/user-entry";
 
+export interface StorageImage {
+  path: string;
+  name: string;
+  url: string;
+}
+
+export type StorageFolder = "products" | "productsLarge";
+
+export interface ImageReferences {
+  byCurrentProducts: Set<string>;
+  byPastOrders: Set<string>;
+}
+
 export interface IClientService {
   backPath: string;
   backFilterIndex: number;
@@ -48,4 +61,7 @@ export interface IClientService {
     cursor: unknown,
   ): Promise<{ users: UserEntry[]; nextCursor: unknown; hasMore: boolean }>;
   updateUserRoleAsync(uid: string, role: string): Promise<void>;
+  listStorageImagesAsync(folder: StorageFolder): Promise<StorageImage[]>;
+  getReferencedImagePathsAsync(): Promise<ImageReferences>;
+  deleteStorageImageAsync(path: string): Promise<void>;
 }

@@ -1,4 +1,9 @@
-import { IClientService } from "@/common/services/client-service.interface";
+import {
+  IClientService,
+  ImageReferences,
+  StorageFolder,
+  StorageImage,
+} from "@/common/services/client-service.interface";
 import { Product } from "@/common/models/product";
 import firebaseConfig from "@/firebase/firebaseConfig";
 import { FirebaseApp, initializeApp } from "firebase/app";
@@ -22,9 +27,11 @@ import {
 } from "firebase/firestore";
 import { UserEntry, UserRole } from "@/common/models/user-entry";
 import {
+  deleteObject,
   FirebaseStorage,
   getDownloadURL,
   getStorage,
+  listAll,
   ref as storageRef,
   uploadBytes,
 } from "firebase/storage";
@@ -571,7 +578,7 @@ export class ClientService implements IClientService {
     let imageRef = existingImageRef ?? "";
     if (imageFile) {
       const ext = imageFile.name.split(".").pop() ?? "jpg";
-      imageRef = `products/${id}.${ext}`;
+      imageRef = `products/${id}-${Date.now()}.${ext}`;
       await uploadBytes(storageRef(this._storage, imageRef), imageFile);
     }
 
@@ -643,5 +650,43 @@ export class ClientService implements IClientService {
     const docRef = doc(collection(this._firestore, "products"), productId);
     await deleteDoc(docRef);
     this._products = null;
+  }
+
+  async listStorageImagesAsync(folder: StorageFolder): Promise<StorageImage[]> {
+    const folderRef = storageRef(this._storage, folder);
+    const result = await listAll(folderRef);
+    const items = await Promise.all(
+      result.items.map(async (itemRef) => ({
+        path: itemRef.fullPath,
+        name: itemRef.name,
+        url: await getDownloadURL(itemRef),
+      })),
+    );
+    return items.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  async getReferencedImagePathsAsync(): Promise<ImageReferences> {
+    const [productsSnap, orderedProductsSnap] = await Promise.all([
+      getDocs(this.collections.products),
+      getDocs(this.collections.orderedProducts),
+    ]);
+
+    const byCurrentProducts = new Set<string>();
+    productsSnap.docs.forEach((d) => {
+      const path = d.data().image as string | undefined;
+      if (path) byCurrentProducts.add(path);
+    });
+
+    const byPastOrders = new Set<string>();
+    orderedProductsSnap.docs.forEach((d) => {
+      const path = d.data().imageReference as string | undefined;
+      if (path) byPastOrders.add(path);
+    });
+
+    return { byCurrentProducts, byPastOrders };
+  }
+
+  async deleteStorageImageAsync(path: string): Promise<void> {
+    await deleteObject(storageRef(this._storage, path));
   }
 }

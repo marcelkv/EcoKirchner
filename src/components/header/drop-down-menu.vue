@@ -49,6 +49,10 @@ export default defineComponent({
       await router.push({ name: "AdminUsers" });
     }
 
+    async function onClickAdminImages(): Promise<void> {
+      await router.push({ name: "AdminImages" });
+    }
+
     async function onClickAbout(): Promise<void> {
       await router.push({ name: "About" });
     }
@@ -90,6 +94,7 @@ export default defineComponent({
       onClickHowMuch,
       onClickAdminProducts,
       onClickAdminUsers,
+      onClickAdminImages,
       onClickShoppingCart,
       onClickCloseMenu,
     };
@@ -134,6 +139,13 @@ export default defineComponent({
       </div>
       <div class="menu-item item" v-if="isAdmin" v-on:click="onClickAdminUsers">
         Benutzer
+      </div>
+      <div
+        class="menu-item item"
+        v-if="isAdmin"
+        v-on:click="onClickAdminImages"
+      >
+        Bilder
       </div>
       <UserMenuItem
         v-if="
