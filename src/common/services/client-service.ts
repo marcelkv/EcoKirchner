@@ -19,6 +19,7 @@ import {
   serverTimestamp,
   setDoc,
   deleteDoc,
+  writeBatch,
   Transaction,
   DocumentData,
   CollectionReference,
@@ -644,6 +645,19 @@ export class ClientService implements IClientService {
   async updateUserRoleAsync(uid: string, role: string): Promise<void> {
     const ref = doc(this.collections.userRoles, uid);
     await setDoc(ref, { role }, { merge: true });
+  }
+
+  async deleteOrderAsync(orderId: string): Promise<void> {
+    const orderProductsQuery = Queries.orderedProducts(
+      this.collections,
+      orderId,
+    );
+    const orderProductsSnapshot = await getDocs(orderProductsQuery);
+
+    const batch = writeBatch(this._firestore);
+    orderProductsSnapshot.docs.forEach((d) => batch.delete(d.ref));
+    batch.delete(doc(this.collections.orders, orderId));
+    await batch.commit();
   }
 
   async deleteProductAsync(productId: string): Promise<void> {

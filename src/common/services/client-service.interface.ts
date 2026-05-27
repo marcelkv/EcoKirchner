@@ -46,6 +46,7 @@ export interface IClientService {
   getTotalOrderedProducts(): Promise<string[]>;
   getBankingData(): Promise<BankingData>;
   updateOrder(order: Order): Promise<boolean>;
+  deleteOrderAsync(orderId: string): Promise<void>;
   saveProductAsync(
     productId: string | null,
     name: string,
