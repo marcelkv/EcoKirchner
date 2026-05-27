@@ -485,9 +485,10 @@ export default defineComponent({
       align-items: flex-start;
 
       .product-thumb {
-        width: 64px;
-        height: 64px;
-        object-fit: cover;
+        width: 88px;
+        height: 88px;
+        object-fit: contain;
+        background-color: #fff;
         border-radius: 6px;
         flex-shrink: 0;
         border: 1px solid var(--lineColor);

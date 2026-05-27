@@ -332,7 +332,7 @@ export default defineComponent({
         width: 100%;
         height: 180px;
         object-fit: contain;
-        background-color: #f7f7f7;
+        background-color: #fff;
         border-radius: 6px;
         border: 1px solid var(--lineColor);
         display: block;
