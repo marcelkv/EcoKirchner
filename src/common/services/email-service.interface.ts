@@ -6,6 +6,7 @@ export interface OrderEmailParams {
   order_id: string;
   order_items: string;
   total_cost: string;
+  recipient_name: string;
   iban: string;
   bic: string;
 }

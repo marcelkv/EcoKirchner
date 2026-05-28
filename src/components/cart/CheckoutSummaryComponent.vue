@@ -64,6 +64,7 @@ export default defineComponent({
             order_id: orderId,
             order_items: itemsSnap.join(""),
             total_cost: totalSnap,
+            recipient_name: bankingData?.recipientName ?? "",
             iban: bankingData?.iban ?? "",
             bic: bankingData?.bic ?? "",
           })

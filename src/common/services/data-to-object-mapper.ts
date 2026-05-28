@@ -9,7 +9,13 @@ import { OrderQuery } from "@/common/models/order-query";
 
 export class DataToObjectMapper {
   static toBankingData(data: DocumentData): BankingData {
-    return new BankingData(data.iban, data.bic, data.email, data.phone);
+    return new BankingData(
+      data.recipientName,
+      data.iban,
+      data.bic,
+      data.email,
+      data.phone,
+    );
   }
 
   static toProduct(productData: DocumentData): Product {

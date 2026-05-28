@@ -85,6 +85,10 @@ export default defineComponent({
 
       <div class="banking-card" v-if="bankingData">
         <div class="banking-row">
+          <span class="banking-label">Empfänger</span>
+          <span class="banking-value">{{ bankingData.recipientName }}</span>
+        </div>
+        <div class="banking-row">
           <span class="banking-label">IBAN</span>
           <span class="banking-value iban">{{
             formatIban(bankingData.iban)

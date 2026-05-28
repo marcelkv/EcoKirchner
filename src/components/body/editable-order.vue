@@ -223,6 +223,13 @@ export default defineComponent({
           <div class="banking-block">
             <div class="banking-field">
               <div class="field-header">
+                <span class="field-label">Empfänger</span>
+              </div>
+              <div class="field-value">{{ bankingData.recipientName }}</div>
+            </div>
+
+            <div class="banking-field">
+              <div class="field-header">
                 <span class="field-label">IBAN</span>
                 <button
                   class="copy-link"
@@ -356,6 +363,10 @@ export default defineComponent({
         <template v-if="bankingData">
           <div class="section-title">Zahlung</div>
           <SectionSeparator v-bind:withGradient="false" />
+          <div class="summary-section">
+            <div>Empfänger:</div>
+            <strong>{{ bankingData.recipientName }}</strong>
+          </div>
           <div class="summary-section">
             <div>IBAN:</div>
             <div class="value-with-copy">
