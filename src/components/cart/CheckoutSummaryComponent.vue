@@ -54,6 +54,7 @@ export default defineComponent({
 
       const orderId = await clientService.buyAsync(userService.uid);
       if (orderId) {
+        clientService.currentOrderId = orderId;
         const bankingData = await clientService.getBankingData();
         emailService
           .sendOrderEmailsAsync({

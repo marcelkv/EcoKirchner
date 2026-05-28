@@ -15,10 +15,12 @@ export default defineComponent({
     const clientService = inject<IClientService>("clientService");
     const router = useRouter();
     const bankingData = ref<BankingData | null>(null);
+    const orderId = ref<string | null>(null);
     const isLoading = ref(true);
-    const ibanCopied = ref(false);
+    const copied = ref<"recipient" | "iban" | "bic" | "ref" | null>(null);
 
     onBeforeMount(async () => {
+      orderId.value = clientService.currentOrderId;
       bankingData.value = await clientService.getBankingData();
       isLoading.value = false;
     });
@@ -30,11 +32,25 @@ export default defineComponent({
         .trim();
     }
 
-    function copyIban(): void {
+    function formatRecipient(name: string): string {
+      return name.replace(/ /g, " ");
+    }
+
+    function copyField(field: "recipient" | "iban" | "bic" | "ref"): void {
       if (!bankingData.value) return;
-      navigator.clipboard.writeText(bankingData.value.iban);
-      ibanCopied.value = true;
-      setTimeout(() => (ibanCopied.value = false), 2000);
+      const value =
+        field === "recipient"
+          ? bankingData.value.recipientName
+          : field === "iban"
+            ? bankingData.value.iban
+            : field === "bic"
+              ? bankingData.value.bic
+              : (orderId.value ?? "");
+      navigator.clipboard.writeText(value);
+      copied.value = field;
+      setTimeout(() => {
+        copied.value = null;
+      }, 2000);
     }
 
     async function onMyOrders(): Promise<void> {
@@ -47,10 +63,12 @@ export default defineComponent({
 
     return {
       bankingData,
+      orderId,
       isLoading,
-      ibanCopied,
+      copied,
       formatIban,
-      copyIban,
+      formatRecipient,
+      copyField,
       onMyOrders,
       onContinueShopping,
     };
@@ -82,34 +100,61 @@ export default defineComponent({
             </div>
 
             <div class="banking-card" v-if="bankingData">
-              <div class="banking-row">
-                <span class="banking-label">Empfänger</span>
-                <span class="banking-value">{{
-                  bankingData.recipientName
-                }}</span>
+              <div class="banking-field">
+                <div class="field-header">
+                  <span class="banking-label">Empfänger</span>
+                  <button
+                    class="copy-btn"
+                    v-on:click="copyField('recipient')"
+                    v-bind:class="{ copied: copied === 'recipient' }"
+                  >
+                    {{ copied === "recipient" ? "Kopiert ✓" : "Kopieren" }}
+                  </button>
+                </div>
+                <div class="field-value">
+                  {{ formatRecipient(bankingData.recipientName) }}
+                </div>
               </div>
-              <div class="banking-row">
-                <span class="banking-label">IBAN</span>
-                <span class="banking-value iban">{{
-                  formatIban(bankingData.iban)
-                }}</span>
-                <button
-                  class="copy-btn"
-                  v-on:click="copyIban"
-                  v-bind:class="{ copied: ibanCopied }"
-                >
-                  {{ ibanCopied ? "Kopiert ✓" : "Kopieren" }}
-                </button>
+              <div class="banking-field">
+                <div class="field-header">
+                  <span class="banking-label">IBAN</span>
+                  <button
+                    class="copy-btn"
+                    v-on:click="copyField('iban')"
+                    v-bind:class="{ copied: copied === 'iban' }"
+                  >
+                    {{ copied === "iban" ? "Kopiert ✓" : "Kopieren" }}
+                  </button>
+                </div>
+                <div class="field-value mono">
+                  {{ formatIban(bankingData.iban) }}
+                </div>
               </div>
-              <div class="banking-row">
-                <span class="banking-label">BIC</span>
-                <span class="banking-value">{{ bankingData.bic }}</span>
+              <div class="banking-field">
+                <div class="field-header">
+                  <span class="banking-label">BIC</span>
+                  <button
+                    class="copy-btn"
+                    v-on:click="copyField('bic')"
+                    v-bind:class="{ copied: copied === 'bic' }"
+                  >
+                    {{ copied === "bic" ? "Kopiert ✓" : "Kopieren" }}
+                  </button>
+                </div>
+                <div class="field-value mono">{{ bankingData.bic }}</div>
               </div>
-              <div class="banking-row">
-                <span class="banking-label">Verwendungszweck</span>
-                <span class="banking-value hint"
-                  >Deine Bestellnummer (unter „Meine Bestellungen")</span
-                >
+              <div class="banking-field" v-if="orderId">
+                <div class="field-header">
+                  <span class="banking-label">Verwendungszweck</span>
+                  <button
+                    class="copy-btn"
+                    v-on:click="copyField('ref')"
+                    v-bind:class="{ copied: copied === 'ref' }"
+                  >
+                    {{ copied === "ref" ? "Kopiert ✓" : "Kopieren" }}
+                  </button>
+                </div>
+                <div class="field-value mono">{{ orderId }}</div>
               </div>
             </div>
           </div>
@@ -219,59 +264,64 @@ export default defineComponent({
 
     .banking-card {
       border: 1px solid var(--lineColor);
-      border-radius: 4px;
-      padding: 14px;
+      border-radius: 8px;
       margin-top: 10px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      overflow: hidden;
 
-      .banking-row {
-        display: flex;
-        align-items: baseline;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
+      .banking-field {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--lineColor);
 
-      .banking-label {
-        font-weight: bold;
-        min-width: 120px;
-        flex-shrink: 0;
-        font-size: 13px;
-        color: #666;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-
-      .banking-value {
-        flex: 1;
-
-        &.iban {
-          font-family: monospace;
-          font-size: 15px;
-          letter-spacing: 0.05em;
-          word-break: break-all;
+        &:last-child {
+          border-bottom: none;
         }
 
-        &.hint {
-          color: #555;
-          font-size: 14px;
+        .field-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          margin-bottom: 4px;
+        }
+
+        .banking-label {
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #999;
+          font-weight: 600;
+        }
+
+        .field-value {
+          font-size: 16px;
+          line-height: 1.4;
+          word-break: break-word;
+
+          &.mono {
+            font-family: monospace;
+            letter-spacing: 0.04em;
+            word-break: break-all;
+          }
         }
       }
 
       .copy-btn {
         background: none;
-        border: 1px solid var(--lineColor);
-        border-radius: 3px;
-        padding: 2px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 2px 8px;
         font-size: 12px;
+        color: #555;
         cursor: pointer;
         white-space: nowrap;
         flex-shrink: 0;
+        min-height: 28px;
 
         &.copied {
-          border-color: green;
-          color: green;
+          border-color: #34c759;
+          color: #34c759;
         }
       }
     }
