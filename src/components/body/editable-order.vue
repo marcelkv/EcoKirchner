@@ -28,7 +28,7 @@ export default defineComponent({
     const hovers = ref<boolean[]>([]);
     const router = useRouter();
     const bankingData = ref<BankingData>(null);
-    const copied = ref<"iban" | "bic" | "ref" | null>(null);
+    const copied = ref<"recipient" | "iban" | "bic" | "ref" | null>(null);
 
     onBeforeMount(async () => {
       if (!clientService.currentOrderId) {
@@ -103,14 +103,16 @@ export default defineComponent({
         .trim();
     }
 
-    function copyField(field: "iban" | "bic" | "ref"): void {
+    function copyField(field: "recipient" | "iban" | "bic" | "ref"): void {
       if (!bankingData.value) return;
       const value =
-        field === "iban"
-          ? bankingData.value.iban
-          : field === "bic"
-            ? bankingData.value.bic
-            : order.value.orderId;
+        field === "recipient"
+          ? bankingData.value.recipientName
+          : field === "iban"
+            ? bankingData.value.iban
+            : field === "bic"
+              ? bankingData.value.bic
+              : order.value.orderId;
       navigator.clipboard.writeText(value);
       copied.value = field;
       setTimeout(() => {
@@ -224,6 +226,13 @@ export default defineComponent({
             <div class="banking-field">
               <div class="field-header">
                 <span class="field-label">Empfänger</span>
+                <button
+                  class="copy-link"
+                  v-on:click="copyField('recipient')"
+                  v-bind:class="{ done: copied === 'recipient' }"
+                >
+                  {{ copied === "recipient" ? "Kopiert ✓" : "Kopieren" }}
+                </button>
               </div>
               <div class="field-value">{{ bankingData.recipientName }}</div>
             </div>
@@ -365,7 +374,16 @@ export default defineComponent({
           <SectionSeparator v-bind:withGradient="false" />
           <div class="summary-section">
             <div>Empfänger:</div>
-            <strong>{{ bankingData.recipientName }}</strong>
+            <div class="value-with-copy">
+              <strong>{{ bankingData.recipientName }}</strong>
+              <button
+                class="copy-link"
+                v-on:click="copyField('recipient')"
+                v-bind:class="{ done: copied === 'recipient' }"
+              >
+                {{ copied === "recipient" ? "Kopiert ✓" : "Kopieren" }}
+              </button>
+            </div>
           </div>
           <div class="summary-section">
             <div>IBAN:</div>
