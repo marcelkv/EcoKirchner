@@ -64,7 +64,10 @@ export default defineComponent({
             order_id: orderId,
             order_items: itemsSnap.join(""),
             total_cost: totalSnap,
-            recipient_name: bankingData?.recipientName ?? "",
+            recipient_name: (bankingData?.recipientName ?? "").replace(
+              / /g,
+              " ",
+            ),
             iban: bankingData?.iban ?? "",
             bic: bankingData?.bic ?? "",
           })
