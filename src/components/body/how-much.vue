@@ -31,6 +31,7 @@ interface ProductRow {
   kostenTotal: number;
   netto: number;
   gewinn: number;
+  marge: number | null;
 }
 
 function toInputDate(date: Date): string {
@@ -222,6 +223,7 @@ export default defineComponent({
         const kostenTotal =
           totalQty * (c.rohkosten + c.behaelter + c.verpackung);
         const gewinn = netto - kostenTotal;
+        const marge = umsatzBrutto > 0 ? (gewinn / umsatzBrutto) * 100 : null;
         rows.push({
           productId,
           productName: name,
@@ -237,6 +239,7 @@ export default defineComponent({
           kostenTotal,
           netto,
           gewinn,
+          marge,
         });
       });
       rows.sort((a, b) => a.productName.localeCompare(b.productName));
@@ -268,10 +271,49 @@ export default defineComponent({
       const sum = productRows.value.reduce((s, r) => s + r.gewinn, 0);
       return sum - shipmentCost.value;
     });
+    const totalMarge = computed<number | null>(() => {
+      if (totalUmsatz.value <= 0) {
+        return null;
+      }
+      return (totalGewinn.value / totalUmsatz.value) * 100;
+    });
 
     function getStockUnitPrice(productId: string): number {
       const p = allProducts.value.find((x) => x.productId === productId);
       return p?.cost ?? 0;
+    }
+
+    async function applyRange(from: Date, to: Date): Promise<void> {
+      fromDate.value = toInputDate(from);
+      toDate.value = toInputDate(to);
+      await persistPrefs();
+      await loadRange();
+    }
+
+    async function presetThisMonth(): Promise<void> {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      await applyRange(start, now);
+    }
+
+    async function presetLastMonth(): Promise<void> {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const end = new Date(now.getFullYear(), now.getMonth(), 0);
+      await applyRange(start, end);
+    }
+
+    async function presetThisYear(): Promise<void> {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 1);
+      await applyRange(start, now);
+    }
+
+    async function presetLast30Days(): Promise<void> {
+      const now = new Date();
+      const start = new Date();
+      start.setDate(now.getDate() - 30);
+      await applyRange(start, now);
     }
 
     function startEdit(): void {
@@ -332,6 +374,13 @@ export default defineComponent({
       return costAsString(parseFloat((value || 0).toFixed(2)));
     }
 
+    function formatMarge(value: number | null): string {
+      if (value === null) {
+        return "—";
+      }
+      return value.toFixed(1).replace(".", ",") + " %";
+    }
+
     return {
       isLoading,
       isLoadingRange,
@@ -346,15 +395,21 @@ export default defineComponent({
       totalLager,
       totalUmsatz,
       totalGewinn,
+      totalMarge,
       shipmentCost,
       editShipmentCost,
       editCostMap,
       onDateChanged,
       onIncludeStockChanged,
+      presetThisMonth,
+      presetLastMonth,
+      presetThisYear,
+      presetLast30Days,
       startEdit,
       cancelEdit,
       saveEdit,
       formatMoney,
+      formatMarge,
       toggleExpanded,
       isExpanded,
     };
@@ -387,6 +442,37 @@ export default defineComponent({
         </div>
       </div>
 
+      <div class="date-presets">
+        <button
+          class="preset-btn"
+          v-on:click="presetThisMonth"
+          v-bind:disabled="isEditing"
+        >
+          Dieser Monat
+        </button>
+        <button
+          class="preset-btn"
+          v-on:click="presetLastMonth"
+          v-bind:disabled="isEditing"
+        >
+          Letzter Monat
+        </button>
+        <button
+          class="preset-btn"
+          v-on:click="presetThisYear"
+          v-bind:disabled="isEditing"
+        >
+          Dieses Jahr
+        </button>
+        <button
+          class="preset-btn"
+          v-on:click="presetLast30Days"
+          v-bind:disabled="isEditing"
+        >
+          Letzte 30 Tage
+        </button>
+      </div>
+
       <label class="stock-toggle">
         <input
           type="checkbox"
@@ -413,9 +499,16 @@ export default defineComponent({
           <span>Umsatz</span>
           <strong>{{ formatMoney(totalUmsatz) }}</strong>
         </div>
-        <div class="totals-row totals-row-strong">
+        <div
+          class="totals-row totals-row-strong"
+          v-bind:class="{ loss: totalGewinn < 0 }"
+        >
           <span>Gewinn</span>
           <strong>{{ formatMoney(totalGewinn) }}</strong>
+        </div>
+        <div class="totals-row">
+          <span>Marge</span>
+          <strong>{{ formatMarge(totalMarge) }}</strong>
         </div>
       </div>
 
@@ -466,7 +559,10 @@ export default defineComponent({
           v-for="row in productRows"
           v-bind:key="row.productId"
           class="product-card"
-          v-bind:class="{ expanded: isExpanded(row.productId) }"
+          v-bind:class="{
+            expanded: isExpanded(row.productId),
+            loss: row.gewinn < 0,
+          }"
         >
           <div
             class="product-header"
@@ -581,9 +677,16 @@ export default defineComponent({
                   <span>Kosten gesamt</span>
                   <strong>{{ formatMoney(row.kostenTotal) }}</strong>
                 </div>
-                <div class="row-summary-line row-summary-strong">
+                <div
+                  class="row-summary-line row-summary-strong"
+                  v-bind:class="{ loss: row.gewinn < 0 }"
+                >
                   <span>Gewinn</span>
                   <strong>{{ formatMoney(row.gewinn) }}</strong>
+                </div>
+                <div class="row-summary-line">
+                  <span>Marge</span>
+                  <strong>{{ formatMarge(row.marge) }}</strong>
                 </div>
               </div>
             </div>
@@ -640,6 +743,35 @@ export default defineComponent({
     }
   }
 
+  .date-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+
+    .preset-btn {
+      padding: 6px 10px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      color: #444;
+      cursor: pointer;
+      min-height: 32px;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+
+      &:active {
+        background: #f0f0f0;
+      }
+
+      &[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
   .stock-toggle {
     display: flex;
     align-items: center;
@@ -675,6 +807,10 @@ export default defineComponent({
         border-top: 1px solid #f0f0f0;
         margin-top: 4px;
         padding-top: 10px;
+      }
+
+      &.loss strong {
+        color: #d92d20;
       }
     }
   }
@@ -760,6 +896,11 @@ export default defineComponent({
       border: 1px solid var(--lineColor, #e0e0e0);
       border-radius: 8px;
       padding: 12px 14px;
+
+      &.loss {
+        border-color: #d92d20;
+        background: #fff5f4;
+      }
 
       .product-header {
         display: flex;
@@ -862,6 +1003,10 @@ export default defineComponent({
             margin-top: 4px;
             padding-top: 6px;
             border-top: 1px solid #f0f0f0;
+          }
+
+          &.loss strong {
+            color: #d92d20;
           }
         }
       }
