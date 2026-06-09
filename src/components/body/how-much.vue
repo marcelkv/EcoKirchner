@@ -87,6 +87,17 @@ export default defineComponent({
       return isEditing.value || !!expanded[productId];
     }
 
+    function toggleAll(): void {
+      const anyOpen = productRows.value.some((r) => expanded[r.productId]);
+      productRows.value.forEach((r) => {
+        expanded[r.productId] = !anyOpen;
+      });
+    }
+
+    const anyExpanded = computed<boolean>(() =>
+      productRows.value.some((r) => expanded[r.productId]),
+    );
+
     onMounted(async () => {
       if (!userService.isAdmin && !userService.isEmployee) {
         await router.push({ name: "Products" });
@@ -442,6 +453,8 @@ export default defineComponent({
       formatMarge,
       toggleExpanded,
       isExpanded,
+      toggleAll,
+      anyExpanded,
     };
   },
 });
@@ -587,6 +600,13 @@ export default defineComponent({
           <option value="marge">Marge (höchste zuerst)</option>
           <option value="menge">Stückzahl (meiste zuerst)</option>
         </select>
+        <button
+          class="toggle-all-btn"
+          v-on:click="toggleAll"
+          v-bind:disabled="isEditing || productRows.length === 0"
+        >
+          {{ anyExpanded ? "Einklappen" : "Ausklappen" }}
+        </button>
       </div>
 
       <Spinner v-if="isLoadingRange" v-bind:withText="false" />
@@ -937,12 +957,36 @@ export default defineComponent({
 
     select {
       flex: 1;
+      min-width: 0;
       padding: 6px 10px;
       font-size: 14px;
       border: 1px solid #ccc;
       border-radius: 6px;
       background: white;
       min-height: 34px;
+    }
+
+    .toggle-all-btn {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      color: #444;
+      cursor: pointer;
+      min-height: 34px;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+
+      &:active {
+        background: #f0f0f0;
+      }
+
+      &[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
     }
   }
 
