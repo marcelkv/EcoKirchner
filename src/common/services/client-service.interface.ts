@@ -77,5 +77,10 @@ export interface IClientService {
   getShipmentCost(): Promise<number>;
   saveShipmentCost(amount: number): Promise<void>;
   getDashboardPreferences(uid: string): Promise<DashboardPreferences | null>;
-  saveDashboardPreferences(uid: string, from: Date, to: Date): Promise<void>;
+  saveDashboardPreferences(
+    uid: string,
+    from: Date,
+    to: Date,
+    includeStock: boolean,
+  ): Promise<void>;
 }

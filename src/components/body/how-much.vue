@@ -13,12 +13,15 @@ import Spinner from "@/components/common/SpinnerComponent.vue";
 import { useRouter } from "vue-router";
 import { ProductCost } from "@/common/models/product-cost";
 import { RangeOrderedProduct } from "@/common/models/range-ordered-product";
+import { Product } from "@/common/models/product";
 import { costAsString } from "@/common/currency-helper";
 
 interface ProductRow {
   productId: string;
   productName: string;
-  quantity: number;
+  soldQty: number;
+  stockQty: number;
+  totalQty: number;
   umsatzBrutto: number;
   rohkosten: number;
   behaelter: number;
@@ -65,11 +68,13 @@ export default defineComponent({
     const toDate = ref<string>("");
 
     const rangeProducts = ref<RangeOrderedProduct[]>([]);
+    const allProducts = ref<Product[]>([]);
     const costMap = reactive<Record<string, ProductCost>>({});
     const editCostMap = reactive<Record<string, ProductCost>>({});
     const shipmentCost = ref<number>(0);
     const editShipmentCost = ref<number>(0);
     const expanded = reactive<Record<string, boolean>>({});
+    const includeStock = ref<boolean>(false);
 
     function toggleExpanded(productId: string): void {
       expanded[productId] = !expanded[productId];
@@ -91,6 +96,7 @@ export default defineComponent({
       if (prefs) {
         fromDate.value = toInputDate(prefs.fromDate);
         toDate.value = toInputDate(prefs.toDate);
+        includeStock.value = prefs.includeStock;
       } else {
         const today = new Date();
         const past = new Date();
@@ -99,14 +105,16 @@ export default defineComponent({
         toDate.value = toInputDate(today);
       }
 
-      const [costs, shipping] = await Promise.all([
+      const [costs, shipping, products] = await Promise.all([
         clientService.getProductCosts(),
         clientService.getShipmentCost(),
+        clientService.getProductsAsync(),
       ]);
       costs.forEach((c) => {
         costMap[c.productId] = c;
       });
       shipmentCost.value = shipping;
+      allProducts.value = products;
 
       await loadRange();
       isLoading.value = false;
@@ -126,14 +134,30 @@ export default defineComponent({
       isLoadingRange.value = false;
     }
 
-    async function onDateChanged(): Promise<void> {
+    async function persistPrefs(): Promise<void> {
       if (!fromDate.value || !toDate.value) {
         return;
       }
       const from = startOfDay(new Date(fromDate.value));
       const to = endOfDay(new Date(toDate.value));
-      await clientService.saveDashboardPreferences(userService.uid, from, to);
+      await clientService.saveDashboardPreferences(
+        userService.uid,
+        from,
+        to,
+        includeStock.value,
+      );
+    }
+
+    async function onDateChanged(): Promise<void> {
+      if (!fromDate.value || !toDate.value) {
+        return;
+      }
+      await persistPrefs();
       await loadRange();
+    }
+
+    async function onIncludeStockChanged(): Promise<void> {
+      await persistPrefs();
     }
 
     function getCost(productId: string): ProductCost {
@@ -141,36 +165,70 @@ export default defineComponent({
     }
 
     const productRows = computed<ProductRow[]>(() => {
-      const grouped: Record<
+      const sold: Record<
         string,
         { name: string; qty: number; brutto: number }
       > = {};
       rangeProducts.value.forEach((p) => {
-        if (!grouped[p.productId]) {
-          grouped[p.productId] = {
+        if (!sold[p.productId]) {
+          sold[p.productId] = {
             name: p.productName,
             qty: 0,
             brutto: 0,
           };
         }
-        grouped[p.productId].qty += p.quantity;
-        grouped[p.productId].brutto += p.totalCost;
+        sold[p.productId].qty += p.quantity;
+        sold[p.productId].brutto += p.totalCost;
       });
 
+      const productInfo: Record<
+        string,
+        { name: string; cost: number; totalItems: number }
+      > = {};
+      allProducts.value.forEach((p) => {
+        productInfo[p.productId] = {
+          name: p.name,
+          cost: p.cost,
+          totalItems: p.quantity,
+        };
+      });
+
+      const productIds = new Set<string>(Object.keys(sold));
+      if (includeStock.value) {
+        Object.keys(productInfo).forEach((id) => {
+          if (productInfo[id].totalItems > 0) {
+            productIds.add(id);
+          }
+        });
+      }
+
       const rows: ProductRow[] = [];
-      Object.keys(grouped).forEach((productId) => {
-        const g = grouped[productId];
+      productIds.forEach((productId) => {
+        const s = sold[productId];
+        const info = productInfo[productId];
+        const name = s?.name ?? info?.name ?? productId;
+        const soldQty = s?.qty ?? 0;
+        const soldBrutto = s?.brutto ?? 0;
+        const stockQty =
+          includeStock.value && info ? Math.max(0, info.totalItems) : 0;
+        const stockUnitPrice = info?.cost ?? 0;
+        const stockBrutto = stockQty * stockUnitPrice;
+        const umsatzBrutto = soldBrutto + stockBrutto;
+        const totalQty = soldQty + stockQty;
         const c = getCost(productId);
         const mwstRate = c.mwst || 0;
-        const netto = g.brutto / (1 + mwstRate / 100);
-        const mwstBetrag = g.brutto - netto;
-        const kostenTotal = g.qty * (c.rohkosten + c.behaelter + c.verpackung);
+        const netto = umsatzBrutto / (1 + mwstRate / 100);
+        const mwstBetrag = umsatzBrutto - netto;
+        const kostenTotal =
+          totalQty * (c.rohkosten + c.behaelter + c.verpackung);
         const gewinn = netto - kostenTotal;
         rows.push({
           productId,
-          productName: g.name,
-          quantity: g.qty,
-          umsatzBrutto: g.brutto,
+          productName: name,
+          soldQty,
+          stockQty,
+          totalQty,
+          umsatzBrutto,
           rohkosten: c.rohkosten,
           behaelter: c.behaelter,
           verpackung: c.verpackung,
@@ -197,13 +255,24 @@ export default defineComponent({
         0,
       ),
     );
+    const totalLager = computed<number>(() =>
+      productRows.value.reduce(
+        (sum, r) => sum + r.stockQty * (getStockUnitPrice(r.productId) || 0),
+        0,
+      ),
+    );
     const totalUmsatz = computed<number>(
-      () => totalBezahlt.value + totalOffen.value,
+      () => totalBezahlt.value + totalOffen.value + totalLager.value,
     );
     const totalGewinn = computed<number>(() => {
       const sum = productRows.value.reduce((s, r) => s + r.gewinn, 0);
       return sum - shipmentCost.value;
     });
+
+    function getStockUnitPrice(productId: string): number {
+      const p = allProducts.value.find((x) => x.productId === productId);
+      return p?.cost ?? 0;
+    }
 
     function startEdit(): void {
       Object.keys(costMap).forEach((id) => {
@@ -270,15 +339,18 @@ export default defineComponent({
       isSaving,
       fromDate,
       toDate,
+      includeStock,
       productRows,
       totalBezahlt,
       totalOffen,
+      totalLager,
       totalUmsatz,
       totalGewinn,
       shipmentCost,
       editShipmentCost,
       editCostMap,
       onDateChanged,
+      onIncludeStockChanged,
       startEdit,
       cancelEdit,
       saveEdit,
@@ -315,6 +387,15 @@ export default defineComponent({
         </div>
       </div>
 
+      <label class="stock-toggle">
+        <input
+          type="checkbox"
+          v-model="includeStock"
+          v-on:change="onIncludeStockChanged"
+        />
+        <span>Bestand einbeziehen</span>
+      </label>
+
       <div class="totals-card">
         <div class="totals-row">
           <span>Bezahlt</span>
@@ -323,6 +404,10 @@ export default defineComponent({
         <div class="totals-row">
           <span>Offen</span>
           <strong>{{ formatMoney(totalOffen) }}</strong>
+        </div>
+        <div v-if="includeStock" class="totals-row">
+          <span>Lager (Potenzial)</span>
+          <strong>{{ formatMoney(totalLager) }}</strong>
         </div>
         <div class="totals-row totals-row-strong">
           <span>Umsatz</span>
@@ -394,7 +479,20 @@ export default defineComponent({
               ›
             </div>
             <div class="product-name">{{ row.productName }}</div>
-            <div class="product-qty">× {{ row.quantity }}</div>
+            <div class="product-qty">
+              <template v-if="row.soldQty > 0">
+                Verkauft × {{ row.soldQty }}
+              </template>
+              <template v-if="row.soldQty > 0 && row.stockQty > 0">
+                ·
+              </template>
+              <template v-if="row.stockQty > 0">
+                Lager × {{ row.stockQty }}
+              </template>
+              <template v-if="row.soldQty > 0 && row.stockQty > 0">
+                = {{ row.totalQty }}
+              </template>
+            </div>
           </div>
 
           <div
@@ -539,6 +637,23 @@ export default defineComponent({
         background: white;
         min-height: 36px;
       }
+    }
+  }
+
+  .stock-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    user-select: none;
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      margin: 0;
     }
   }
 

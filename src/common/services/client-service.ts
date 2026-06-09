@@ -548,18 +548,20 @@ export class ClientService implements IClientService {
     if (!from || !to) {
       return null;
     }
-    return new DashboardPreferences(from, to);
+    return new DashboardPreferences(from, to, !!data.includeStock);
   }
 
   async saveDashboardPreferences(
     uid: string,
     from: Date,
     to: Date,
+    includeStock: boolean,
   ): Promise<void> {
     const ref = doc(this.collections.dashboardPreferences, uid);
     await setDoc(ref, {
       fromDate: Timestamp.fromDate(from),
       toDate: Timestamp.fromDate(to),
+      includeStock: !!includeStock,
     });
   }
 
