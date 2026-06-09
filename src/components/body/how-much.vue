@@ -14,6 +14,7 @@ import { useRouter } from "vue-router";
 import { ProductCost } from "@/common/models/product-cost";
 import { RangeOrderedProduct } from "@/common/models/range-ordered-product";
 import { Product } from "@/common/models/product";
+import { DashboardSortBy } from "@/common/models/dashboard-preferences";
 import { costAsString } from "@/common/currency-helper";
 
 interface ProductRow {
@@ -76,6 +77,7 @@ export default defineComponent({
     const editShipmentCost = ref<number>(0);
     const expanded = reactive<Record<string, boolean>>({});
     const includeStock = ref<boolean>(false);
+    const sortBy = ref<DashboardSortBy>("name");
 
     function toggleExpanded(productId: string): void {
       expanded[productId] = !expanded[productId];
@@ -98,6 +100,7 @@ export default defineComponent({
         fromDate.value = toInputDate(prefs.fromDate);
         toDate.value = toInputDate(prefs.toDate);
         includeStock.value = prefs.includeStock;
+        sortBy.value = prefs.sortBy;
       } else {
         const today = new Date();
         const past = new Date();
@@ -146,7 +149,12 @@ export default defineComponent({
         from,
         to,
         includeStock.value,
+        sortBy.value,
       );
+    }
+
+    async function onSortChanged(): Promise<void> {
+      await persistPrefs();
     }
 
     async function onDateChanged(): Promise<void> {
@@ -242,7 +250,27 @@ export default defineComponent({
           marge,
         });
       });
-      rows.sort((a, b) => a.productName.localeCompare(b.productName));
+      const byName = (a: ProductRow, b: ProductRow): number =>
+        a.productName.localeCompare(b.productName);
+      switch (sortBy.value) {
+        case "umsatz":
+          rows.sort((a, b) => b.umsatzBrutto - a.umsatzBrutto || byName(a, b));
+          break;
+        case "gewinn":
+          rows.sort((a, b) => b.gewinn - a.gewinn || byName(a, b));
+          break;
+        case "marge":
+          rows.sort(
+            (a, b) =>
+              (b.marge ?? -Infinity) - (a.marge ?? -Infinity) || byName(a, b),
+          );
+          break;
+        case "menge":
+          rows.sort((a, b) => b.totalQty - a.totalQty || byName(a, b));
+          break;
+        default:
+          rows.sort(byName);
+      }
       return rows;
     });
 
@@ -389,6 +417,7 @@ export default defineComponent({
       fromDate,
       toDate,
       includeStock,
+      sortBy,
       productRows,
       totalBezahlt,
       totalOffen,
@@ -401,6 +430,7 @@ export default defineComponent({
       editCostMap,
       onDateChanged,
       onIncludeStockChanged,
+      onSortChanged,
       presetThisMonth,
       presetLastMonth,
       presetThisYear,
@@ -546,6 +576,17 @@ export default defineComponent({
       <div v-else class="shipment-card readonly">
         <span>Versandkosten gesamt</span>
         <strong>{{ formatMoney(shipmentCost) }}</strong>
+      </div>
+
+      <div class="sort-bar">
+        <label>Sortieren</label>
+        <select v-model="sortBy" v-on:change="onSortChanged">
+          <option value="name">Name (A–Z)</option>
+          <option value="umsatz">Umsatz (höchster zuerst)</option>
+          <option value="gewinn">Gewinn (höchster zuerst)</option>
+          <option value="marge">Marge (höchste zuerst)</option>
+          <option value="menge">Stückzahl (meiste zuerst)</option>
+        </select>
       </div>
 
       <Spinner v-if="isLoadingRange" v-bind:withText="false" />
@@ -877,6 +918,31 @@ export default defineComponent({
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
+    }
+  }
+
+  .sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #999;
+      font-weight: 600;
+    }
+
+    select {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      min-height: 34px;
     }
   }
 

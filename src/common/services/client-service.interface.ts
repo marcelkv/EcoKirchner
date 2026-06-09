@@ -9,7 +9,10 @@ import { BankingData } from "@/common/models/banking-data";
 import { UserEntry } from "@/common/models/user-entry";
 import { ProductCost } from "@/common/models/product-cost";
 import { RangeOrderedProduct } from "@/common/models/range-ordered-product";
-import { DashboardPreferences } from "@/common/models/dashboard-preferences";
+import {
+  DashboardPreferences,
+  DashboardSortBy,
+} from "@/common/models/dashboard-preferences";
 
 export interface StorageImage {
   path: string;
@@ -82,5 +85,6 @@ export interface IClientService {
     from: Date,
     to: Date,
     includeStock: boolean,
+    sortBy: DashboardSortBy,
   ): Promise<void>;
 }

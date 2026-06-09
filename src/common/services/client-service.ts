@@ -51,7 +51,10 @@ import { DataToObjectMapper } from "@/common/services/data-to-object-mapper";
 import { Queries } from "@/common/services/queries";
 import { ProductCost } from "@/common/models/product-cost";
 import { RangeOrderedProduct } from "@/common/models/range-ordered-product";
-import { DashboardPreferences } from "@/common/models/dashboard-preferences";
+import {
+  DashboardPreferences,
+  DashboardSortBy,
+} from "@/common/models/dashboard-preferences";
 
 export class Collections {
   readonly products: CollectionReference<DocumentData, DocumentData>;
@@ -548,7 +551,16 @@ export class ClientService implements IClientService {
     if (!from || !to) {
       return null;
     }
-    return new DashboardPreferences(from, to, !!data.includeStock);
+    const sortBy: DashboardSortBy = [
+      "name",
+      "umsatz",
+      "gewinn",
+      "marge",
+      "menge",
+    ].includes(data.sortBy)
+      ? (data.sortBy as DashboardSortBy)
+      : "name";
+    return new DashboardPreferences(from, to, !!data.includeStock, sortBy);
   }
 
   async saveDashboardPreferences(
@@ -556,12 +568,14 @@ export class ClientService implements IClientService {
     from: Date,
     to: Date,
     includeStock: boolean,
+    sortBy: DashboardSortBy,
   ): Promise<void> {
     const ref = doc(this.collections.dashboardPreferences, uid);
     await setDoc(ref, {
       fromDate: Timestamp.fromDate(from),
       toDate: Timestamp.fromDate(to),
       includeStock: !!includeStock,
+      sortBy,
     });
   }
 
