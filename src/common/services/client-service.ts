@@ -11,6 +11,7 @@ import {
   collection,
   doc,
   Firestore,
+  getDoc,
   getDocs,
   getFirestore,
   orderBy,
@@ -48,6 +49,9 @@ import { OrderQuery } from "@/common/models/order-query";
 import { BankingData } from "@/common/models/banking-data";
 import { DataToObjectMapper } from "@/common/services/data-to-object-mapper";
 import { Queries } from "@/common/services/queries";
+import { ProductCost } from "@/common/models/product-cost";
+import { RangeOrderedProduct } from "@/common/models/range-ordered-product";
+import { DashboardPreferences } from "@/common/models/dashboard-preferences";
 
 export class Collections {
   readonly products: CollectionReference<DocumentData, DocumentData>;
@@ -56,6 +60,12 @@ export class Collections {
   readonly paymentData: CollectionReference<DocumentData, DocumentData>;
   readonly userRoles: CollectionReference<DocumentData, DocumentData>;
   readonly userProfiles: CollectionReference<DocumentData, DocumentData>;
+  readonly productCosts: CollectionReference<DocumentData, DocumentData>;
+  readonly settings: CollectionReference<DocumentData, DocumentData>;
+  readonly dashboardPreferences: CollectionReference<
+    DocumentData,
+    DocumentData
+  >;
 
   constructor(firestore: Firestore) {
     this.products = collection(firestore, "products");
@@ -64,6 +74,9 @@ export class Collections {
     this.paymentData = collection(firestore, "paymentData");
     this.userRoles = collection(firestore, "userRoles");
     this.userProfiles = collection(firestore, "userProfiles");
+    this.productCosts = collection(firestore, "productCosts");
+    this.settings = collection(firestore, "settings");
+    this.dashboardPreferences = collection(firestore, "dashboardPreferences");
   }
 }
 
@@ -419,6 +432,135 @@ export class ClientService implements IClientService {
       result.push(productQuantities[key] + ": " + productName);
     }
     return result;
+  }
+
+  async getOrderedProductsInRange(
+    from: Date,
+    to: Date,
+  ): Promise<RangeOrderedProduct[]> {
+    const fromTs = Timestamp.fromDate(from);
+    const toTs = Timestamp.fromDate(to);
+    const ordersQuery = query(
+      this.collections.orders,
+      where("createdAt", ">=", fromTs),
+      where("createdAt", "<=", toTs),
+    );
+    const ordersSnapshot = await getDocs(ordersQuery);
+    const orderIds = ordersSnapshot.docs.map((d) => d.data().orderId as string);
+
+    if (orderIds.length === 0) {
+      return [];
+    }
+
+    const batched = this._batchArray(orderIds, BATCH_SIZE);
+    const snapshots = await Promise.all(
+      batched.map((batch) =>
+        getDocs(
+          query(
+            this.collections.orderedProducts,
+            where("orderId", "in", batch),
+          ),
+        ),
+      ),
+    );
+
+    const result: RangeOrderedProduct[] = [];
+    snapshots.forEach((snap) => {
+      snap.docs.forEach((d) => {
+        const data = d.data();
+        const payedAt: Date =
+          data.payedAt && typeof data.payedAt.toDate === "function"
+            ? data.payedAt.toDate()
+            : getOldDate();
+        const isPayed = payedAt.getFullYear() > 2000 && !!data.payed;
+        result.push(
+          new RangeOrderedProduct(
+            data.productId,
+            data.productName,
+            data.cost,
+            data.quantity,
+            data.totalCost,
+            isPayed,
+          ),
+        );
+      });
+    });
+    return result;
+  }
+
+  async getProductCosts(): Promise<ProductCost[]> {
+    const snapshot = await getDocs(this.collections.productCosts);
+    return snapshot.docs.map((d) => {
+      const data = d.data();
+      return new ProductCost(
+        data.productId,
+        data.rohkosten ?? 0,
+        data.behaelter ?? 0,
+        data.verpackung ?? 0,
+        data.mwst ?? 0,
+      );
+    });
+  }
+
+  async saveProductCost(cost: ProductCost): Promise<void> {
+    const ref = doc(this.collections.productCosts, cost.productId);
+    await setDoc(ref, {
+      productId: cost.productId,
+      rohkosten: Number(cost.rohkosten) || 0,
+      behaelter: Number(cost.behaelter) || 0,
+      verpackung: Number(cost.verpackung) || 0,
+      mwst: Number(cost.mwst) || 0,
+    });
+  }
+
+  async getShipmentCost(): Promise<number> {
+    const ref = doc(this.collections.settings, "global");
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      return 0;
+    }
+    const data = snap.data();
+    return Number(data.shipmentCost) || 0;
+  }
+
+  async saveShipmentCost(amount: number): Promise<void> {
+    const ref = doc(this.collections.settings, "global");
+    await setDoc(ref, { shipmentCost: Number(amount) || 0 }, { merge: true });
+  }
+
+  async getDashboardPreferences(
+    uid: string,
+  ): Promise<DashboardPreferences | null> {
+    const ref = doc(this.collections.dashboardPreferences, uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      return null;
+    }
+    const data = snap.data();
+    const from =
+      data.fromDate && typeof data.fromDate.toDate === "function"
+        ? data.fromDate.toDate()
+        : null;
+    const to =
+      data.toDate && typeof data.toDate.toDate === "function"
+        ? data.toDate.toDate()
+        : null;
+    if (!from || !to) {
+      return null;
+    }
+    return new DashboardPreferences(from, to);
+  }
+
+  async saveDashboardPreferences(
+    uid: string,
+    from: Date,
+    to: Date,
+  ): Promise<void> {
+    const ref = doc(this.collections.dashboardPreferences, uid);
+    await setDoc(ref, {
+      fromDate: Timestamp.fromDate(from),
+      toDate: Timestamp.fromDate(to),
+    });
   }
 
   private _batchArray<T>(array: T[], batchSize: number): T[][] {

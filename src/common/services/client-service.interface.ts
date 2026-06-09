@@ -7,6 +7,9 @@ import { OrderSummary } from "@/common/models/order-summary";
 import { OrderQuery } from "@/common/models/order-query";
 import { BankingData } from "@/common/models/banking-data";
 import { UserEntry } from "@/common/models/user-entry";
+import { ProductCost } from "@/common/models/product-cost";
+import { RangeOrderedProduct } from "@/common/models/range-ordered-product";
+import { DashboardPreferences } from "@/common/models/dashboard-preferences";
 
 export interface StorageImage {
   path: string;
@@ -65,4 +68,14 @@ export interface IClientService {
   listStorageImagesAsync(folder: StorageFolder): Promise<StorageImage[]>;
   getReferencedImagePathsAsync(): Promise<ImageReferences>;
   deleteStorageImageAsync(path: string): Promise<void>;
+  getOrderedProductsInRange(
+    from: Date,
+    to: Date,
+  ): Promise<RangeOrderedProduct[]>;
+  getProductCosts(): Promise<ProductCost[]>;
+  saveProductCost(cost: ProductCost): Promise<void>;
+  getShipmentCost(): Promise<number>;
+  saveShipmentCost(amount: number): Promise<void>;
+  getDashboardPreferences(uid: string): Promise<DashboardPreferences | null>;
+  saveDashboardPreferences(uid: string, from: Date, to: Date): Promise<void>;
 }
